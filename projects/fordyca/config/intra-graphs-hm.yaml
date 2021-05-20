@@ -1,0 +1,30 @@
+HM_arena:
+  graphs:
+    - src_stem: cache-locations
+      title: 'Cache Location Spatial Distribution'
+
+HM_swarm:
+  graphs:
+    - src_stem: cache-acq-vector-locs2D
+      title: 'Cache Vectoring Spatial Distribution'
+
+    - src_stem: cache-acq-locs2D
+      title: 'Cache Acquisition Spatial Distribution'
+
+    - src_stem: cache-acq-explore-locs2D
+      title: 'Cache Exploration Spatial Distribution'
+
+    - src_stem: block-acq-locs2D
+      title: 'Block Acquisition Spatial Distribution'
+
+    - src_stem: block-acq-explore-locs2D
+      title: 'Block Exploration Spatial Distribution'
+
+    - src_stem: block-acq-vector-locs2D
+      title: 'Block Vectoring Spatial Distribution'
+
+    - src_stem: fsm-interference-locs2D
+      title: 'Robot Interference Spatial Distribution'
+
+    - src_stem: swarm-dist-pos2D
+      title: 'Robot Occupancy Spatial Distribution'

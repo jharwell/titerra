@@ -1,0 +1,63 @@
+perf:
+  inverted: false
+
+  intra_perf_csv: 'block-transportee.csv'
+  intra_perf_col: 'int_avg_transported'
+
+  intra_interference_csv: 'fsm-interference-counts.csv'
+  intra_interference_col: 'int_avg_exp_interference'
+
+  intra_tv_environment_csv: 'tv-environment.csv'
+  intra_tv_population_csv: 'tv-population.csv'
+
+  raw_perf_title: 'Blocks Transported (Cumulative Average)'
+  raw_perf_ylabel: '# Blocks'
+
+  # Journal scenario1
+  flexibility:
+    hz: # [5000] second periods
+      - 0.00004
+
+    BC_amp:
+      - 0.1
+      - 0.15
+      - 0.20
+      - 0.25
+      - 0.30
+      - 0.35
+      - 0.40
+
+  robustness:
+    gaussian_ticks_mean_range: [0.0, 0.0]
+    gaussian_ticks_stddev_range: [0.0, 0.03]
+    gaussian_ticks_src: stddev
+    gaussian_labels_show: stddev
+
+    sensors:
+      light:
+        model: gaussian
+        mean_range: [0.0, 0.0]
+        stddev_range: [0.0, 0.03]
+      proximity:
+        model: gaussian
+        mean_range: [0.0, 0.0]
+        stddev_range: [0.0, 0.03]
+      ground:
+        model: gaussian
+        mean_range: [0.0, 0.0]
+        stddev_range: [0.0, 0.03]
+      steering:
+        model: gaussian
+        mean_range: [0.0, 0.0]
+        stddev_range: [0.0, 0.03]
+      position:
+        model: gaussian
+        mean_range: [0.0, 0.0]
+        stddev_range: [0.0, 0.03]
+
+    actuators:
+      steering:
+        model: gaussian
+        # Factor of 1.0 = normal operation, so inject noise around that setpoint
+        mean_range: [1.0, 1.0]
+        stddev_range: [0.0, 0.03]

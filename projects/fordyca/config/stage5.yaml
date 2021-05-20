@@ -1,0 +1,109 @@
+# Intra-scenario
+intra_scenario:
+  graphs:
+    # raw performance
+    - src_stem: PM-ss-raw
+      dest_stem: cc-PM-ss-raw
+      title: ''
+      label: 'Avg. Object Collection Rate'
+      exclude_exp0: False
+
+    # scalability
+    - src_stem: PM-ss-scalability-parallel-frac
+      dest_stem: cc-PM-ss-scalability-parallel-frac
+      title: ''
+      label: 'Scalability Value'
+      exclude_exp0: True
+
+      # self-organization
+    - src_stem: PM-ss-self-org-ifl
+      dest_stem: cc-PM-ss-self-org-ifl
+      title: ''
+      label: 'Self-Organization Value'
+      exclude_exp0: True
+
+    - src_stem: PM-ss-self-org-mfl
+      dest_stem: cc-PM-ss-self-org-mfl
+      title: ''
+      label: 'Self-Organization Value'
+      exclude_exp0: True
+
+    - src_stem: PM-ss-self-org-mpg
+      dest_stem: cc-PM-ss-self-org-mpg
+      title: ''
+      label: 'Self-Organization Value'
+      exclude_exp0: True
+
+      # flexibility
+    - src_stem: PM-ss-reactivity
+      dest_stem: cc-PM-ss-reactivity
+      title: ''
+      label: '$DTW(P_{R^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
+      exclude_exp0: True
+
+    - src_stem: PM-ss-adaptability
+      dest_stem: cc-PM-ss-adaptability
+      title: ''
+      label: '$DTW(P_{A^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
+      exclude_exp0: True
+
+    - src_stem: PM-ss-robustness-pd
+      dest_stem: cc-PM-ss-robustness-pd
+      title: ''
+      label: 'Robustness Value'
+      exclude_exp0: True
+
+    # robustness
+    - src_stem: PM-ss-robustness-saa
+      dest_stem: cc-PM-ss-robustness-saa
+      title: ''
+      label: '$CL(P_{ideal}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
+      exclude_exp0: True
+
+# Inter-scenario
+inter_scenario:
+  graphs:
+    # # raw performance
+    # - src_stem: PM-ss-raw
+    #   dest_stem: sc-PM-ss-raw
+    #   title: 'Swarm Performance'
+    #   label: 'Block Collection Rate $P(\mathcal{N})$'
+    #   exclude_exp0: False
+
+    #   # scalability
+    # - src_stem: PM-ss-scalability-parallel-frac
+    #   dest_stem: sc-PM-ss-scalability-parallel-frac
+    #   title: 'Swarm Scalability (Parallel Fraction)'
+    #   label: '$\log_{2}(Scalability Value)$'
+    #   exclude_exp0: True
+
+      # self-organization
+    - src_stem: PM-ss-self-org-mfl
+      dest_stem: sc-PM-ss-self-org-mfl
+      title: 'Swarm Spatial Self Organization'
+      label: '$\log_{2}(Self-Organization Value)$'
+      exclude_exp0: True
+
+    - src_stem: PM-ss-self-org-ifl
+      dest_stem: sc-PM-ss-self-org-ifl
+      title: 'Swarm Spatial Self Organization'
+      label: '$\log_{2}(Self-Organization Value)$'
+      exclude_exp0: True
+
+    - src_stem: block-transporter-homing-nest-int-avg
+      dest_stem: sc-N_h
+      title: 'Homing ($\mathcal{N}_h$)'
+      label: '$\log_{2}(\# Robots)$'
+      exclude_exp0: False
+
+    - src_stem: block-acq-counts-true-exploring-int-avg
+      dest_stem: sc-N_s
+      title: 'Searching ($\mathcal{N}_s$)'
+      label: '$\log_{2}(\# Robots)$'
+      exclude_exp0: False
+
+    - src_stem: interference-in-int-avg
+      dest_stem: sc-N_av
+      title: 'Collision Avoidance ($\mathcal{N}_{av}^s+\mathcal{N}_{av}^h$)'
+      label: '$\log_{2}(\# Robots)$'
+      exclude_exp0: False
