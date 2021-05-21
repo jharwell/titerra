@@ -32,8 +32,11 @@ class Cmdline(sierra.core.cmdline.CoreCmdline):
     :class:`~sierra.core.cmdline.CoreCmdline`.
     """
 
-    def __init__(self, super_scaffold: bool = False) -> None:
-        super().__init__(super_scaffold)
+    def __init__(self, bootstrap, stages: tp.List[int], for_sphinx: bool) -> None:
+        super().scaffold_cli(bootstrap)
+
+        if not for_sphinx:
+            super().init_cli(stages)
 
         self.parser.add_argument("--scenario",
                                  metavar="<block dist>.AxBxC",
@@ -66,7 +69,6 @@ class Cmdline(sierra.core.cmdline.CoreCmdline):
         """
         # Stage1
         updates = {
-            'controller': cli_args.controller,
             'scenario': cli_args.scenario,
         }
         cmdopts.update(updates)

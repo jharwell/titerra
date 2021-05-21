@@ -37,6 +37,8 @@ import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment_spec import ExperimentSpec
 import sierra.core.variables.time_setup as ts
 from sierra.core.xml_luigi import XMLAttrChangeSet
+import sierra.core.config
+import sierra.core.variables.time_setup as ts
 
 import projects.fordyca.models.representation as rep
 from projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots, IntraExp_WallInterferenceRate_1Robot
@@ -122,12 +124,13 @@ class IntraExp_ODE_1Robot():
                          exp_num: int,
                          cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, float]:
         fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
-                                                            'fsm-interference-counts.csv'))
+                                                                   'fsm-interference-counts.csv'))
 
         # T,n_datapoints are directly from simulation inputs
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
-        T_in_secs = ts.ARGoSTimeSetup.extract_explen(XMLAttrChangeSet.unpickle(spec.exp_def_fpath))
-        T = T_in_secs * ts.kTICKS_PER_SECOND
+        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
+        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+        T = time_params['T_in_secs'] * time_params['ticks_per_sec']
 
         n_datapoints = len(fsm_counts_df.index)
 
@@ -236,14 +239,15 @@ class IntraExp_ODE_NRobots():
                          exp_num: int,
                          cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, float]:
         fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
-                                                            'fsm-interference-counts.csv'))
+                                                                   'fsm-interference-counts.csv'))
 
         # N,T,n_datapoints are directly from simulation inputs
         N = criteria.populations(cmdopts)[exp_num]
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
-        T_in_secs = ts.ARGoSTimeSetup.extract_explen(XMLAttrChangeSet.unpickle(spec.exp_def_fpath))
-        T = T_in_secs * ts.kTICKS_PER_SECOND
+        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
+        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+        T = time_params['T_in_secs'] * time_params['ticks_per_sec']
         n_datapoints = len(fsm_counts_df.index)
 
         # This is OK to read from experimental data, per the paper.
@@ -258,9 +262,9 @@ class IntraExp_ODE_NRobots():
         # FIXME: N_av1 COULD be computed a priori, but I don't have time to do it right now, so I
         # just read it from simulation results.
         fsm_counts1_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
-                                                             'fsm-interference-counts.csv'))
+                                                                    'fsm-interference-counts.csv'))
         fsm_countsN_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
-                                                             'fsm-interference-counts.csv'))
+                                                                    'fsm-interference-counts.csv'))
 
         N_av1 = fsm_counts1_df['int_avg_exp_interference'].iloc[-1]
         N_avN = fsm_countsN_df['cum_avg_exp_interference'].iloc[-1]
@@ -270,6 +274,7 @@ class IntraExp_ODE_NRobots():
         alpha_bN = acq.run(criteria, exp_num, cmdopts)[0]
         crwD = diffusion.crwD_for_avoiding(N=N,
                                            wander_speed=float(self.config['wander_mean_speed']),
+                                           ticks_per_sec=time_params['ticks_per_sec'],
                                            scenario=cmdopts['scenario'])
 
         params = {

@@ -34,6 +34,8 @@ from sierra.core.experiment_spec import ExperimentSpec
 import projects.fordyca.models.representation as rep
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
+from sierra.core.xml_luigi import XMLAttrChangeSet
+import sierra.core.variables.time_setup as ts
 
 from projects.fordyca.models.density import BlockAcqDensity
 from projects.fordyca.models.dist_measure import DistanceMeasure2D
@@ -67,13 +69,18 @@ class IntraExp_BlockAcqRate_NRobots():
     From :xref:`Harwell2021a`.
     """
     @staticmethod
-    def _kernel(N: float, wander_speed: float, avg_acq_dist: float, scenario: str) -> float:
+    def _kernel(N: float,
+                wander_speed: float,
+                ticks_per_sec: int,
+                avg_acq_dist: float,
+                scenario: str) -> float:
         """
         Calculates the CRW Diffusion constant in :xref:`Harwell2021a` for bounded arena geometry,
         inspired by the results in :xref:`Codling2010`.
         """
         D = diffusion.crwD_for_searching(N=N,
                                          wander_speed=wander_speed,
+                                         ticks_per_sec=ticks_per_sec,
                                          scenario=scenario)
 
         diff_time = avg_acq_dist ** 2 / (2 * D)
@@ -128,12 +135,18 @@ class IntraExp_BlockAcqRate_NRobots():
         avg_acq_dist = dist / len(result_opaths)
         n_robots = criteria.populations(cmdopts)[exp_num]
 
+        spec = ExperimentSpec(criteria, exp_num, cmdopts)
+        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
+        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+
         alpha_b = self._kernel(N=n_robots,
                                wander_speed=float(self.config['wander_mean_speed']),
+                               ticks_per_sec=time_params['ticks_per_sec'],
                                avg_acq_dist=avg_acq_dist,
                                scenario=cmdopts['scenario'])
 
-        rate_df = sierra.core.utils.pd_csv_read(os.path.join(result_opath, 'block-manipulation.csv'))
+        rate_df = sierra.core.utils.pd_csv_read(
+            os.path.join(result_opath, 'block-manipulation.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=rate_df.index)
@@ -190,7 +203,7 @@ class IntraExp_BlockCollectionRate_NRobots():
                          main_config: tp.Dict[str, tp.Any],
                          config: tp.Dict[str, tp.Any]):
         block_manip_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
-                                                             'block-manipulation.csv'))
+                                                                    'block-manipulation.csv'))
 
         # Calculate acquisition rate
         alpha_bN = IntraExp_BlockAcqRate_NRobots(main_config, config).run(criteria,
@@ -227,7 +240,7 @@ class IntraExp_BlockCollectionRate_NRobots():
             exp_num: int,
             cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
         rate_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
-                                                      'block-manipulation.csv'))
+                                                             'block-manipulation.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=rate_df.index)

@@ -204,8 +204,8 @@ LN_block_trans:
     - src_stem: block-transporter
       dest_stem: block-transporter-homing-nest
       cols:
-        - int_avg_phototaxiing_to_goal
-        - cum_avg_phototaxiing_to_goal
+        - int_avg_phototaxiing_to_goal_no_ca
+        - cum_avg_phototaxiing_to_goal_no_ca
       title: 'Swarm Homing Counts'
       legend:
         - 'Average # Robots Phototaxiing To Nest (Interval)'

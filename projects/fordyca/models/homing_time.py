@@ -34,6 +34,9 @@ import sierra.core.utils
 import sierra.core.variables.time_setup as ts
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
+from sierra.core.experiment_spec import ExperimentSpec
+from sierra.core.xml_luigi import XMLAttrChangeSet
+
 import projects.fordyca.models.representation as rep
 from projects.fordyca.models.density import BlockAcqDensity
 from projects.fordyca.models.dist_measure import DistanceMeasure2D
@@ -110,14 +113,15 @@ class IntraExp_HomingTime_1Robot():
         else:
             result_opaths = [os.path.join(cmdopts['exp_stat_root'])]
 
-        cluster_df = sierra.core.utils.pd_csv_read(os.path.join(result_opaths[0], 'block-clusters.csv'))
+        cluster_df = sierra.core.utils.pd_csv_read(
+            os.path.join(result_opaths[0], 'block-clusters.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=cluster_df.index)
         res_df['model'] = 0.0
 
         for result in result_opaths:
-            self._calc_for_result(cmdopts, result, nest, res_df)
+            self._calc_for_result(criteria, exp_num, cmdopts, result, nest, res_df)
 
         # Average our results
         res_df['model'] /= len(result_opaths)
@@ -126,6 +130,8 @@ class IntraExp_HomingTime_1Robot():
         return [res_df]
 
     def _calc_for_result(self,
+                         criteria: bc.IConcreteBatchCriteria,
+                         exp_num: int,
                          cmdopts: tp.Dict[str, tp.Any],
                          result_opath: str,
                          nest: rep.Nest,
@@ -137,8 +143,12 @@ class IntraExp_HomingTime_1Robot():
         # compute the average time, in SECONDS, that robots spend returning to the nest.
         avg_homing_sec = avg_dist / float(self.config['homing_mean_speed'])
 
+        spec = ExperimentSpec(criteria, exp_num, cmdopts)
+        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
+        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+
         # Convert seconds to timesteps for displaying on graphs
-        avg_homing_ts = avg_homing_sec * ts.kTICKS_PER_SECOND
+        avg_homing_ts = avg_homing_sec * time_params['ticks_per_sec']
 
         # All done!
         res_df['model'] += avg_homing_ts
@@ -228,7 +238,7 @@ class IntraExp_HomingTime_NRobots():
             cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
 
         cluster_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
-                                                         'block-clusters.csv'))
+                                                                'block-clusters.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=cluster_df.index)

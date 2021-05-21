@@ -24,11 +24,12 @@ import pandas as pd
 # Project packages
 import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
-import sierra.core.generators.scenario_generator_parser as sgp
-import projects.fordyca.variables.nest as np
 from sierra.core.experiment_spec import ExperimentSpec
 from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
+
+import projects.titan.generators.scenario_generator_parser as sgp
+import projects.fordyca.variables.nest as np
 
 
 class BlockCluster():
@@ -69,7 +70,7 @@ class Nest():
         # Get nest position
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         res = sgp.ScenarioGeneratorParser().to_dict(cmdopts['scenario'])
-        pose = np.Nest(res['dist_type'], [spec.arena_dim])
+        pose = np.Nest(res['scenario_tag'], [spec.arena_dim])
 
         for path, attr, val in pose.gen_attr_changelist()[0]:
             if 'nest' in path and 'center' in attr:

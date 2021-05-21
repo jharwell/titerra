@@ -20,6 +20,7 @@ See :ref:`ln-var-ts` for documentation and usage.
 
 # Core packages
 import typing as tp
+import re
 
 # 3rd party packages
 import implements
@@ -28,6 +29,13 @@ import implements
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.xml_luigi import XMLAttrChangeSet, XMLAttrChange, XMLTagRmList, XMLTagAddList
 import sierra.core.variables.time_setup as ts
+
+
+kND_DATA_DIVISOR_DEFAULT = 10
+"""
+Default divisor for the output interval for  each .csv of two- or three-dimensional data, as
+compared to the output interval for 1D data.
+"""
 
 
 @implements.implements(IBaseVariable)
@@ -47,7 +55,7 @@ class TimeSetup():
                                                                 "{0}".format(self.metric_interval)),
                                                   XMLAttrChange(".//output/metrics/create",
                                                                 "output_interval",
-                                                                "{0}".format(max(1, self.metric_interval / ts.kND_DATA_DIVISOR))))]
+                                                                "{0}".format(max(1, self.metric_interval / kND_DATA_DIVISOR_DEFAULT))))]
 
         return self.attr_changes
 
@@ -62,27 +70,27 @@ class Parser(ts.Parser):
     pass
 
 
-def factory(cmdline: str) -> TimeSetup:
+def factory(arg: str) -> TimeSetup:
     """
     Factory to create :class:`TimeSetup` derived classes from the command line definition.
 
     Parameters:
-       cmdline: The value of ``--time-setup``
+       arg: The value of ``--time-setup``
     """
-    attr = Parser()(cmdline.split(".")[1])
+    name = '.'.join(arg.split(".")[1:])
+    attr = Parser()(arg)
 
     def __init__(self) -> None:
         TimeSetup.__init__(self,
                            attr["duration"],
-                           int(attr["duration"] * ts.kTICKS_PER_SECOND / attr["n_datapoints"]))
+                           int(attr["duration"] * attr['n_ticks_per_sec'] / attr["n_datapoints"]))
 
-    return type(cmdline,  # type: ignore
+    return type(name,  # type: ignore
                 (TimeSetup,),
                 {"__init__": __init__})
 
 
 __api__ = [
-    'k1D_DATA_POINTS',
-    'kND_DATA_DIVISOR',
+    'kND_DATA_DIVISOR_DEFAULT',
     'TimeSetup',
 ]

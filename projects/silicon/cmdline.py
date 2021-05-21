@@ -17,8 +17,12 @@
 Command line parsing and validation classes for the SILICON project.
 """
 
+# Core packages
 import typing as tp
 
+# 3rd party packages
+
+# Project packages
 import projects.titan as titan
 
 
@@ -28,8 +32,8 @@ class Cmdline(titan.cmdline.Cmdline):
     :class:`~core.cmdline.CoreCmdline`.
     """
 
-    def __init__(self, super_scaffold: bool = False):
-        super().__init__(super_scaffold)
+    def __init__(self, bootstrap, stages, for_sphinx):
+        super().__init__(bootstrap, stages, for_sphinx)
 
         self.parser.add_argument("--controller",
                                  metavar="{depth0}.<controller>",
@@ -107,10 +111,9 @@ class CmdlineValidator(titan.cmdline.CmdlineValidator):
     pass
 
 
-def sphinx_cmdline():
-    """
-    Return a handle to the :xref:`SILICON` cmdline extensions to autogenerate nice documentation
-    from it.
+def sphinx_cmdline_multistage():
+    return Cmdline(None, [-1], True).parser
 
-    """
-    return Cmdline(True).parser
+
+def sphinx_cmdline_stage1():
+    return Cmdline(None, [1], True).parser

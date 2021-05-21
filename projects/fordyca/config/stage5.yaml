@@ -6,59 +6,70 @@ intra_scenario:
       dest_stem: cc-PM-ss-raw
       title: ''
       label: 'Avg. Object Collection Rate'
-      exclude_exp0: False
+      primary_axis: 0
+      include_exp: '2:'
 
     # scalability
     - src_stem: PM-ss-scalability-parallel-frac
       dest_stem: cc-PM-ss-scalability-parallel-frac
       title: ''
       label: 'Scalability Value'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '2:'
 
       # self-organization
     - src_stem: PM-ss-self-org-ifl
       dest_stem: cc-PM-ss-self-org-ifl
       title: ''
       label: 'Self-Organization Value'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '2:'
 
     - src_stem: PM-ss-self-org-mfl
       dest_stem: cc-PM-ss-self-org-mfl
       title: ''
       label: 'Self-Organization Value'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '2:'
 
     - src_stem: PM-ss-self-org-mpg
       dest_stem: cc-PM-ss-self-org-mpg
       title: ''
       label: 'Self-Organization Value'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '2:'
 
       # flexibility
     - src_stem: PM-ss-reactivity
       dest_stem: cc-PM-ss-reactivity
       title: ''
       label: '$DTW(P_{R^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '1:'
 
     - src_stem: PM-ss-adaptability
       dest_stem: cc-PM-ss-adaptability
       title: ''
       label: '$DTW(P_{A^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '1:'
 
     - src_stem: PM-ss-robustness-pd
       dest_stem: cc-PM-ss-robustness-pd
       title: ''
       label: 'Robustness Value'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '1:'
+
 
     # robustness
     - src_stem: PM-ss-robustness-saa
       dest_stem: cc-PM-ss-robustness-saa
       title: ''
       label: '$CL(P_{ideal}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
-      exclude_exp0: True
+      primary_axis: 0
+      include_exp: '1:'
+
 
 # Inter-scenario
 inter_scenario:
@@ -75,20 +86,20 @@ inter_scenario:
     #   dest_stem: sc-PM-ss-scalability-parallel-frac
     #   title: 'Swarm Scalability (Parallel Fraction)'
     #   label: '$\log_{2}(Scalability Value)$'
-    #   exclude_exp0: True
+    #
 
       # self-organization
     - src_stem: PM-ss-self-org-mfl
       dest_stem: sc-PM-ss-self-org-mfl
       title: 'Swarm Spatial Self Organization'
       label: '$\log_{2}(Self-Organization Value)$'
-      exclude_exp0: True
+
 
     - src_stem: PM-ss-self-org-ifl
       dest_stem: sc-PM-ss-self-org-ifl
       title: 'Swarm Spatial Self Organization'
       label: '$\log_{2}(Self-Organization Value)$'
-      exclude_exp0: True
+
 
     - src_stem: block-transporter-homing-nest-int-avg
       dest_stem: sc-N_h

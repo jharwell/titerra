@@ -116,14 +116,14 @@ LN_block_trans:
 
     - src_stem: block-transporter
       dest_stem: block-transporter-homing-nest-int-avg
-      col: int_avg_phototaxiing_to_goal_including_ca
+      col: int_avg_phototaxiing_to_goal_no_ca
       title: 'Average # Robots Homing (Interval)'
       xlabel: 'Interval'
       ylabel: '# Robots'
 
     - src_stem: block-transporter
       dest_stem: block-transporter-homing-nest-cum-avg
-      col: cum_avg_phototaxiing_to_goal_including_ca
+      col: cum_avg_phototaxiing_to_goal_no_ca
       title: 'Average # Robots Homing (Cumulative)'
       xlabel: 'Interval'
       ylabel: '# Robots'
