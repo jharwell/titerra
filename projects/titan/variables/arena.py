@@ -31,7 +31,6 @@ from sierra.core.xml_luigi import XMLAttrChange, XMLAttrChangeSet, XMLTagRmList,
 
 @implements.implements(IBaseVariable)
 class RectangularArena():
-
     """
     Maps a list of desired arena dimensions to a list of sets of XML changes to set up the arena for
     the TITARRA project. This includes setup for the following C++ TITARRA components:

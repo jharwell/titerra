@@ -32,33 +32,30 @@ class Cmdline(sierra.core.cmdline.CoreCmdline):
     :class:`~sierra.core.cmdline.CoreCmdline`.
     """
 
-    def __init__(self, bootstrap, stages: tp.List[int], for_sphinx: bool) -> None:
-        super().scaffold_cli(bootstrap)
+    def init_multistage(self, for_sphinx: bool):
+        super().init_multistage(for_sphinx)
 
-        if not for_sphinx:
-            super().init_cli(stages)
+        self.multistage.add_argument("--scenario",
+                                     metavar="<block dist>.AxBxC",
+                                     help="""
 
-        self.parser.add_argument("--scenario",
-                                 metavar="<block dist>.AxBxC",
-                                 help="""
+                                     Which scenario the swarm comprised of robots running the controller specified via
+                                     ``--controller`` should be run in.
 
-                                 Which scenario the swarm comprised of robots running the controller specified via
-                                 ``--controller`` should be run in.
+                                     A scenario is defined as: block distribution type + arena dimensions. This is
+                                     somewhat tied to foraging and other similar applications for the moment, but this
+                                     may be modified in a future version of TITERRA.
 
-                                 A scenario is defined as: block distribution type + arena dimensions. This is somewhat
-                                 tied to foraging and other similar applications for the moment, but this may be
-                                 modified in a future version of TITERRA.
+                                     Valid block distribution types:
 
-                                 Valid block distribution types:
+                                     - ``RN`` - Random
+                                     - ``SS`` - Single source
+                                     - ``DS`` - Dual source
+                                     - ``QS`` - Quad source
+                                     - ``PL`` - Power law
 
-                                 - ``RN`` - Random
-                                 - ``SS`` - Single source
-                                 - ``DS`` - Dual source
-                                 - ``QS`` - Quad source
-                                 - ``PL`` - Power law
-
-                                 A,B,C are the scenario X,Y,Z dimensions respectively (which can be any postive INTEGER
-                                 values). All dimensions are required.
+                                     A,B,C are the scenario X,Y,Z dimensions respectively (which can be any postive
+                                     INTEGER values). All dimensions are required.
 
                                  """ + self.stage_usage_doc([1, 2, 3, 4]))
 

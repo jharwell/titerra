@@ -33,15 +33,20 @@ class Cmdline(titan.cmdline.Cmdline):
     """
 
     def __init__(self, bootstrap, stages: tp.List[int], for_sphinx: bool) -> None:
-        super().__init__(bootstrap, stages, for_sphinx)
+        super().scaffold_cli(bootstrap)
 
-        if -1 in stages:
-            self.__init_multistage()
+        if not for_sphinx:
+            super().init_cli(stages, for_sphinx)
 
-        if 1 in stages:
-            self.__init_stage1()
+        if -1 in stages and for_sphinx:
+            self.init_multistage(for_sphinx)
 
-    def __init_multistage(self):
+        if 1 in stages and for_sphinx:
+            self.init_stage1(for_sphinx)
+
+    def init_multistage(self, for_sphinx: bool):
+        super().init_multistage(for_sphinx)
+
         self.multistage.add_argument("--controller",
                                      metavar="{d0, d1, d2}.<controller>",
                                      choices=['d0.CRW',
@@ -66,7 +71,9 @@ class Cmdline(titan.cmdline.Cmdline):
                                  """ + self.stage_usage_doc([1, 2, 3, 4, 5],
                                                             "Only required for stage 5 if ``--scenario-comp`` is passed."))
 
-    def __init_stage1(self):
+    def init_stage1(self, for_sphinx: bool):
+        super().init_stage1(for_sphinx)
+
         self.stage1.add_argument("--static-cache-blocks",
                                  help="""
 

@@ -71,7 +71,7 @@ class IntraExp_HomingTime_1Robot():
        it does not require ANY experimental data, and can be computed from first principles, so it
        is always OK to :method:`run()` it.
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
 
     """
 
@@ -161,7 +161,7 @@ class IntraExp_HomingTime_NRobots():
     nest after it has picked up an object during foraging during a single experiment within a
     batch.
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
 
     """
     @staticmethod
@@ -263,7 +263,7 @@ class InterExp_HomingTime_NRobots():
        This model does not have a kernel() function which computes the calculation, because
        it is a summary model, built on simpler intra-experiment models.
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
     """
 
     def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]) -> None:

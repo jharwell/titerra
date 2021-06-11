@@ -18,10 +18,10 @@
 # core packages
 import math
 import typing as tp
+import logging
 
 # 3rd party packages
 import implements
-import logging
 
 # Project packages
 from sierra.core.variables.base_variable import IBaseVariable
@@ -31,7 +31,6 @@ from sierra.core.xml_luigi import XMLAttrChangeSet, XMLTagRmList, XMLTagAddList,
 
 @implements.implements(IBaseVariable)
 class BaseDistribution():
-
     """
     Defines the type of distribution of objects in the arena.
 

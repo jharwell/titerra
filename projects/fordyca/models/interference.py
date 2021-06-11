@@ -74,7 +74,7 @@ class IntraExp_WallInterferenceRate_1Robot():
        - :math:`\tau_{av}^1`
        - :math:`\tau_{ca}^1`
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
 
     """
     @staticmethod
@@ -106,7 +106,7 @@ class IntraExp_WallInterferenceRate_1Robot():
     @staticmethod
     def calc_kernel_args(exp_stat_root: str) -> tp.Dict[str, pd.DataFrame]:
         fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(exp_stat_root,
-                                                            'fsm-interference-counts.csv'))
+                                                                   'fsm-interference-counts.csv'))
         return {
             'N_av1': fsm_counts_df['cum_avg_exp_interference'],
             'tau_av1': fsm_counts_df['cum_avg_interference_duration']
@@ -135,7 +135,8 @@ class IntraExp_WallInterferenceRate_1Robot():
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
 
-        fsm_df = sierra.core.utils.pd_csv_read(os.path.join(result_opath, 'fsm-interference-counts.csv'))
+        fsm_df = sierra.core.utils.pd_csv_read(
+            os.path.join(result_opath, 'fsm-interference-counts.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=fsm_df.index)
@@ -174,7 +175,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
        - :math:`\tau_{av}^N`
        - :math:`\tau_{ca}^N`
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
 
     """
     @staticmethod
@@ -228,7 +229,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
         # Add additional args for N robot case
         resultN_opath = os.path.join(cmdopts['exp_stat_root'])
         fsm_countsN_df = sierra.core.utils.pd_csv_read(os.path.join(resultN_opath,
-                                                             'fsm-interference-counts.csv'))
+                                                                    'fsm-interference-counts.csv'))
 
         kargs['N_avN'] = fsm_countsN_df['cum_avg_exp_interference']
         kargs['tau_avN'] = fsm_countsN_df['cum_avg_interference_duration']
@@ -257,7 +258,8 @@ class IntraExp_RobotInterferenceRate_NRobots():
             cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
-        fsm_df = sierra.core.utils.pd_csv_read(os.path.join(result_opath, 'fsm-interference-counts.csv'))
+        fsm_df = sierra.core.utils.pd_csv_read(
+            os.path.join(result_opath, 'fsm-interference-counts.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=fsm_df.index)
@@ -282,7 +284,7 @@ class IntraExp_RobotInterferenceTime_NRobots():
     This model has a `:meth:`kernel()` function which computes the calculation, enabling this
     model to be used as a building block without necessarily needing to be :meth:`run()`.
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021`.
 
     """
     @staticmethod
@@ -356,7 +358,8 @@ class IntraExp_RobotInterferenceTime_NRobots():
             cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
-        fsm_df = sierra.core.utils.pd_csv_read(os.path.join(result_opath, 'fsm-interference-counts.csv'))
+        fsm_df = sierra.core.utils.pd_csv_read(
+            os.path.join(result_opath, 'fsm-interference-counts.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=fsm_df.index)

@@ -16,7 +16,7 @@
 
 r"""
 Models of the steady state collective foraging behavior of a swarm of :math:`\mathcal{N}` CRW
-robots. Used in the :xref:`Harwell2021a` paper.
+robots. Used in the :xref:`Harwell2021b` paper.
 
 """
 
@@ -311,7 +311,7 @@ class InterExp_ODE_NRobots():
        This model does not have a kernel() function which computes the calculation, because
        it is a summary model, built on simpler intra-experiment models.
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
     """
 
     def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]) -> None:
@@ -388,7 +388,7 @@ class InterExp_ODEWrapper_NRobots():
         This model does not have a kernel() function which computes the calculation, because
         it is a summary model, built on simpler inter-experiment models.
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
 
     """
 

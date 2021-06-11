@@ -15,7 +15,7 @@
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
 """
-Extensions to :class:`sierra.core.generators.BaseScenarioGenerator` common to all TITAN scenarios.
+Extensions to :class:`sierra.core.generators.ARGoSScenarioGenerator` common to all TITAN scenarios.
 """
 # Core packages
 
@@ -32,19 +32,19 @@ class ForagingScenarioGenerator(ARGoSScenarioGenerator):
     def __init__(self, *args, **kwargs) -> None:
         ARGoSScenarioGenerator.__init__(self, *args, **kwargs)
 
-    def generate_arena_map(self, exp_def: XMLLuigi, arena: arena.RectangularArena) -> None:
+    def generate_arena_map(self, exp_def: XMLLuigi, the_arena: arena.RectangularArena) -> None:
         """
         Generate XML changes for the specified arena map configuration.
 
         Writes generated changes to the simulation definition pickle file.
         """
-        chgs = arena.gen_attr_changelist()[0]
+        chgs = the_arena.gen_attr_changelist()[0]
         for chg in chgs:
             exp_def.attr_change(chg.path, chg.attr, chg.value)
 
         chgs.pickle(self.spec.exp_def_fpath)
 
-        rms = arena.gen_tag_rmlist()
+        rms = the_arena.gen_tag_rmlist()
         if rms:  # non-empty
             for a in rms[0]:
                 exp_def.tag_remove(a[0], a[1])
@@ -61,7 +61,7 @@ class ForagingScenarioGenerator(ARGoSScenarioGenerator):
                                 "n_threads",
                                 str(self.cmdopts["physics_n_engines"]))
 
-    @ staticmethod
+    @staticmethod
     def generate_block_dist(exp_def: XMLLuigi,
                             block_dist: block_distribution.BaseDistribution) -> None:
         """
@@ -384,6 +384,7 @@ class PLGenerator(ForagingScenarioGenerator):
 
 
 __api__ = [
+    'ForagingScenarioGenerator',
     'SSGenerator',
     'DSGenerator',
     'QSGenerator',

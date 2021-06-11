@@ -29,7 +29,7 @@ def crwD_for_searching(N: float,
                        scenario: str) -> float:
     """
     Approximates the diffusion constant in a swarm of N CRW robots for bounded arena geometry for
-    when searching. From :xref:`Harwell2021a`, inspired by the results in :xref:`Codling2010`.
+    when searching. From :xref:`Harwell2021b`, inspired by the results in :xref:`Codling2010`.
 
     """
     tick_len = 1.0 / ticks_per_sec
@@ -53,7 +53,7 @@ def crwD_for_searching(N: float,
 def crwD_for_avoiding(N: float, wander_speed: float, ticks_per_sec: int, scenario: str) -> float:
     """
     Approximates the diffusion constant in a swarm of N CRW robots for bounded arena geometry for
-    collision avoidance. From :xref:`Harwell2021a`, inspired by the results in :xref:`Codling2010`.
+    collision avoidance. From :xref:`Harwell2021b`, inspired by the results in :xref:`Codling2010`.
 
     """
     D = crwD_for_searching(N, wander_speed, ticks_per_sec, scenario) * 1.0 / 0.055

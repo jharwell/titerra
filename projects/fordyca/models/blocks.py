@@ -66,7 +66,7 @@ class IntraExp_BlockAcqRate_NRobots():
        it does not require ANY experimental data, and can be computed from first principles, so it
        is always OK to :method:`run()` it.
 
-    From :xref:`Harwell2021a`.
+    From :xref:`Harwell2021b`.
     """
     @staticmethod
     def _kernel(N: float,
@@ -75,7 +75,7 @@ class IntraExp_BlockAcqRate_NRobots():
                 avg_acq_dist: float,
                 scenario: str) -> float:
         """
-        Calculates the CRW Diffusion constant in :xref:`Harwell2021a` for bounded arena geometry,
+        Calculates the CRW Diffusion constant in :xref:`Harwell2021b` for bounded arena geometry,
         inspired by the results in :xref:`Codling2010`.
         """
         D = diffusion.crwD_for_searching(N=N,

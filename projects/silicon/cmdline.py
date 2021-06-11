@@ -33,24 +33,38 @@ class Cmdline(titan.cmdline.Cmdline):
     """
 
     def __init__(self, bootstrap, stages, for_sphinx):
-        super().__init__(bootstrap, stages, for_sphinx)
+        super().scaffold_cli(bootstrap)
 
-        self.parser.add_argument("--controller",
-                                 metavar="{depth0}.<controller>",
-                                 help="""
+        if not for_sphinx:
+            super().init_cli(stages)
 
-                                 Which controller footbot robots will use in the construction experiment. All robots use the
-                                 same controller (homogeneous swarms).
+        if -1 in stages:
+            self.init_multistage(for_sphinx)
 
-                                 Valid controllers:
+        if 1 in stages:
+            self.init_stage1(for_sphinx)
 
-                                 - depth0.{DPOB}
+    def init_multistage(self, for_sphinx: bool):
+        super().init_multistage(for_sphinx)
 
-                                 Head over to the :xref:`SILICON` docs for the descriptions of these controllers.
+        self.multistage.add_argument("--controller",
+                                     metavar="{depth0}.<controller>",
+                                     help="""
 
-                                 Use=stage{1,2,3,4}; can be omitted otherwise.
+                                     Which controller footbot robots will use in the construction experiment. All robots
+                                     use the same controller (homogeneous swarms).
 
-                                 """)
+                                     Valid controllers:
+
+                                     - depth0.{DPOB}
+
+                                     Head over to the :xref:`SILICON` docs for the descriptions of these controllers.
+
+                                     Use=stage{1,2,3,4}; can be omitted otherwise.
+                                     """)
+
+    def init_stage1(self, for_sphinx: bool):
+        super().init_stage1(for_sphinx)
 
         construct = self.parser.add_argument_group('Stage1: Construction',
                                                    'Construction target options for stage1')
@@ -79,6 +93,7 @@ class Cmdline(titan.cmdline.Cmdline):
                                """,
                                nargs='*',
                                default=None)
+
         construct.add_argument("--construct-orientation",
                                choices=['X', 'Y'],
                                help="""
