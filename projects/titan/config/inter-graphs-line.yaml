@@ -5,70 +5,71 @@ LN_fsm_interference:
       col: int_avg_exp_interference
       title: 'Average Robots Experiencing Interference (interval)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-in-cum-avg
       col: cum_avg_exp_interference
       title: 'Average Robots Experiencing Interference (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
+      batch: True
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-entered-int-avg
       col: int_avg_entered_interference
       title: 'Average Robots Entering Interference (interval)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-entered-cum-avg
       col: cum_avg_entered_interference
       title: 'Average Robots Entering Interference (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-exited-int-avg
       col: int_avg_exited_interference
       title: 'Average Robots Exiting Interference (interval)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-exited-cum-avg
       col: cum_avg_exited_interference
       title: 'Average Robots Exiting Interference (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-episodes-int-avg
       col: int_avg_episodes
       title: 'Average Interference Episodes (interval)'
       xlabel: 'Interval'
-      ylabel: '# Episodes'
+      ylabel: '\# Episodes'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-in-cum-avg
       col: cum_avg_episodes
       title: 'Average Interference Episodes (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Episodes'
+      ylabel: '\# Episodes'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-duration-int-avg
       col: int_avg_interference_duration
       title: 'Average Interference Duration (interval)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
     - src_stem: fsm-interference-counts
       dest_stem: interference-duration-cum-avg
       col: cum_avg_interference_duration
       title: 'Average Interference Duration (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
 
 LN_spatial_movement:
@@ -136,42 +137,42 @@ LN_block_acq:
       col: int_avg_acquiring_goal
       title: 'Average Robots Acquiring Blocks (interval)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: block-acq-counts
       col: int_avg_vectoring_to_goal
       dest_stem: block-acq-counts-vectoring-int-avg
       title: 'Average Robots Vectoring To Blocks (interval)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: block-acq-counts
       col: int_avg_true_exploring_for_goal
       dest_stem: block-acq-counts-true-exploring-int-avg
       title: 'Average Robots Exploring For Blocks (interval)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: block-acq-counts
       col: cum_avg_acquiring_goal
       dest_stem: block-acq-counts-cum-avg
       title: 'Average Robots Acquiring Blocks (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: block-acq-counts
       col: cum_avg_vectoring_to_goal
       dest_stem: block-acq-counts-vectoring-cum-avg
       title: 'Average Robots Vectoring To Blocks (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: block-acq-counts
       col: cum_avg_true_exploring_for_goal
       dest_stem: block-acq-counts-true-exploring-cum-avg
       title: 'Average Robots Exploring For Blocks (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
 LN_block_manip:
   graphs:
@@ -180,56 +181,56 @@ LN_block_manip:
       col: int_avg_free_pickup_events
       title: 'Average Free Block Pickup Events (interval)'
       xlabel: 'Interval'
-      ylabel: '# Pickups'
+      ylabel: '\# Pickups'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-free-drop-events-int-avg
       col: int_avg_free_drop_events
       title: 'Average Free Block Drop Events (interval)'
       xlabel: 'Interval'
-      ylabel: '# Drops'
+      ylabel: '\# Drops'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-free-pickup-penalty-int-avg
       col: int_avg_free_pickup_penalty
       title: 'Average Free Block Pickup Penalty (interval)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-free-drop-penalty-int-avg
       col: cum_avg_free_drop_penalty
       title: 'Average Free Block Drop Penalty (interval)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-free-pickup-events-cum-avg
       col: cum_avg_free_pickup_events
       title: 'Average Free Block Pickup Events (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Pickups'
+      ylabel: '\# Pickups'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-free-drop-events-cum-avg
       col: cum_avg_free_drop_events
       title: 'Average Free Block Drop Events (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Drops'
+      ylabel: '\# Drops'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-free-pickup-penalty-cum-avg
       col: cum_avg_free_pickup_penalty
       title: 'Average Free Block Pickup Penalty (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-free-drop-penalty-cum-avg
       col: cum_avg_free_drop_penalty
       title: 'Average Free Block Drop Penalty (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
 LN_perception:
   graphs:
@@ -238,14 +239,14 @@ LN_perception:
       col: ST_EMPTY_inaccuracies
       title: 'Average ST_EMPTY Inaccuracies (interval)'
       xlabel: 'Interval'
-      ylabel: '# Inaccuracies'
+      ylabel: '\# Inaccuracies'
 
     - src_stem: perception-world-model
       dest_stem: world-model-block-int
       col: ST_HAS_BLOCK_inaccuracies
       title: 'Average ST_HAS_BLOCK Inaccuracies (interval)'
       xlabel: 'Interval'
-      ylabel: '# Inaccuracies'
+      ylabel: '\# Inaccuracies'
 
 LN_convergence:
   graphs:

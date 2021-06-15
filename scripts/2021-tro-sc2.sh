@@ -21,9 +21,11 @@ source /home/gini/shared/swarm/bin/msi-env-setup.sh
 if [ -n "$MSIARCH" ]; then # Running on MSI
     export SIERRA_ROOT=$HOME/research/$MSIARCH/sierra
     export FORDYCA_ROOT=$HOME/research/$MSIARCH/fordyca
+    export SIERRA_PROJECT_PATH=$HOME/research/$MSIARCH/titerra
 else
     export SIERRA_ROOT=$HOME/git/sierra
     export FORDYCA_ROOT=$HOME/git/fordyca
+    export SIERRA_PROJECT_PATH=$HOME/git/titerra
 fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
@@ -33,7 +35,7 @@ export ARGOS_PLUGIN_PATH=$ARGOS_PLUGIN_PATH:$FORDYCA_ROOT/build/lib
 # Setup logging (maybe compiled out and unneeded, but maybe not)
 export LOG4CXX_CONFIGURATION=$FORDYCA_ROOT/log4cxx.xml
 
-# Set SIERRA ARCH
+# Set SIERRA envvars
 export SIERRA_ARCH=$MSIARCH
 
 # From MSI docs: transfers all of the loaded modules to the compute nodes (not
@@ -43,7 +45,7 @@ LOADEDMODULES --env _LMFILES_ --env MODULE_VERSION --env MODULEPATH --env
 MODULEVERSION_STACK --env MODULESHOME --env OMP_DYNAMICS --env
 OMP_MAX_ACTIVE_LEVELS --env OMP_NESTED --env OMP_NUM_THREADS --env
 OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
---env ARGOS_PLUGIN_PATH --env LOG4CXX_CONFIGURATION"
+--env ARGOS_PLUGIN_PATH --env LOG4CXX_CONFIGURATION --env SIERRA_PROJECT_PATH"
 
 ################################################################################
 # Begin Experiments                                                            #
@@ -58,14 +60,14 @@ YCARDINALITY1=8
 YCARDINALITY2=8
 TIME=time_setup.T10000
 TASKS=("scalability" "flexibility" "robustness_pd" "robustness_saa")
-NSIMS=96
+NSIMS=192
 CONTROLLERS_LIST=(d0.CRW d0.DPO d1.BITD_DPO d2.BIRTD_DPO)
 
-SIERRA_BASE_CMD="python3 sierra.py \
+SIERRA_BASE_CMD="python3 main.py \
                   --sierra-root=$OUTPUT_ROOT\
                   --template-input-file=$SIERRA_ROOT/templates/2021-tro-sc2.argos \
                   --n-sims=$NSIMS\
-                  --pipeline 1 2\
+                  --pipeline 4 \
                   --exp-graphs=inter\
                   --project=fordyca\
                   --dist-stats=conf95\
@@ -160,7 +162,7 @@ fi
 
 if [ "$TASK" == "comp" ] || [ "$TASK" == "all" ]
 then
-    STAGE5_CMD="python3 sierra.py \
+    STAGE5_CMD="python3 main.py \
                   --project=fordyca\
                   --pipeline 5\
                   --controller-comparison\
@@ -171,24 +173,24 @@ then
                   --bc-bivar\
                   --sierra-root=$OUTPUT_ROOT"
 
-    # Generate scalability/emergence comparison graphs
-    $STAGE5_CMD --batch-criteria block_motion_dynamics.C${YCARDINALITY1}.F25p0.RW0p001 population_constant_density.${DENSITY}.I16.C${XCARDINALITY1}\
-                    --controllers-list d0.CRW,d0.DPO,d1.BITD_DPO,d2.BIRTD_DPO\
-                    --controllers-legend CRW,DPO,STOCHM,STOCHX
+    # # Generate scalability/emergence comparison graphs
+    # $STAGE5_CMD --batch-criteria block_motion_dynamics.C${XCARDINALITY1}.F25p0.RW0p001 population_constant_density.${DENSITY}.I16.C${YCARDINALITY1}\
+    #                 --controllers-list d0.CRW,d0.DPO,d1.BITD_DPO,d2.BIRTD_DPO\
+    #                 --controllers-legend CRW,DPO,STOCHM,STOCHX
 
-    # Generate flexibility comparison graphs
-    $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} temporal_variance.MSine\
-                --controllers-list d0.CRW,d0.DPO,d1.BITD_DPO,d2.BIRTD_DPO\
-                    --controllers-legend CRW,DPO,STOCHM,STOCHX
+    # # Generate flexibility comparison graphs
+    # $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} temporal_variance.MSine\
+    #             --controllers-list d0.CRW,d0.DPO,d1.BITD_DPO,d2.BIRTD_DPO\
+    #                 --controllers-legend CRW,DPO,STOCHM,STOCHX
 
     # Generate robustness comparison graphs
     $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} population_dynamics.C${YCARDINALITY2}.F2p0.D0p0001 \
                 --controllers-list d0.CRW,d0.DPO,d1.BITD_DPO,d2.BIRTD_DPO\
                 --controllers-legend CRW,DPO,STOCHM,STOCHX
 
-    $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} saa_noise.all.C${YCARDINALITY2}\
-                --controllers-list d0.CRW,d0.DPO,d1.BITD_DPO,d2.BIRTD_DPO\
-                --controllers-legend CRW,DPO,STOCHM,STOCHX
+    # $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} saa_noise.all.C${YCARDINALITY2}\
+    #             --controllers-list d0.CRW,d0.DPO,d1.BITD_DPO,d2.BIRTD_DPO\
+    #             --controllers-legend CRW,DPO,STOCHM,STOCHX
 
 
 fi

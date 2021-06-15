@@ -29,7 +29,7 @@ from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
 
 import projects.titan.generators.scenario_generator_parser as sgp
-import projects.fordyca.variables.nest as np
+import projects.fordyca.variables.nest as nest
 
 
 class BlockCluster():
@@ -70,14 +70,15 @@ class Nest():
         # Get nest position
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         res = sgp.ScenarioGeneratorParser().to_dict(cmdopts['scenario'])
-        pose = np.Nest(res['scenario_tag'], [spec.arena_dim])
+        pose = nest.Nest(src='arena',
+                         dist_type=res['scenario_tag'],
+                         arena=spec.arena_dim)
 
-        for path, attr, val in pose.gen_attr_changelist()[0]:
-            if 'nest' in path and 'center' in attr:
-                x, y = val.split(',')
+        for _, tag, attr in pose.gen_tag_addlist()[0]:
+            if tag == 'nest':
+                x, y = attr['center'].split(',')
                 center = Vector3D(float(x), float(y), 0.0)
-            if 'nest' in path and 'dims' in attr:
-                x, y = val.split(',')
+                x, y = attr['dims'].split(',')
                 dims = Vector3D(float(x), float(y), 0.0)
 
         self.extent = ArenaExtent(dims, center - dims / 2.0)

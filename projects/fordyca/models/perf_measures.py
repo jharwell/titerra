@@ -30,11 +30,13 @@ import pandas as pd
 # Project packages
 import sierra.core.models.interface
 import sierra.core.utils
+import sierra.core.config
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
-from sierra.core.perf_measures.scalability import SteadyStateParallelFractionUnivar
-from sierra.core.perf_measures.self_organization import SteadyStateFLMarginalUnivar
-import sierra.core.perf_measures.common as cpmcommon
+
+import projects.titan.perf_measures.common as pmcommon
+from projects.titan.perf_measures.scalability import SteadyStateParallelFractionUnivar
+from projects.titan.perf_measures.self_organization import SteadyStateFLMarginalUnivar
 
 import projects.fordyca.models.representation as rep
 from projects.fordyca.models.density import BlockAcqDensity
@@ -76,7 +78,7 @@ class InterExp_RawPerf_NRobots():
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
-        return ['PM-raw']
+        return ['PM-ss-raw']
 
     def legend_names(self) -> tp.List[str]:
         return ['Predicted Blocks Transported']
@@ -111,8 +113,7 @@ class InterExp_RawPerf_NRobots():
                                                      self.config).run(criteria,
                                                                       i,
                                                                       cmdopts2)[0]
-
-            res_df[exp] = intra_df.loc[intra_df.index[-1], 'model']
+            res_df[exp] = intra_df['model'].iloc[-1]
 
         # All done!
         return [res_df]
@@ -139,7 +140,7 @@ class InterExp_Scalability_NRobots():
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
-        return ['PM-scalability-parallel-frac']
+        return ['PM-ss-scalability-parallel-frac']
 
     def legend_names(self) -> tp.List[str]:
         return ['Predicted Parallel Fraction']
@@ -154,10 +155,17 @@ class InterExp_Scalability_NRobots():
         perf_df = InterExp_RawPerf_NRobots(self.main_config, self.config).run(criteria,
                                                                               cmdopts)[0]
 
-        sc_df = self.kernel(criteria, cmdopts, perf_df)
+        perf_dfs_mock = _mock_distribution_gen(criteria, self.main_config, cmdopts, perf_df)
 
+        sc_dfs = self.kernel(criteria, cmdopts, perf_dfs_mock)
+
+        dist_dfs = sierra.core.stat_kernels.mean.from_pm(sc_dfs)
+        joined = pmcommon.univar_distribution_prepare_join(cmdopts,
+                                                           criteria,
+                                                           dist_dfs,
+                                                           True)
         # All done!
-        return [sc_df]
+        return [joined[sierra.core.config.kStatsExtensions['mean']]]
 
 
 @implements.implements(sierra.core.models.interface.IConcreteInterExpModel1D)
@@ -170,13 +178,13 @@ class InterExp_SelfOrg_NRobots():
     @staticmethod
     def kernel(criteria: bc.IConcreteBatchCriteria,
                cmdopts: tp.Dict[str, tp.Any],
-               perf_df: pd.DataFrame,
-               N_av: pd.DataFrame) -> pd.DataFrame:
-        plostN = cpmcommon.SteadyStatePerfLostInteractiveSwarmUnivar.df_kernel(criteria,
-                                                                               cmdopts,
-                                                                               N_av,
-                                                                               perf_df)
-        fl = cpmcommon.SteadyStateFLUnivar.df_kernel(criteria, perf_df, plostN)
+               perf_dfs: tp.Dict[str, pd.DataFrame],
+               N_av: tp.Dict[str, pd.DataFrame]) -> pd.DataFrame:
+        plostN = pmcommon.SteadyStatePerfLostInteractiveSwarmUnivar.df_kernel(criteria,
+                                                                              cmdopts,
+                                                                              N_av,
+                                                                              perf_dfs)
+        fl = pmcommon.SteadyStateFLUnivar.df_kernel(criteria, perf_dfs, plostN)
         return SteadyStateFLMarginalUnivar.df_kernel(criteria, cmdopts, fl)
 
     def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
@@ -187,7 +195,7 @@ class InterExp_SelfOrg_NRobots():
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
-        return ['PM-self-org-mfl']
+        return ['PM-ss-self-org-mfl']
 
     def legend_names(self) -> tp.List[str]:
         return ['Predicted Emergent Self-Organization']
@@ -202,10 +210,59 @@ class InterExp_SelfOrg_NRobots():
         perf_df = InterExp_RawPerf_NRobots(self.main_config, self.config).run(criteria,
                                                                               cmdopts)[0]
 
-        int_count_ipath = os.path.join(cmdopts["batch_stat_collate_root"],
-                                       self.main_config['perf']['interference_count_csv'])
-        interference_df = sierra.core.utils.pd_csv_read(int_count_ipath)
-        so_df = self.kernel(criteria, cmdopts, perf_df, interference_df)
+        perf_dfs_mock = _mock_distribution_gen(criteria, self.main_config, cmdopts, perf_df)
 
+        # Just needed to extract simulation names/n_sims
+        interference_leaf = self.main_config['perf']['intra_interference_csv'].split('.')[0]
+        interference_col = self.main_config['perf']['intra_interference_col']
+
+        interference_dfs = pmcommon.gather_collated_sim_dfs(cmdopts,
+                                                            criteria,
+                                                            interference_leaf,
+                                                            interference_col)
+
+        so_dfs = self.kernel(criteria, cmdopts, perf_dfs_mock, interference_dfs)
+
+        dist_dfs = sierra.core.stat_kernels.mean.from_pm(so_dfs)
+        joined = pmcommon.univar_distribution_prepare_join(cmdopts,
+                                                           criteria,
+                                                           dist_dfs,
+                                                           True)
         # All done!
-        return [so_df]
+        return [joined[sierra.core.config.kStatsExtensions['mean']]]
+
+
+def _mock_distribution_gen(criteria: bc.IConcreteBatchCriteria,
+                           main_config: tp.Dict[str, tp.Any],
+                           cmdopts: tp.Dict[str, tp.Any],
+                           prediction: pd.DataFrame) -> tp.Dict[str, pd.DataFrame]:
+    """
+    The TITAN performance measures expect a distribution of simulation data as input, in the form of
+    a dictionary of (experiment name, dataframe) pairs. The dataframe must have temporal columns for
+    each simulation (i.e., no truncating to steady state yet). To generate predictions of
+    *steady state* performance measures, we generate a mock distribution of the necessary shape
+    here.
+    """
+    exp_dirs = sierra.core.utils.exp_range_calc(cmdopts, '', criteria)
+
+    # Just needed to extract simulation names/n_sims
+    interference_leaf = main_config['perf']['intra_interference_csv'].split('.')[0]
+    interference_col = main_config['perf']['intra_interference_col']
+
+    interference_dfs = pmcommon.gather_collated_sim_dfs(cmdopts,
+                                                        criteria,
+                                                        interference_leaf,
+                                                        interference_col)
+
+    dfs_mock = {}
+    exps = list(interference_dfs.keys())
+    sims = interference_dfs[exps[0]].columns
+
+    for d in exp_dirs:
+        dfs_mock[d] = pd.DataFrame(index=range(len(interference_dfs[exps[0]][sims[0]])))
+
+    for d in exp_dirs:
+        for s in sims:
+            dfs_mock[d][s] = prediction.loc[prediction.index[-1], d]
+
+    return dfs_mock

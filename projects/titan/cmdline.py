@@ -23,10 +23,10 @@ import typing as tp
 # 3rd party packages
 
 # Project packages
-import sierra
+import sierra.core.cmdline as cmd
 
 
-class Cmdline(sierra.core.cmdline.CoreCmdline):
+class Cmdline(cmd.CoreCmdline):
     """
     Defines TITAN extensions to the core command line arguments defined in
     :class:`~sierra.core.cmdline.CoreCmdline`.
@@ -59,6 +59,156 @@ class Cmdline(sierra.core.cmdline.CoreCmdline):
 
                                  """ + self.stage_usage_doc([1, 2, 3, 4]))
 
+    def init_stage1(self, for_sphinx: bool):
+        super().init_stage1(for_sphinx)
+
+        self.stage1.add_argument("--n-blocks",
+                                 help="""
+
+                                 # blocks that should be used in the simulation. Can be used to override batch criteria,
+                                 or to supplement experiments that do not set it so that manual modification of input
+                                 file is unneccesary.
+
+                                 """ + self.stage_usage_doc([1]),
+                                 type=int,
+                                 default=None)
+
+    def init_stage4(self, for_sphinx: bool):
+        super().init_stage4(for_sphinx)
+
+        # Performance measure calculation options
+        pm = self.parser.add_argument_group('Stage4: Summary Performance Measure Options')
+
+        pm.add_argument("--pm-scalability-from-exp0",
+                        help="""
+
+                        If passed, then swarm scalability will be calculated based on the "speedup" achieved by a swarm
+                        of size N in exp X relative to the performance in exp 0, as opposed to the performance in exp
+                        X-1 (default).
+
+                        """ + self.stage_usage_doc([4]),
+                        action='store_true')
+
+        pm.add_argument("--pm-scalability-normalize",
+                        help="""
+
+                        If passed, then swarm scalability will be normalized into [-1,1] via ``--pm-normalize-method``,
+                        as opposed to raw values (default). This may make graphs more or less readable/interpretable.
+
+                        """ + self.stage_usage_doc([4]),
+                        action='store_true')
+
+        pm.add_argument("--pm-self-org-normalize",
+                        help="""
+
+                        If passed, then swarm self-organization calculations will be normalized into [-1,1] via
+                        ``--pm-normalize-method``, as opposed to raw values (default). This may make graphs more or less
+                        readable/interpretable.
+
+                        """,
+                        action='store_true')
+
+        pm.add_argument("--pm-flexibility-normalize",
+                        help="""
+
+                        If passed, then swarm flexibility calculations will be normalized into [-1,1] via
+                        ``--pm-normalize-method``, as opposed to raw values (default), and HIGHER values will be
+                        better. This may make graphs more or less readable/interpretable; without normalization, LOWER
+                        values are better.
+
+                       """ + self.stage_usage_doc([4]),
+                        action='store_true')
+
+        pm.add_argument("--pm-robustness-normalize",
+                        help="""
+
+                        If passed, then swarm robustness calculations will be normalized into [-1,1] via
+                        ``--pm-normalize-method``, as opposed to raw values (default). This may make graphs more or less
+                        readable/interpretable.
+
+                        """ + self.stage_usage_doc([4]),
+                        action='store_true')
+
+        pm.add_argument("--pm-all-normalize",
+                        help="""
+
+                        If passed, then swarm scalability, self-organization, flexibility, and robustness calculations
+                        will be normalized into [-1,1] via ``--pm-normalize-method``, as opposed to raw values
+                        (default). This may make graphs more or less readable/interpretable.
+
+                        """ + self.stage_usage_doc([4]),
+                        action='store_true')
+
+        pm.add_argument("--pm-normalize-method",
+                        choices=['sigmoid'],
+                        help="""
+
+                        The method to use for normalizing performance measure results, where enabled:
+
+                        - ``sigmoid`` - Use a pair of sigmoids to normalize the results into [-1, 1]. Can be used with
+                          all performance measures.
+
+                        """ + self.stage_usage_doc([4]),
+                        default='sigmoid')
+
+        # Variance curve similarity options
+        vcs = self.parser.add_argument_group('Stage4: Variance Curve Similarity (VCS) Options')
+
+        vcs.add_argument("--gen-vc-plots",
+                         help="""
+
+                          Generate plots of ideal vs. observed swarm [reactivity, adaptability] for each experiment in
+                          the batch.""" +
+                         self.bc_applicable_doc([':ref:`Temporal Variance <ln-bc-tv>`']) +
+                         self.stage_usage_doc([4]),
+                         action="store_true")
+
+        vcs.add_argument("--rperf-cs-method",
+                         help="""
+
+                         Raw Performance curve similarity method. Specify the method to use to calculate the similarity
+                         between raw performance curves from non-ideal conditions and ideal conditions (exp0). """ +
+                         self.cs_methods_doc() +
+                         self.bc_applicable_doc([':ref:`SAA Noise <ln-bc-saa-noise>`']) +
+                         self.stage_usage_doc([4]),
+                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         default="dtw")
+        vcs.add_argument("--envc-cs-method",
+                         help="""
+
+                         Environmental conditions curve similarity method. Specify the method to use to calculate the
+                         similarity between curves of applied variance (non-ideal conditions) and ideal conditions
+                         (exp0). """ +
+                         self.cs_methods_doc() +
+                         self.bc_applicable_doc([':ref:`Temporal Variance <ln-bc-tv>`']) +
+                         self.stage_usage_doc([4]),
+                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         default="dtw")
+
+        vcs.add_argument("--reactivity-cs-method",
+                         help="""
+
+                         Reactivity calculatation curve similarity method. Specify the method to use to calculate the
+                         similarity between the inverted applied variance curve for a simulation and the corrsponding
+                         performance curve. """ +
+                         self.cs_methods_doc() +
+                         self.bc_applicable_doc([':ref:`Temporal Variance <ln-bc-tv>`']) +
+                         self.stage_usage_doc([4]),
+                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         default="dtw")
+
+        vcs.add_argument("--adaptability-cs-method",
+                         help="""
+
+                         Adaptability calculatation curve similarity method. Specify the method to use to calculate the
+                         similarity between the inverted applied variance curve for a simulation and the corrsponding
+                         performance curve.""" +
+                         self.cs_methods_doc() +
+                         self.bc_applicable_doc([':ref:`Temporal Variance <ln-bc-tv>`']) +
+                         self.stage_usage_doc([4]),
+                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         default="dtw")
+
     @staticmethod
     def cmdopts_update(cli_args, cmdopts: tp.Dict[str, str]):
         """
@@ -67,9 +217,11 @@ class Cmdline(sierra.core.cmdline.CoreCmdline):
         # Stage1
         updates = {
             'scenario': cli_args.scenario,
+            'n_blocks': cli_args.n_blocks
+
         }
         cmdopts.update(updates)
 
 
-class CmdlineValidator(sierra.core.cmdline.CoreCmdlineValidator):
+class CmdlineValidator(cmd.CoreCmdlineValidator):
     pass

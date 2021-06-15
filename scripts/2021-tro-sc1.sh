@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --time=24:00:00
-#SBATCH --nodes 8
+#SBATCH --nodes 32
 #SBATCH --tasks-per-node=6
 #SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=2G
@@ -8,7 +8,7 @@
 #SBATCH --mail-user=harwe006@umn.edu
 #SBATCH --output=R-%x.%j.out
 #SBATCH --error=R-%x.%j.err
-#SBATCH -J 2021-tro-sc1-3
+#SBATCH -J 2021-tro-sc1-4
 
 ################################################################################
 # Setup Simulation Environment                                                 #
@@ -21,9 +21,11 @@ source /home/gini/shared/swarm/bin/msi-env-setup.sh
 if [ -n "$MSIARCH" ]; then # Running on MSI
     export SIERRA_ROOT=$HOME/research/$MSIARCH/sierra
     export FORDYCA_ROOT=$HOME/research/$MSIARCH/fordyca
+    export SIERRA_PROJECT_PATH=$HOME/research/$MSIARCH/titerra
 else
     export SIERRA_ROOT=$HOME/git/sierra
     export FORDYCA_ROOT=$HOME/git/fordyca
+    export SIERRA_PROJECT_PATH=$HOME/git/titerra
 fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
@@ -33,7 +35,7 @@ export ARGOS_PLUGIN_PATH=$ARGOS_PLUGIN_PATH:$FORDYCA_ROOT/build/lib
 # Setup logging (maybe compiled out and unneeded, but maybe not)
 export LOG4CXX_CONFIGURATION=$FORDYCA_ROOT/log4cxx.xml
 
-# Set SIERRA ARCH
+# Set SIERRA envvars
 export SIERRA_ARCH=$MSIARCH
 
 # From MSI docs: transfers all of the loaded modules to the compute nodes (not
@@ -43,12 +45,12 @@ LOADEDMODULES --env _LMFILES_ --env MODULE_VERSION --env MODULEPATH --env
 MODULEVERSION_STACK --env MODULESHOME --env OMP_DYNAMICS --env
 OMP_MAX_ACTIVE_LEVELS --env OMP_NESTED --env OMP_NUM_THREADS --env
 OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
---env ARGOS_PLUGIN_PATH --env LOG4CXX_CONFIGURATION"
+--env ARGOS_PLUGIN_PATH --env LOG4CXX_CONFIGURATION --env SIERRA_PROJECT_PATH"
 
 ################################################################################
 # Begin Experiments                                                            #
 ################################################################################
-OUTPUT_ROOT=$HOME/exp/2021-tro-sc1-3
+OUTPUT_ROOT=$HOME/exp/2021-tro-sc1-4
 TIME=time_setup.T10000
 
 CONTROLLERS_LIST=(d0.CRW d0.DPO d1.BITD_DPO d2.BIRTD_DPO)
@@ -56,19 +58,20 @@ TASKS=("scalability" "flexibility" "robustness_saa" "robustness_pd")
 CARDINALITY=C8
 NSIMS=192
 
-SIERRA_BASE_CMD="python3 sierra.py \
+SIERRA_BASE_CMD="python3 main.py \
                   --sierra-root=$OUTPUT_ROOT\
                   --template-input-file=$SIERRA_ROOT/templates/2021-tro-sc1.argos \
-                  --n-sims=$NSIMS\
                   --pipeline 3 4 \
-                  --exp-graphs=inter --project-no-yaml-LN\
+                  --exp-graphs=inter\
+                  --project-no-yaml-LN\
                   --project=fordyca\
                   --dist-stats=conf95\
                   --exp-overwrite\
                   --models-disable\
                   --with-robot-leds\
                   --log-level=DEBUG\
-                  --no-verify-results
+                  --no-verify-results\
+                  --n-sims=$NSIMS
                   "
 
 if [ -n "$MSIARCH" ] # Running on MSI
@@ -80,7 +83,7 @@ then
     TASK=${TASKS[$TASK_NUM]}
 
 
-    SIERRA_CMD="$SIERRA_BASE_CMD --hpc-env=slurm --exec-resume"
+    SIERRA_CMD="$SIERRA_BASE_CMD --hpc-env=hpc.slurm --exec-resume"
 
     echo "********************************************************************************\n"
     squeue -j $SLURM_JOB_ID[$SLURM_ARRAY_TASK_ID] -o "%.9i %.9P %.8j %.8u %.2t %.10M %.6D %S %e"
@@ -90,12 +93,54 @@ else
     CONTROLLERS=("${CONTROLLERS_LIST[@]}")
 
     SIERRA_CMD="$SIERRA_BASE_CMD\
-                  --hpc-env=local\
+                  --hpc-env=hpc.local\
                   --physics-n-engines=4
                   "
 fi
 
 cd $SIERRA_ROOT
+
+# Generate and render videos
+if [ "$TASK" == "argos-videos" ]
+then
+    for c in "${CONTROLLERS[@]}"
+    do
+        $SIERRA_CMD --scenario=SS.32x16x2 \
+                    --batch-criteria population_size.Log128 --exp-range=7:7\
+                    --argos-rendering --camera-config=sierra_dynamic\
+                    --no-collate\
+                    --n-sims=4\
+                    --exp-graphs=none\
+                    --controller=${c}\
+                    --n-blocks=512
+
+    done
+fi
+
+# Generate and render videos
+if [ "$TASK" == "project-videos" ]
+then
+    for c in "${CONTROLLERS[@]}"
+    do
+        $SIERRA_CMD --scenario=SS.32x16x2 \
+                    --batch-criteria population_size.Log128 --exp-range=7:7\
+                    --project-imagizing --project-rendering\
+                    --no-collate\
+                    --n-sims=16\
+                    --exp-graphs=none\
+                    --controller=${c}\
+                    --n-blocks=512
+
+        $SIERRA_CMD --scenario=RN.48x48x2 \
+                    --batch-criteria population_size.Log512 --exp-range=8:8\
+                    --project-imagizing --project-rendering\
+                    --no-collate\
+                    --n-sims=16\
+                    --exp-graphs=none\
+                    --controller=${c} \
+                    --n-blocks=2048
+    done
+fi
 
 # Scalability/emergence analysis
 if [ "$TASK" == "scalability" ] || [ "$TASK" == "emergence" ] || [ "$TASK" == "all" ]
@@ -188,7 +233,7 @@ fi
 
 if [ "$TASK" == "comp" ] || [ "$TASK" == "all" ]
 then
-    STAGE5_CMD="python3 sierra.py \
+    STAGE5_CMD="python3 main.py \
                   --project=fordyca\
                   --pipeline 5\
                   --controller-comparison\

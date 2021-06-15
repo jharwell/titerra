@@ -10,6 +10,9 @@ Welcome to the documentation for TITERRA!
 
    src/quickstart.rst
    src/projects/index.rst
+
+   src/msi/index.rst
+
    src/cli.rst
    src/api.rst
 

@@ -9,13 +9,13 @@ LN_block_manip:
         - cum_avg_free_drop_events
       title: 'Free Block Manipulation Pickups/Drops'
       legend:
-        - 'Average # Free Pickups (Interval)'
-        - 'Average # Free Drops (Interval)'
-        - 'Average # Free Pickups (Cumulative)'
-        - 'Average # Free Drops (Cumulative)'
+        - 'Average \# Free Pickups (Interval)'
+        - 'Average \# Free Drops (Interval)'
+        - 'Average \# Free Pickups (Cumulative)'
+        - 'Average \# Free Drops (Cumulative)'
 
       xlabel: 'Interval'
-      ylabel: '# Pickups/Drops'
+      ylabel: '\# Pickups/Drops'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-events-free-pickup
@@ -24,11 +24,11 @@ LN_block_manip:
         - cum_avg_free_pickup_events
       title: 'Free Block Manipulation Pickups'
       legend:
-        - 'Average # Free Pickups (Interval)'
-        - 'Average # Free Pickups (Cumulative)'
+        - 'Average \# Free Pickups (Interval)'
+        - 'Average \# Free Pickups (Cumulative)'
 
       xlabel: 'Interval'
-      ylabel: '# Pickups/Drops'
+      ylabel: '\# Pickups/Drops'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-events-cache
@@ -39,13 +39,13 @@ LN_block_manip:
         - cum_avg_cache_drop_events
       title: 'Block Manipulation Pickups/Drops'
       legend:
-        - 'Average # Cache Pickups (Interval)'
-        - 'Average # Cache Drops (Interval)'
-        - 'Average # Cache Pickups (Cumulative)'
-        - 'Average # Cache Drops (Cumulative)'
+        - 'Average \# Cache Pickups (Interval)'
+        - 'Average \# Cache Drops (Interval)'
+        - 'Average \# Cache Pickups (Cumulative)'
+        - 'Average \# Cache Drops (Cumulative)'
 
       xlabel: 'Interval'
-      ylabel: '# Pickups/Drops'
+      ylabel: '\# Pickups/Drops'
 
     - src_stem: block-manipulation
       dest_stem: block-manip-penalties-free
@@ -144,14 +144,14 @@ LN_block_trans:
         - cum_avg_ramp_transported
       legend:
         - 'All Blocks (Interval)'
-        - '# Cube Blocks (Interval)'
-        - '# Ramp Blocks (Interval)'
+        - '\# Cube Blocks (Interval)'
+        - '\# Ramp Blocks (Interval)'
         - 'All Blocks (cumulative)'
-        - '# Cube Blocks (cumulative)'
-        - '# Ramp Blocks (cumulative)'
+        - '\# Cube Blocks (cumulative)'
+        - '\# Ramp Blocks (cumulative)'
       title: 'Average Blocks Transported'
       xlabel: 'Interval'
-      ylabel: '# Blocks'
+      ylabel: '\# Blocks'
     - src_stem: block-transportee
       dest_stem: blocks-transported-cum
       cols:
@@ -161,10 +161,10 @@ LN_block_trans:
       title: 'Blocks Transported (cumulative)'
       legend:
         - 'All Blocks'
-        - '# Cube Blocks'
-        - '# Ramp Blocks'
+        - '\# Cube Blocks'
+        - '\# Ramp Blocks'
       xlabel: 'Interval'
-      ylabel: '# Blocks'
+      ylabel: '\# Blocks'
 
     - src_stem: block-transportee
       dest_stem: block-transporters-count
@@ -173,10 +173,10 @@ LN_block_trans:
         - cum_avg_transporters
       title: 'Swarm Block Average Transporters'
       legend:
-        - 'Average # Transporters Per Block (Interval)'
-        - 'Average # Transporters Per Block (cumulative)'
+        - 'Average \# Transporters Per Block (Interval)'
+        - 'Average \# Transporters Per Block (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Transporters'
+      ylabel: '\# Transporters'
     - src_stem: block-transportee
       dest_stem: block-transportee-time
       cols:
@@ -187,7 +187,7 @@ LN_block_trans:
         - 'Average Transport Time (Interval)'
         - 'Average Transport Time (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
     - src_stem: block-transportee
       dest_stem: block-transportee-wait-time
@@ -199,7 +199,7 @@ LN_block_trans:
         - 'Average Initial Wait Time (Interval)'
         - 'Average Initial Wait Time (cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
     - src_stem: block-transporter
       dest_stem: block-transporter-homing-nest
@@ -208,10 +208,10 @@ LN_block_trans:
         - cum_avg_phototaxiing_to_goal_no_ca
       title: 'Swarm Homing Counts'
       legend:
-        - 'Average # Robots Phototaxiing To Nest (Interval)'
-        - 'Average # Robots Phototaxiing To Nest (Cumulative)'
+        - 'Average \# Robots Phototaxiing To Nest (Interval)'
+        - 'Average \# Robots Phototaxiing To Nest (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: nest-acq-strategy
       dest_stem: nest-acq-strategy
@@ -223,7 +223,7 @@ LN_block_trans:
         - 'Average Threshold Used (Interval)'
         - 'Average Threshold Used (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
 
 # Depth 1
@@ -236,12 +236,12 @@ LN_cache_util:
         - int_avg_drops
         - cum_avg_pickups
         - cum_avg_drops
-      title: 'Average # Pickups/Drops Across All Caches'
+      title: 'Average \# Pickups/Drops Across All Caches'
       legend:
-        - 'Average # Pickups (Interval)'
-        - 'Average # Drops (Interval)'
-        - 'Average # Pickups (Cumulative)'
-        - 'Average # Drops (Cumulative)'
+        - 'Average \# Pickups (Interval)'
+        - 'Average \# Drops (Interval)'
+        - 'Average \# Pickups (Cumulative)'
+        - 'Average \# Drops (Cumulative)'
       xlabel: 'Interval'
       ylabel: 'Count'
 
@@ -250,10 +250,10 @@ LN_cache_util:
       cols:
         - int_avg_caches
         - cum_avg_caches
-      title: '# Caches in Arena'
+      title: '\# Caches in Arena'
       legend:
-        - '# Caches (Interval)'
-        - '# Caches (Cumulative)'
+        - '\# Caches (Interval)'
+        - '\# Caches (Cumulative)'
       xlabel: 'Interval'
       ylabel: 'Count'
 
@@ -262,10 +262,10 @@ LN_cache_util:
       cols:
         - int_avg_blocks
         - cum_avg_blocks
-      title: '# Blocks in Caches'
+      title: '\# Blocks in Caches'
       legend:
-        - 'Average # Blocks (Interval)'
-        - 'Average # Blocks (Cumulative)'
+        - 'Average \# Blocks (Interval)'
+        - 'Average \# Blocks (Cumulative)'
       xlabel: 'Interval'
       ylabel: 'Count'
 
@@ -276,10 +276,10 @@ LN_cache_lifecycle:
       cols:
         - int_created
         - int_depleted
-      title: '# Caches Created/Depleted (Interval)'
+      title: '\# Caches Created/Depleted (Interval)'
       legend:
-        - '# Created'
-        - '# Depleted'
+        - '\# Created'
+        - '\# Depleted'
       xlabel: 'Interval'
       ylabel: 'Count'
     - src_stem: cache-lifecycle
@@ -289,12 +289,12 @@ LN_cache_lifecycle:
         - int_avg_depleted
         - cum_avg_created
         - cum_avg_depleted
-      title: 'Average # Caches Created/Depleted'
+      title: 'Average \# Caches Created/Depleted'
       legend:
-        - 'Average # Created (Interval)'
-        - 'Average # Depleted (Interval)'
-        - 'Average # Created (Cumulative)'
-        - 'Average # Depleted (Cumulative)'
+        - 'Average \# Created (Interval)'
+        - 'Average \# Depleted (Interval)'
+        - 'Average \# Created (Cumulative)'
+        - 'Average \# Depleted (Cumulative)'
       xlabel: 'Interval'
       ylabel: 'Count'
     - src_stem: cache-lifecycle
@@ -324,14 +324,14 @@ LN_cache_acq:
         - cum_avg_false_exploring_for_goal
       title: 'Swarm Cache Acquisition'
       legend:
-        - 'Average # Robots Acquiring Caches (Interval)'
-        - 'Average # Robots Acquiring Caches (cumulative)'
-        - 'Average # Robots Vectoring To Caches (Interval)'
-        - 'Average # Robots Vectoring To Caches (cumulative)'
-        - 'Average # Robots Exploring For Caches (Interval)'
-        - 'Average # Robots Exploring For Caches (cumulative)'
-        - 'Average # Robots Falsely Exploring For Caches (Interval)'
-        - 'Average # Robots Falsely Exploring For Caches (cumulative)'
+        - 'Average \# Robots Acquiring Caches (Interval)'
+        - 'Average \# Robots Acquiring Caches (cumulative)'
+        - 'Average \# Robots Vectoring To Caches (Interval)'
+        - 'Average \# Robots Vectoring To Caches (cumulative)'
+        - 'Average \# Robots Exploring For Caches (Interval)'
+        - 'Average \# Robots Exploring For Caches (cumulative)'
+        - 'Average \# Robots Falsely Exploring For Caches (Interval)'
+        - 'Average \# Robots Falsely Exploring For Caches (cumulative)'
       xlabel: 'Interval'
       ylabel: 'Count'
 

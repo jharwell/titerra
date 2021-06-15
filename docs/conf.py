@@ -211,7 +211,8 @@ latex_documents = [
 autosectionlabel_prefix_document = True
 man_pages = [
     ('man/titerra-cli', 'titerra-cli', 'The TITERRA Command Line Interface', [author], 1),
-    ('man/titerra', 'titerra', 'TITERRA: SIERRA Extensions For The TITAN Project ', [author], 7)
+    ('man/titerra', 'titerra', 'TITERRA: SIERRA Extensions For The TITAN Project ', [author], 7),
+    ('man/sierra-msi', 'sierra-msi', 'How to use SIERRA on MSI', [author], 7),
 ]
 
 # -- Options for Texinfo output -------------------------------------------

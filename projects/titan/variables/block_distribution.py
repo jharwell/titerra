@@ -60,6 +60,9 @@ class BaseDistribution():
     def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
         return []
 
+    def gen_files(self) -> None:
+        pass
+
 
 class SingleSourceDistribution(BaseDistribution):
     def __init__(self) -> None:

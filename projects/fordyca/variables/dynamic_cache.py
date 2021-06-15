@@ -92,3 +92,6 @@ class DynamicCache():
 
     def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
         return []
+
+    def gen_files(self) -> None:
+        pass

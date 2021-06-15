@@ -11,14 +11,14 @@ LN_fsm_interference:
         - cum_avg_exited_interference
       title: 'Swarm Inter-Robot Interference'
       legend:
-        - 'Average # Robots Experiencing Interference (Interval)'
-        - 'Average # Robots Experiencing Interference (Cumulative)'
-        - 'Average # Robots Beginning Interference Encounter (Interval)'
-        - 'Average # Robots Beginning Interference Encounter (Cumulative)'
-        - 'Average # Robots Ending Interference Encounter (Interval)'
-        - 'Average # Robots Ending Interference Encounter (Cumulative)'
+        - 'Average \# Robots Experiencing Interference (Interval)'
+        - 'Average \# Robots Experiencing Interference (Cumulative)'
+        - 'Average \# Robots Beginning Interference Encounter (Interval)'
+        - 'Average \# Robots Beginning Interference Encounter (Cumulative)'
+        - 'Average \# Robots Ending Interference Encounter (Interval)'
+        - 'Average \# Robots Ending Interference Encounter (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: fsm-interference-counts
       dest_stem: fsm-interference-duration
@@ -30,7 +30,7 @@ LN_fsm_interference:
         - 'Average Interference Duration (Interval)'
         - 'Average Interference Duration (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Timesteps'
+      ylabel: '\# Timesteps'
 
 LN_spatial_movement:
   graphs:
@@ -99,16 +99,16 @@ LN_block_acq:
         # - cum_avg_false_exploring_for_goal
       title: 'Swarm Block Acquisition'
       legend:
-        # - 'Average # Robots Acquiring Blocks (Interval)'
-        # - 'Average # Robots Acquiring Blocks (Cumulative)'
-        # - 'Average # Robots Vectoring To Blocks (Interval)'
-        # - 'Average # Robots Vectoring To Blocks (Cumulative)'
-        - 'Average # Robots Exploring For Blocks (Interval)'
-        - 'Average # Robots Exploring For Blocks (Cumulative)'
-      #   - 'Average # Robots Falsely Exploring For Blocks (Interval)'
-      #   - 'Average # Robots Falsely Exploring For Blocks (Cumulative)'
+        # - 'Average \# Robots Acquiring Blocks (Interval)'
+        # - 'Average \# Robots Acquiring Blocks (Cumulative)'
+        # - 'Average \# Robots Vectoring To Blocks (Interval)'
+        # - 'Average \# Robots Vectoring To Blocks (Cumulative)'
+        - 'Average \# Robots Exploring For Blocks (Interval)'
+        - 'Average \# Robots Exploring For Blocks (Cumulative)'
+      #   - 'Average \# Robots Falsely Exploring For Blocks (Interval)'
+      #   - 'Average \# Robots Falsely Exploring For Blocks (Cumulative)'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
 
 LN_convergence:
@@ -212,7 +212,7 @@ LN_population:
         - 'Average Swarm Total Population (Cumulative)'
         - 'Swarm Max Population'
       xlabel: 'Interval'
-      ylabel: '# Robots'
+      ylabel: '\# Robots'
 
     - src_stem: tv-population
       dest_stem: tv-population-rates

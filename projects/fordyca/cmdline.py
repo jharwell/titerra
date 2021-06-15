@@ -83,27 +83,17 @@ class Cmdline(titan.cmdline.Cmdline):
                                  """ + self.stage_usage_doc([1]),
                                  default=None)
 
-        self.stage1.add_argument("--n-blocks",
-                                 help="""
-
-                                 # blocks that should be used in the simulation (evenly split between cube and
-                                 ramp). Can The be used to override batch criteria, or to supplement experiments that do
-                                 not set it so that manual modification of input file is unneccesary.
-
-                                 """ + self.stage_usage_doc([1]),
-                                 type=int,
-                                 default=None)
-
     @staticmethod
     def cmdopts_update(cli_args, cmdopts: tp.Dict[str, str]):
         """
         Updates the core cmdopts dictionary with (key,value) pairs from the FORDYCA-specific cmdline options.
         """
+        titan.cmdline.Cmdline.cmdopts_update(cli_args, cmdopts)
+
         # Stage1
         updates = {
             'controller': cli_args.controller,
             'static_cache_blocks': cli_args.static_cache_blocks,
-            'n_blocks': cli_args.n_blocks
         }
         cmdopts.update(updates)
 

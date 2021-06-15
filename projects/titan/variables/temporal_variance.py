@@ -29,9 +29,10 @@ import implements
 # Project packages
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.variables.population_size import PopulationSize
-from sierra.core.perf_measures import vcs
-from sierra.core.variables.temporal_variance_parser import TemporalVarianceParser
 from sierra.core.xml_luigi import XMLAttrChange, XMLAttrChangeSet
+
+from projects.titan.perf_measures import vcs
+from projects.titan.variables.temporal_variance_parser import TemporalVarianceParser
 
 
 @implements.implements(bc.IConcreteBatchCriteria)

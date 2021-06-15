@@ -38,8 +38,8 @@
       <params>
         <rng seed="123"/>
         <output
-          output_root="output"
-          output_dir="__current_date__"
+          output_parent="output"
+          output_leaf="__current_date__"
           />
         <perception
             los_dim="0.4">
@@ -122,7 +122,6 @@
             </tab_sel>
           </stoch_nbhd1>
         </task_alloc>
-        <nest dims="1.0, 4.0" center="2, 3" />
         <block_sel_matrix>
           <block_priorities
               cube="1.0"
@@ -171,21 +170,21 @@
         <actuation_subsystem2D>
           <force_calculator>
             <avoidance_force lookahead="0.5"
-                             max="8"/>
+                             max="0.08"/>
             <arrival_force slowing_radius="0.2"
-                           slowing_speed_min="1.0"
-                           max="8"/>
+                           slowing_speed_min="0.01"
+                           max="0.08"/>
             <wander_force circle_distance="4.0"
                           circle_radius="100.0"
                           max_angle_delta="5"
-                          max="9.0"
+                          max="0.09"
                           interval="1"
                           normal_dist="false"/>
-            <phototaxis_force max="8"/>
+            <phototaxis_force max="0.08"/>
           </force_calculator>
 
           <diff_drive soft_turn_max="15"
-                      max_speed="10.0" />
+                      max_speed="0.1" />
         </actuation_subsystem2D>
       </params>
     </__controller__>
@@ -197,10 +196,12 @@
   <!-- ****************** -->
   <loop_functions library="foo"
                   label="depth2_loop_functions">
-    <output output_root="output"
-            output_dir="__current_date__">
+    <output output_parent="output"
+            output_leaf="__current_date__">
       <metrics
-          output_dir="metrics">
+          metrics_path="metrics">
+        <sinks>
+          <csv>
         <append
             output_interval="1000"
             block_acq_counts="block-acq-counts"
@@ -239,6 +240,8 @@
                   cache_acq_vector_locs2D="cache-acq-vector-locs2D"
                   cache_locations="cache-locations"
                   swarm_dist2D_pos="swarm-dist-pos2D"/>
+          </csv>
+        </sinks>
       </metrics>
     </output>
     <temporal_variance>
@@ -278,6 +281,7 @@
                 random_walk_prob="0.0"/>
         <distribution
             arena_resolution="0.2"
+            strict_success="false"
             dist_type="single_source">
           <manifest
               n_cube="20000"

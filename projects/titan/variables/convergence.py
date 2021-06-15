@@ -64,6 +64,9 @@ class Convergence():
 
         return self.attr_changes
 
+    def gen_files(self) -> None:
+        pass
+
 
 __api__ = [
     'Convergence',

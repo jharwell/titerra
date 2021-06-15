@@ -1,6 +1,7 @@
 #!/bin/bash -l
-#SBATCH --time=12:00:00
-#SBATCH --nodes 32
+#SBATCH --time=24:00:00
+#SBATCH --nodes 8
+#SBATCH --tasks-per-node=4
 #SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=2G
 #SBATCH --mail-type=ALL
@@ -18,21 +19,23 @@
 source /home/gini/shared/swarm/bin/msi-env-setup.sh
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
-    export SIERRA_ROOT=$HOME/research/$MSIARCH/sierra
+    export TITERRA_ROOT=$HOME/research/$MSIARCH/titerra
     export FORDYCA_ROOT=$HOME/research/$MSIARCH/fordyca
+    export SIERRA_PROJECT_PATH=$HOME/research/$MSIARCH/titerra
 else
-    export SIERRA_ROOT=$HOME/git/sierra
+    export TITERRA_ROOT=$HOME/git/titerra
     export FORDYCA_ROOT=$HOME/git/fordyca
+    export SIERRA_PROJECT_PATH=$HOME/git/titerra
 fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
 # AND the fordyca library path.
-export ARGOS_PLUGIN_PATH=$ARGOS_PLUGIN_PATH:$FORDYCA_ROOT/build/lib
+export ARGOS_PLUGIN_PATH=$localroot/lib/argos3:$FORDYCA_ROOT/build/lib
 
 # Setup logging (maybe compiled out and unneeded, but maybe not)
 export LOG4CXX_CONFIGURATION=$FORDYCA_ROOT/log4cxx.xml
 
-# Set SIERRA ARCH
+# Set SIERRA envvars
 export SIERRA_ARCH=$MSIARCH
 
 # From MSI docs: transfers all of the loaded modules to the compute nodes (not
@@ -52,7 +55,7 @@ OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
 
 OUTPUT_ROOT=$HOME/exp/2021-ode-3
 
-TIME_SMALL=time_setup.T10000
+TIME_SMALL=time_setup.T200000
 VD_MIN_SMALL=1p0
 VD_MAX_SMALL=10p0
 VD_CARDINALITY_SMALL=C10
@@ -76,25 +79,25 @@ CD_SIZEINC_LARGE=I72
 CD_CRITERIA_LARGE=population_constant_density.${CD_LARGE}.${CD_SIZEINC_LARGE}.${CD_CARDINALITY_LARGE}
 VD_CRITERIA_LARGE=population_variable_density.${VD_MIN_LARGE}.${VD_MAX_LARGE}.${VD_CARDINALITY_LARGE}
 
-SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
-# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 )
-SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
-# SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2)
-SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
+SCENARIOS_LIST_CD=(PL.8x8x2)
+# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
+# SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
+# SCENARIOS_LIST_VD_LARGE=(PL.256x256x2)
+# SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
 
-NSIMS=92
+NSIMS=32
 
-SIERRA_BASE_CMD="python3 sierra.py \
+SIERRA_BASE_CMD="sierra-cli \
                   --sierra-root=$OUTPUT_ROOT\
-                  --template-input-file=$SIERRA_ROOT/templates/2021-ode.argos \
+                  --template-input-file=$TITERRA_ROOT/templates/2021-ode.argos \
                   --n-sims=$NSIMS\
                   --controller=d0.CRW\
                   --project=fordyca\
-                  --log-level=INFO\
-                  --pipeline 1 2 3 4 --project-no-yaml-LN\
-                  --dist-stats=conf95 --exec-resume\
+                  --pipeline 4\
+                  --project-no-yaml-LN --exec-sims-per-node=12 --exec-resume\
+                  --dist-stats=conf95 \
                   --with-robot-leds\
-                  --log-level=DEBUG\
+                  --log-level=TRACE\
                   --exp-overwrite"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
@@ -104,11 +107,10 @@ if [ -n "$MSIARCH" ]; then # Running on MSI
     SCENARIOS_CD=(${SCENARIOS_LIST_CD[$SCENARIO_NUM]})
     SCENARIOS_VD_SMALL=(${SCENARIOS_LIST_VD_SMALL[$SCENARIO_NUM]})
     SCENARIOS_VD_LARGE=(${SCENARIOS_LIST_VD_LARGE[$SCENARIO_NUM]})
-
     TASK="exp"
-    SIERRA_CMD="$SIERRA_BASE_CMD --hpc-env=slurm --exp-range=$EXP_NUM:$EXP_NUM --exec-resume"
+    SIERRA_CMD="$SIERRA_BASE_CMD --hpc-env=hpc.slurm --exp-range=$EXP_NUM:$EXP_NUM --exec-resume"
     echo "********************************************************************************\n"
-    squeue -j $SLURM_ARRAY_TASK_ID -o "%.9i %.9P %.8j %.8u %.2t %.10M %.6D %S %e"
+    squeue -j $SLURM_JOB_ID[$SLURM_ARRAY_TASK_ID] -o "%.9i %.9P %.8j %.8u %.2t %.10M %.6D %S %e"
     echo "********************************************************************************\n"
 
 else
@@ -117,15 +119,15 @@ else
     SCENARIOS_VD_LARGE=("${SCENARIOS_LIST_VD_LARGE[@]}")
     TASK="$1"
     SIERRA_CMD="$SIERRA_BASE_CMD \
-                 --hpc-env=local\
+                 --hpc-env=hpc.local\
                  --no-verify-results\
                  --exp-graphs=inter
                  "
 fi
 
-cd $SIERRA_ROOT
+cd $TITERRA_ROOT
 
-if [ "$TASK" == "small" ] || [ "$TASK" == "all" ]; then
+if [ "$TASK" == "small" ] || [ "$TASK" == "exp" ]; then
 
     for s in "${SCENARIOS_VD_SMALL[@]}"
     do
@@ -146,7 +148,7 @@ if [ "$TASK" == "small" ] || [ "$TASK" == "all" ]; then
     done
 fi
 
-if [ "$TASK" == "large" ] || [ "$TASK" == "all" ]; then
+if [ "$TASK" == "large" ] || [ "$TASK" == "exp" ]; then
 
     for s in "${SCENARIOS_VD_LARGE[@]}"
     do
@@ -166,8 +168,8 @@ if [ "$TASK" == "large" ] || [ "$TASK" == "all" ]; then
     done
 fi
 
-if [ "$TASK" == "comp" ] || [ "$TASK" == "all" ]; then
-    STAGE5_CMD="python3 sierra.py \
+if [ "$TASK" == "comp" ]; then
+    STAGE5_CMD="sierra-cli \
                   --project=fordyca\
                   --pipeline 5\
                   --scenario-comparison\
@@ -175,42 +177,47 @@ if [ "$TASK" == "comp" ] || [ "$TASK" == "all" ]; then
                   --bc-univar\
                   --controller=d0.CRW\
                   --plot-large-text\
-                  --plot-log-xscale\
-                  --log-level=DEBUG\
+                  --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT"
 
-    $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-                --scenarios-list=SS.16x8x2,DS.16x8x2\
-                --scenarios-legend="SS","DS"
+    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
+    #             --scenarios-list=SS.16x8x2,DS.16x8x2
+    #             --scenarios-legend="SS","DS"
 
-    $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-                --scenarios-list=RN.8x8x2,PL.8x8x2\
-                --scenarios-legend="RN","PL"
+    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
+    #             --scenarios-list=RN.8x8x2,PL.8x8x2\
+    #             --scenarios-legend="RN","PL"
 
-    $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
-                --scenarios-list=SS.32x16x2,DS.32x16x2\
-                --scenarios-legend="SS","DS"
+    # $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
+    #             --scenarios-list=SS.32x16x2,DS.32x16x2\
+    #             --scenarios-legend="SS","DS"
 
-    $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
-                --scenarios-list=RN.16x16x2,PL.16x16x2\
-                --scenarios-legend="RN","PL"
+    # $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
+    #             --scenarios-list=RN.16x16x2,PL.16x16x2\
+    #             --scenarios-legend="RN","PL"
 
     # $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
     #             --scenarios-list=SS.16x8x2,DS.16x8x2\
-    #             --plot-log-xscale\
+    #             --plot-enumerated-xscale\
+    #             --plot-log-yscale\
     #             --scenarios-legend="SS","DS"
 
-    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
-    #             --scenarios-list=RN.8x8x2,PL.8x8x2\
-    #             --plot-log-xscale\
-    #             --scenarios-legend="RN","PL"
+    $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
+                --scenarios-list=RN.8x8x2,PL.8x8x2\
+                --plot-enumerated-xscale\
+                --plot-log-yscale\
+                --scenarios-legend="RN","PL"
 
-    # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
+    # # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
     #             --scenarios-list=SS.256x128x2,DS.256x128x2\
+    #             --plot-enumerated-xscale\
+    #             --plot-log-yscale\
     #             --scenarios-legend="SS","DS"
 
     # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
     #             --scenarios-list=RN.256x256x2,PL.256x256x2\
+    #             --plot-enumerated-xscale\
+    #             --plot-log-yscale\
     #             --scenarios-legend="RN","PL"
 
 fi

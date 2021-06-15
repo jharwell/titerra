@@ -20,7 +20,6 @@ See :ref:`ln-var-ts` for documentation and usage.
 
 # Core packages
 import typing as tp
-import re
 
 # 3rd party packages
 import implements
@@ -47,13 +46,13 @@ class TimeSetup():
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         if not self.attr_changes:
-            self.attr_changes = [XMLAttrChangeSet(XMLAttrChange(".//output/metrics/append",
+            self.attr_changes = [XMLAttrChangeSet(XMLAttrChange(".//output/metrics/sinks/csv/append",
                                                                 "output_interval",
                                                                 "{0}".format(self.metric_interval)),
-                                                  XMLAttrChange(".//output/metrics/truncate",
+                                                  XMLAttrChange(".//output/metrics/sinks/csv/truncate",
                                                                 "output_interval",
                                                                 "{0}".format(self.metric_interval)),
-                                                  XMLAttrChange(".//output/metrics/create",
+                                                  XMLAttrChange(".//output/metrics/sinks/csv/create",
                                                                 "output_interval",
                                                                 "{0}".format(max(1, self.metric_interval / kND_DATA_DIVISOR_DEFAULT))))]
 
@@ -64,6 +63,9 @@ class TimeSetup():
 
     def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
         return []
+
+    def gen_files(self) -> None:
+        pass
 
 
 class Parser(ts.Parser):

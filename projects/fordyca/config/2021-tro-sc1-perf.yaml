@@ -11,7 +11,7 @@ perf:
   intra_tv_population_csv: 'tv-population.csv'
 
   raw_perf_title: 'Blocks Transported (Cumulative Average)'
-  raw_perf_ylabel: '# Blocks'
+  raw_perf_ylabel: '\# Blocks'
 
   # Journal scenario1
   flexibility:

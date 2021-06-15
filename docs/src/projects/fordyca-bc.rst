@@ -8,6 +8,7 @@ FORDYCA Project Batch Criteria
 - :ref:`Block Motion Dynamics <ln-bc-block-motion-dynamics>`
 - :ref:`Oracle <ln-bc-oracle>`
 - :ref:`Task Allocation Policy <ln-bc-ta-policy-set>`
+- :ref:`Temporal Variance <ln-bc-tv>`
 
 .. _ln-bc-population-dynamics:
 
@@ -17,7 +18,9 @@ Swarm Population Dynamics
 Cmdline Syntax
 --------------
 
-``population_dynamics.C{cardinality}.F{Factor}[.{dynamics_type}{prob}[...]]``
+::
+
+   population_dynamics.C{cardinality}.F{Factor}[.{dynamics_type}{prob}[...]]
 
 - ``cardinality`` - The # of different values of each of the specified dynamics
   types to to test with (starting with the one on the cmdline). This defines the
@@ -98,7 +101,9 @@ Block Quantity
 
 Cmdline Syntax
 --------------
-``block_quantity.{block_type}.{increment_type}{N}``
+::
+
+   block_quantity.{block_type}.{increment_type}{N}
 
 - ``block_type`` - ``cube`` or ``ramp``, depending on what type of blocks you
   want to control the count of.
@@ -124,7 +129,9 @@ Block Density
 Cmdline Syntax
 --------------
 
-``block_density.CD{density}.I{Arena Size Increment}.C{cardinality}``
+::
+
+   block_density.CD{density}.I{Arena Size Increment}.C{cardinality}
 
 - ``density`` - <integer>p<integer> (i.e. 5p0 for 5.0)
 
@@ -147,7 +154,9 @@ Block Motion Dynamics
 Cmdline Syntax
 --------------
 
-``block_motion_dynamics.C{cardinality}.F{Factor}.{dynamics_type}{prob}``
+::
+
+   block_motion_dynamics.C{cardinality}.F{Factor}.{dynamics_type}{prob}
 
 - ``cardinality`` - The # of different values of each of the specified dynamics
   types to to test with (starting with the one on the cmdline). This defines the
@@ -181,7 +190,10 @@ Oracle
 
 Cmdline Syntax
 --------------
-``oracle.{oracle_name}[.Z{population}]``
+
+::
+
+   oracle.{oracle_name}[.Z{population}]
 
 - ``oracle_name`` - {entities, tasks}
 
@@ -221,3 +233,135 @@ Examples:
 
 - ``ta_policy_set.all``: All possible task allocation policies; swarm size not
   modified.
+
+.. _ln-bc-tv:
+
+Temporal Variance
+-----------------
+
+Injecting waveforms into the swarm's environment which affect the individual
+robot behavior to simulate changing outdoor conditions, changing object
+sizes/weights, etc.
+
+
+.. NOTE::
+
+   The graphs generated from this criteria exclude exp0.
+
+.. WARNING::
+
+   Some of the temporal variance config is very FORDYCA specific; hopefully this
+   will change in the future, or be pushed down to a project-specific extension
+   of a base flexibility class.
+
+.. _ln-bc-tv-cmdline:
+
+Cmdline Syntax
+^^^^^^^^^^^^^^
+
+``temporal_variance.{variance_type}{waveform_type}[step_time][.Z{population}]``
+
+- ``variance_type`` - [BC,BM,M].
+
+  - ``BC`` - Apply motion throttling to robot speed when it is carrying a
+    block according to the specified waveform.
+
+  - ``BM`` - Apply the specified waveform when calculating robot block
+    manipulation penalties (pickup, drop, etc.).
+
+  - ``M`` - Apply the specified waveform to robot motion unconditionally.
+
+- ``waveform_type`` - {Sine,Square,Sawtooth,Step{U,D},Constant}.
+
+- ``step_time`` - Timestep the step function should switch (optional).
+
+- ``population`` - The static swarm size to use (optional).
+
+Examples:
+
+- ``temporal_variance.BCSine.Z16`` - Block carry sinusoidal variance in a swarm
+  of size 16.
+
+- ``temporal_variance.BCStep50000.Z32`` - Block carry step variance switch at
+  50000 timesteps in a swarm of size 32.
+
+- ``temporal_variance.BCStep50000`` - Block carry step variance switching at
+  50000 timesteps; swarm size not modified.
+
+The frequency, amplitude, offset, and phase of the waveforms is set via the
+``main.yaml`` configuration file for a project (not an easy way to specify
+ranges in a single batch criteria definition string). The relevant section is
+shown below.
+
+For the {Sine,Square,Sawtooth} waveforms, the cardinality of the batched
+experiment is determined by: (Size of Hz list -1) * (Size of BC_amp/BM_amp
+list - 1).
+
+.. _ln-bc-tv-yaml-config:
+
+YAML Config
+^^^^^^^^^^^
+
+.. code-block:: YAML
+
+   perf:
+     ...
+     flexibility:
+       # The range of Hz to use for generated waveforms. Applies to Sine,
+       # Sawtooth, Square waves. There is no limit for the length of the list.
+       hz:
+         - frequency1
+         - frequency2
+         - frequency3
+         - ...
+       # The range of block manipulation penalties to use if that is the type of
+       # applied temporal variance (BM). Specified in timesteps. There is no
+       # limit for the length of the list.
+       BM_amp:
+         - penalty1
+         - penalty2
+         - penalty3
+         - ...
+      # The range of block carry penalties to use if that is the type of applied
+      # temporal variance (BC). Specified as percent slowdown: [0.0, 1.0]. There
+      #is no limit for the length of the list.
+      BC_amp:
+         - percent1
+         - percent2
+         - percent3
+         - ...
+
+      # The range of motion throttle penalties to use if that is the type of
+      # applied temporal variance (M). Specified as percent slowdown: [0.0,
+      # 1.0]. There is no limit for the length of the list.
+      M_amp:
+         - percent1
+         - percent2
+         - percent3
+         - ...
+
+Experiment Definitions
+^^^^^^^^^^^^^^^^^^^^^^
+
+- exp0 - Ideal conditions, which is a ``Constant`` waveform with amplitude
+  ``BC_amp[0]``, ``BM_amp[0]``, ``M_amp[0]`` depending.
+
+- exp1-expN
+
+  - Cardinality of ``|hz|`` * ``|BM_amp|`` if the variance type is ``BM`` and
+    the waveform type is Sine, Square, or Sawtooth.
+
+  - Cardinality of ``|hz|`` * ``|BC_amp|`` if the variance type is ``BC`` and
+    the waveform type is Sine, Square, or Sawtooth.
+
+  - Cardinality of ``|hz|`` * ``|M_amp|`` if the variance type is ``M`` and
+    the waveform type is Sine, Square, or Sawtooth.
+
+  - Cardinality of ``|BM_amp|`` if the variance type is ``BM`` and the waveform
+    type is StepU, StepD.
+
+  - Cardinality of ``|BC_amp|`` if the variance type is ``BC`` and the waveform
+    type is StepU, StepD.
+
+  - Cardinality of ``|M_amp|`` if the variance type is ``M`` and the waveform
+    type is StepU, StepD.

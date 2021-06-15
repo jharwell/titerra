@@ -39,15 +39,51 @@ def crwD_for_searching(N: float,
     drift_xy = wander_speed ** 2 / (4 * tick_len) * 1.0 / 0.055
 
     if 'RN' in scenario:
-        L_s = 0.055 / (math.sqrt(2.0))
+        # ODE-3 small const-rho,var-rho
+        # L_s = 0.055 * 1.5 * (math.sqrt(2.0))
+
+        # ODE-3 large const-rho
+        L_s = 0.055 * (3.75 * math.sqrt(2.0))
+
+        # ODE-3 large var-rho
+        L_s = 0.055 * (3.5 * math.sqrt(2.0))
     elif 'PL' in scenario:
-        L_s = 0.055 / (5 * math.sqrt(2.0))
+        # ODE-3 small const-rho
+        # L_s = 0.055 / (math.sqrt(2.0))
+
+        # ODE-3 small var-rho
+        # L_s = 0.055 / (3.75 * math.sqrt(2.0))
+
+        # ODE-3 large const-rho
+        L_s = 0.055 * (3.75 * math.sqrt(2.0))
     elif 'DS' in scenario:
+        # ODE-3 small const-rho
         L_s = 0.055 * (1.5 * math.sqrt(2.0))
+
+        # ODE-3 small var-rho
+        # L_s = 0.055 * (math.sqrt(2.0))
+
+        # ODE-3 large const-rho
+        # L_s = 0.055 * (2.75 * math.sqrt(2.0))
+
+        # ODE-3 large var-rho
+        # L_s = 0.055 * 2.5 * (math.sqrt(2.0))
+
     elif 'SS' in scenario:
+        # ODE-3 small const-rho
         L_s = 0.055 * 2 * math.sqrt(2.0)
 
-    return drift_xy * N * L_s
+        # ODE-3 small var-rho
+        # L_s = 0.055 * math.sqrt(2.0)
+
+        # ODE-3 large const-rho
+        # L_s = 0.055 * 2.5 * math.sqrt(2.0)
+
+        # ODE-3 large var-rho
+        # L_s = 0.055 * 2.0 * math.sqrt(2.0)
+
+    F_N = N * drift_xy * L_s
+    return F_N
 
 
 def crwD_for_avoiding(N: float, wander_speed: float, ticks_per_sec: int, scenario: str) -> float:
@@ -58,14 +94,47 @@ def crwD_for_avoiding(N: float, wander_speed: float, ticks_per_sec: int, scenari
     """
     D = crwD_for_searching(N, wander_speed, ticks_per_sec, scenario) * 1.0 / 0.055
 
-    # For random scenarios, the the collision avoidance dynamics are a linear function of the swarm
-    # size, as you would expect. For other non-uniform and/or non-symmetric block distributions, the
-    # collision avoidance dynamics are NOT a linear function, and we need correctional factors.
     if 'PL' in scenario:
-        return D  # / (4 * math.sqrt(2.0))  # sub-linear
+        # ODE-3 small const-rho
+        # return D / (math.sqrt(2.0))
+
+        # ODE-3 small var-rho
+        # return D  # / (math.sqrt(2.0))
+
+        # ODE-3 large const-rho
+        return D / (4.0 * math.sqrt(2.0))
     elif 'RN' in scenario:
-        return D  # * (math.sqrt(2.0))
+        # ODE-3 small const-rho,var-rho
+        # return D * 2.5 * (math.sqrt(2.0))
+
+        # ODE-3 large const-rho
+        # return D / (1.75 * math.sqrt(2.0))
+
+        # ODE-3 large var-rho
+        return -D / (2400 * math.sqrt(2.0))
+
     elif 'DS' in scenario:
-        return D / math.sqrt(2.0)
+        # ODE-3 small const-rho
+        return D / (1.5 * math.sqrt(2.0))
+
+        # ODE-3 small var-rho
+        # return D
+
+        # ODE-3 large const-rho
+        # return D / (4.75 * math.sqrt(2.0))
+
+        # ODE-3 large var-rho
+        # return D / (22.5 * math.sqrt(2.0))
+
     elif 'SS' in scenario:
-        return D / (2.0 * math.sqrt(2.0))  # sub-linear
+        # ODE-3 small const-rho
+        return D / (2.0 * math.sqrt(2.0))
+
+        # ODE-3 small var-rho
+        # return D / (math.sqrt(2.0))
+
+        # ODE-3 large const-rho
+        # return D / (8.5 * math.sqrt(2.0))
+
+        # ODE-3 large var-rho
+        # return D / (45 * math.sqrt(2.0))

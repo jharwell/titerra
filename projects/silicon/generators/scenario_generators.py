@@ -14,15 +14,21 @@
 #  You should have received a copy of the GNU General Public License along with
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
-import core.generators.scenario_generator as sg
-import plugins.silicon.generators.common as gc
-import plugins.silicon.variables.construct_targets as ct
+# Core packages
+
+# 3rd party packages
+
+# Project packages
+import projects.titan.generators.common as ticom
+import projects.silicon.generators.common as sicom
+from projects.titan.variables import arena, block_distribution
 
 
-class SSGenerator(sg.SSGenerator):
+class SSGenerator(sicom.ConstructionScenarioGenerator):
     """
-    SILICON extensions to the single source foraging generator
-    :class:`~core.generators.scenario_generator.SSGenerator`.
+    SILICON extensions to the base scenario generator
+    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for single source
+    construction scenarios.
 
     This includes:
 
@@ -32,34 +38,39 @@ class SSGenerator(sg.SSGenerator):
     """
 
     def __init__(self, *args, **kwargs):
-        sg.SSGenerator.__init__(self, *args, **kwargs)
+        sicom.ConstructionScenarioGenerator.__init__(self, *args, **kwargs)
 
     def generate(self):
 
         exp_def = super().generate()
 
-        # Construction targets
-        max_z = 0.0
-        for t in self.cmdopts['construct_targets']:
-            target = ct.factory(self.cmdopts, t, self.cmdopts['construct_targets'].index(t))
-            max_z = max(max_z, target.structure['bb'][2])
-            [exp_def.tag_remove(a[0], a[1]) for a in target.gen_tag_rmlist()[0]]
-            [exp_def.tag_add(a[0], a[1], a[2])
-             for addset in target.gen_tag_addlist() for a in addset]
+        # Generate arena definitions
+        assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
+            "FATAL: SS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                    self.spec.arena_dim.ysize())
 
-            # Nest
-            gc.generate_nest_pose(exp_def, target.extent)
+        arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
+                                                   y_range=[
+                                                   self.spec.arena_dim.ysize()],
+                                                   z=self.spec.arena_dim.zsize(),
+                                                   dist_type='SS',
+                                                   gen_nests=False)
+        self.generate_arena_map(exp_def, arena_map)
+
+        # Generate and apply block distribution type definitions
+        self.generate_block_dist(exp_def, block_distribution.SingleSourceDistribution())
 
         # Mixed 2D/3D physics
-        gc.generate_mixed_physics(exp_def, self.cmdopts, max_z, 'single_source')
+        self.generate_mixed_physics(exp_def, 'single_source')
 
         return exp_def
 
 
-class DSGenerator(sg.DSGenerator):
+class DSGenerator(sicom.ConstructionScenarioGenerator):
     """
-    SILICON extensions to the single source foraging generator
-    :class:`~core.generators.single_source.DSGenerator`.
+    SILICON extensions to the base scenario generator
+    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for dual source
+    construction scenarios.
 
     This includes:
 
@@ -69,34 +80,39 @@ class DSGenerator(sg.DSGenerator):
     """
 
     def __init__(self, *args, **kwargs):
-        sg.DSGenerator.__init__(self, *args, **kwargs)
+        sicom.ConstructionScenarioGenerator.__init__(self, *args, **kwargs)
 
     def generate(self):
 
         exp_def = super().generate()
 
-        # Construction targets
-        max_z = 0.0
-        for t in self.cmdopts['construct_targets']:
-            target = ct.factory(self.cmdopts, t, self.cmdopts['construct_targets'].index(t))
-            max_z = max(max_z, target.structure['bb'][2])
-            [exp_def.tag_remove(a[0], a[1]) for a in target.gen_tag_rmlist()[0]]
-            [exp_def.tag_add(a[0], a[1], a[2])
-             for addset in target.gen_tag_addlist() for a in addset]
+        # Generate arena definitions
+        assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
+            "FATAL: DS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                    self.spec.arena_dim.ysize())
 
-            # Nest
-            gc.generate_nest_pose(exp_def, target.extent)
+        arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
+                                                   y_range=[
+                                                   self.spec.arena_dim.ysize()],
+                                                   z=self.spec.arena_dim.zsize(),
+                                                   dist_type='DS',
+                                                   gen_nests=False)
+        self.generate_arena_map(exp_def, arena_map)
+
+        # Generate and apply block distribution type definitions
+        self.generate_block_dist(exp_def, block_distribution.DualSourceDistribution())
 
         # Mixed 2D/3D physics
-        gc.generate_mixed_physics(exp_def, self.cmdopts, max_z, 'dual_source')
+        self.generate_mixed_physics(exp_def, 'dual_source')
 
         return exp_def
 
 
-class QSGenerator(sg.QSGenerator):
+class QSGenerator(sicom.ConstructionScenarioGenerator):
     """
-    SILICON extensions to the single source foraging generator
-    :class:`~core.generators.scenario_generator.QSGenerator`.
+    SILICON extensions to the base scenario generator
+    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for quad source
+    construction scenarios.
 
     This includes:
 
@@ -106,34 +122,37 @@ class QSGenerator(sg.QSGenerator):
     """
 
     def __init__(self, *args, **kwargs):
-        sg.QSGenerator.__init__(self, *args, **kwargs)
+        sicom.ConstructionScenarioGenerator.__init__(self, *args, **kwargs)
 
     def generate(self):
 
         exp_def = super().generate()
 
-        # Construction targets
-        max_z = 0.0
-        for t in self.cmdopts['construct_targets']:
-            target = ct.factory(self.cmdopts, t, self.cmdopts['construct_targets'].index(t))
-            max_z = max(max_z, target.structure['bb'][2])
-            [exp_def.tag_remove(a[0], a[1]) for a in target.gen_tag_rmlist()[0]]
-            [exp_def.tag_add(a[0], a[1], a[2])
-             for addset in target.gen_tag_addlist() for a in addset]
+        # Generate arena definitions
+        assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
+            "FATAL: QS distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                       self.spec.arena_dim.ysize())
 
-            # Nest
-            gc.generate_nest_pose(exp_def, target.extent)
+        arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
+                                      z=self.spec.arena_dim.zsize(),
+                                      dist_type='QS',
+                                      gen_nests=False)
+        self.generate_arena_map(exp_def, arena_map)
+
+        # Generate and apply block distribution type definitions
+        self.generate_block_dist(exp_def, block_distribution.QuadSourceDistribution())
 
         # Mixed 2D/3D physics
-        gc.generate_mixed_physics(exp_def, self.cmdopts, max_z, 'quad_source')
+        self.generate_mixed_physics(exp_def, 'quad_source')
 
         return exp_def
 
 
-class RNGenerator(sg.RNGenerator):
+class RNGenerator(sicom.ConstructionScenarioGenerator):
     """
-    SILICON extensions to the single source foraging generator
-    :class:`~core.generators.scenario_generator.RNGenerator`.
+    SILICON extensions to the base scenario generator
+    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for random
+    construction scenarios.
 
     This includes:
 
@@ -143,34 +162,37 @@ class RNGenerator(sg.RNGenerator):
     """
 
     def __init__(self, *args, **kwargs):
-        sg.RNGenerator.__init__(self, *args, **kwargs)
+        sicom.ConstructionScenarioGenerator.__init__(self, *args, **kwargs)
 
     def generate(self):
 
         exp_def = super().generate()
 
-        # Construction targets
-        max_z = 0.0
-        for t in self.cmdopts['construct_targets']:
-            target = ct.factory(self.cmdopts, t, self.cmdopts['construct_targets'].index(t))
-            max_z = max(max_z, target.structure['bb'][2])
-            [exp_def.tag_remove(a[0], a[1]) for a in target.gen_tag_rmlist()[0]]
-            [exp_def.tag_add(a[0], a[1], a[2])
-             for addset in target.gen_tag_addlist() for a in addset]
+        # Generate arena definitions
+        assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
+            "FATAL: RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                       self.spec.arena_dim.ysize())
 
-            # Nest
-            gc.generate_nest_pose(exp_def, target.extent)
+        arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
+                                      z=self.spec.arena_dim.zsize(),
+                                      dist_type='RN',
+                                      gen_nests=False)
+        self.generate_arena_map(exp_def, arena_map)
+
+        # Generate and apply block distribution type definitions
+        self.generate_block_dist(exp_def, block_distribution.RandomDistribution())
 
         # Mixed 2D/3D physics
-        gc.generate_mixed_physics(exp_def, self.cmdopts, max_z, 'random')
+        self.generate_mixed_physics(exp_def, 'random')
 
         return exp_def
 
 
-class PLGenerator(sg.PLGenerator):
+class PLGenerator(sicom.ConstructionScenarioGenerator):
     """
-    SILICON extensions to the single source foraging generator
-    :class:`~core.generators.scenario_generator.PLGenerator`.
+    SILICON extensions to the base scenario generator
+    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for powerlaw
+    construction scenarios.
 
     This includes:
 
@@ -180,25 +202,32 @@ class PLGenerator(sg.PLGenerator):
     """
 
     def __init__(self, *args, **kwargs):
-        sg.PLGenerator.__init__(self, *args, **kwargs)
+        sicom.ConstructionScenarioGenerator.__init__(self, *args, **kwargs)
 
     def generate(self):
 
         exp_def = super().generate()
 
-        # Construction targets
-        max_z = 0.0
-        for t in self.cmdopts['construct_targets']:
-            target = ct.factory(self.cmdopts, t, self.cmdopts['construct_targets'].index(t))
-            max_z = max(max_z, target.structure['bb'][2])
-            [exp_def.tag_remove(a[0], a[1]) for a in target.gen_tag_rmlist()[0]]
-            [exp_def.tag_add(a[0], a[1], a[2])
-             for addset in target.gen_tag_addlist() for a in addset]
+        # Generate arena definitions
+        assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
+            "FATAL: PL distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                       self.spec.arena_dim.ysize())
 
-            # Nest
-            gc.generate_nest_pose(exp_def, target.extent)
+        arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
+                                      z=self.spec.arena_dim.zsize(),
+                                      dist_type='PL',
+                                      gen_nests=False)
+        self.generate_arena_map(exp_def, arena_map)
+
+        # Generate and apply block distribution type definitions
+        self.generate_block_dist(exp_def,
+                                 block_distribution.PowerLawDistribution(self.spec.arena_dim))
 
         # Mixed 2D/3D physics
-        gc.generate_mixed_physics(exp_def, self.cmdopts, max_z, 'powerlaw')
+        self.generate_mixed_physics(exp_def, 'powerlaw')
 
         return exp_def
+
+
+def gen_generator_name(scenario_name: str) -> str:
+    return ticom.gen_generator_name(scenario_name)

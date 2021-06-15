@@ -18,6 +18,7 @@
 Extensions to :class:`sierra.core.generators.ARGoSScenarioGenerator` common to all TITAN scenarios.
 """
 # Core packages
+import re
 
 # 3rd party packages
 
@@ -25,29 +26,41 @@ Extensions to :class:`sierra.core.generators.ARGoSScenarioGenerator` common to a
 from sierra.core.utils import ArenaExtent
 from sierra.core.xml_luigi import XMLLuigi
 from sierra.core.generators.scenario_generator import ARGoSScenarioGenerator
+import sierra.core.utils as scutils
+
 from projects.titan.variables import block_distribution, arena, block_quantity, time_setup
+from projects.titan.variables.nest import Nest
 
 
-class ForagingScenarioGenerator(ARGoSScenarioGenerator):
+class BaseScenarioGenerator(ARGoSScenarioGenerator):
     def __init__(self, *args, **kwargs) -> None:
         ARGoSScenarioGenerator.__init__(self, *args, **kwargs)
 
-    def generate_arena_map(self, exp_def: XMLLuigi, the_arena: arena.RectangularArena) -> None:
+    def generate_nest(self,
+                      exp_def: XMLLuigi,
+                      nest: ArenaExtent,
+                      the_arena: ArenaExtent) -> None:
         """
-        Generate XML changes for the specified arena map configuration.
+        Generate XML changes for setting up the specified nest DIRECTLY from the extent, rather than
+        computing them from the arena.
 
         Writes generated changes to the simulation definition pickle file.
         """
-        chgs = the_arena.gen_attr_changelist()[0]
-        for chg in chgs:
-            exp_def.attr_change(chg.path, chg.attr, chg.value)
+        np = Nest(src='direct', nest=nest, arena=the_arena)
 
-        chgs.pickle(self.spec.exp_def_fpath)
+        _, adds, chgs = scutils.apply_to_expdef(np, exp_def)
+        scutils.pickle_modifications(adds, chgs, self.spec.exp_def_fpath)
 
-        rms = the_arena.gen_tag_rmlist()
-        if rms:  # non-empty
-            for a in rms[0]:
-                exp_def.tag_remove(a[0], a[1])
+    def generate_time(self, exp_def: XMLLuigi):
+        """
+        Generates XML changes for setting up metric collection in TITAN.
+
+        Writes generated changes to the simulation definition pickle file.
+        """
+        tsetup = time_setup.factory(self.cmdopts['time_setup'])()
+
+        _, adds, chgs = scutils.apply_to_expdef(tsetup, exp_def)
+        scutils.pickle_modifications(adds, chgs, self.spec.exp_def_fpath)
 
     def generate_convergence(self, exp_def: XMLLuigi):
         """
@@ -61,6 +74,17 @@ class ForagingScenarioGenerator(ARGoSScenarioGenerator):
                                 "n_threads",
                                 str(self.cmdopts["physics_n_engines"]))
 
+    def generate_arena_map(self,
+                           exp_def: XMLLuigi,
+                           the_arena: arena.RectangularArena) -> None:
+        """
+        Generate XML changes for the specified arena map configuration.
+
+        Writes generated changes to the simulation definition pickle file.
+        """
+        _, adds, chgs = scutils.apply_to_expdef(the_arena, exp_def)
+        scutils.pickle_modifications(adds, chgs, self.spec.exp_def_fpath)
+
     @staticmethod
     def generate_block_dist(exp_def: XMLLuigi,
                             block_dist: block_distribution.BaseDistribution) -> None:
@@ -69,13 +93,7 @@ class ForagingScenarioGenerator(ARGoSScenarioGenerator):
 
         Does not write generated changes to the simulation definition pickle file.
         """
-        for a in block_dist.gen_attr_changelist()[0]:
-            exp_def.attr_change(a.path, a.attr, a.value)
-
-        rms = block_dist.gen_tag_rmlist()
-        if rms:  # non-empty
-            for a in rms[0]:
-                exp_def.tag_remove(a[0], a[1])
+        scutils.apply_to_expdef(block_dist, exp_def)
 
     def generate_block_count(self, exp_def: XMLLuigi) -> None:
         """
@@ -108,22 +126,30 @@ class ForagingScenarioGenerator(ARGoSScenarioGenerator):
 
         chgs.pickle(self.spec.exp_def_fpath)
 
-    def generate_time(self, exp_def: XMLLuigi):
-        """
-        Generates XML changes for setting up metric collection in TITAN.
 
-        Writes generated changes to the simulation definition pickle file.
-        """
-        tsetup = time_setup.factory(self.cmdopts['time_setup'])()
+class ForagingScenarioGenerator(BaseScenarioGenerator):
+    def __init__(self, *args, **kwargs) -> None:
+        BaseScenarioGenerator.__init__(self, *args, **kwargs)
 
-        chgs = tsetup.gen_attr_changelist()[0]
-        for chg in chgs:
-            exp_def.attr_change(chg.path, chg.attr, chg.value)
+    def generate(self) -> XMLLuigi:
+        exp_def = super().generate()
 
-        chgs.pickle(self.spec.exp_def_fpath)
+        # Generate time definitions for TITAN
+        self.generate_time(exp_def)
+
+        # Generate and apply robot count definitions
+        self.generate_n_robots(exp_def)
+
+        # Generate and apply convergence definitions
+        self.generate_convergence(exp_def)
+
+        # Generate and apply # blocks definitions
+        self.generate_block_count(exp_def)
+
+        return exp_def
 
 
-class SSGenerator(ForagingScenarioGenerator):
+class ForagingSSGenerator(ForagingScenarioGenerator):
     """
     Generates XML changes for single source foraging.
 
@@ -131,6 +157,7 @@ class SSGenerator(ForagingScenarioGenerator):
 
     - Rectangular 2x1 arena
     - Single source block distribution
+    - One nest
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -138,16 +165,6 @@ class SSGenerator(ForagingScenarioGenerator):
 
     def generate(self):
         exp_def = super().generate()
-
-        # Generate time definitions for TITAN
-        self.generate_time(exp_def)
-
-        # Generate physics engine definitions
-        self.generate_physics(exp_def,
-                              self.cmdopts,
-                              self.cmdopts['physics_engine_type2D'],
-                              self.cmdopts['physics_n_engines'],
-                              [self.spec.arena_dim])
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
@@ -158,25 +175,17 @@ class SSGenerator(ForagingScenarioGenerator):
                                                    y_range=[
                                                    self.spec.arena_dim.ysize()],
                                                    z=self.spec.arena_dim.zsize(),
-                                                   dist_type='SS')
+                                                   dist_type='SS',
+                                                   gen_nests=True)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
         self.generate_block_dist(exp_def, block_distribution.SingleSourceDistribution())
 
-        # Generate and apply # blocks definitions
-        self.generate_block_count(exp_def)
-
-        # Generate and apply robot count definitions
-        self.generate_n_robots(exp_def)
-
-        # Generate and apply convergence definitions
-        self.generate_convergence(exp_def)
-
         return exp_def
 
 
-class DSGenerator(ForagingScenarioGenerator):
+class ForagingDSGenerator(ForagingScenarioGenerator):
     """
     Generates XML changes for dual source foraging.
 
@@ -184,7 +193,7 @@ class DSGenerator(ForagingScenarioGenerator):
 
     - Rectangular 2x1 arena
     - Dual source block distribution
-
+    - One nest
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -192,16 +201,6 @@ class DSGenerator(ForagingScenarioGenerator):
 
     def generate(self):
         exp_def = super().generate()
-
-        # Generate time definitions for TITAN
-        self.generate_time(exp_def)
-
-        # Generate physics engine definitions
-        self.generate_physics(exp_def,
-                              self.cmdopts,
-                              self.cmdopts['physics_engine_type2D'],
-                              self.cmdopts['physics_n_engines'],
-                              [self.spec.arena_dim])
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
@@ -209,25 +208,19 @@ class DSGenerator(ForagingScenarioGenerator):
                                                                                     self.spec.arena_dim.ysize())
 
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
-                                                   y_range=[
-                                                       self.spec.arena_dim.ysize()],
+                                                   y_range=[self.spec.arena_dim.ysize()],
                                                    z=self.spec.arena_dim.zsize(),
-                                                   dist_type='DS')
+                                                   dist_type='DS',
+                                                   gen_nests=True)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        super().generate_block_dist(exp_def, block_distribution.DualSourceDistribution())
-
-        # Generate and apply # blocks definitions
-        self.generate_block_count(exp_def)
-
-        # Generate and apply robot count definitions
-        self.generate_n_robots(exp_def)
+        self.generate_block_dist(exp_def, block_distribution.DualSourceDistribution())
 
         return exp_def
 
 
-class QSGenerator(ForagingScenarioGenerator):
+class ForagingQSGenerator(ForagingScenarioGenerator):
     """
     Generates XML changes for quad source foraging.
 
@@ -235,7 +228,7 @@ class QSGenerator(ForagingScenarioGenerator):
 
     - Square arena
     - Quad source block distribution
-
+    - One nest
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -243,16 +236,6 @@ class QSGenerator(ForagingScenarioGenerator):
 
     def generate(self):
         exp_def = super().generate()
-
-        # Generate time definitions for TITAN
-        self.generate_time(exp_def)
-
-        # Generate physics engine definitions
-        self.generate_physics(exp_def,
-                              self.cmdopts,
-                              self.cmdopts['physics_engine_type2D'],
-                              self.cmdopts['physics_n_engines'],
-                              [self.spec.arena_dim])
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
@@ -261,26 +244,18 @@ class QSGenerator(ForagingScenarioGenerator):
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
-                                      dist_type='QS')
+                                      dist_type='QS',
+                                      gen_nests=True)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
         source = block_distribution.QuadSourceDistribution()
-        super().generate_block_dist(exp_def, source)
-
-        # Generate and apply # blocks definitions
-        self.generate_block_count(exp_def)
-
-        # Generate and apply robot count definitions
-        self.generate_n_robots(exp_def)
-
-        # Generate and apply convergence definitions
-        self.generate_convergence(exp_def)
+        self.generate_block_dist(exp_def, source)
 
         return exp_def
 
 
-class RNGenerator(ForagingScenarioGenerator):
+class ForagingRNGenerator(ForagingScenarioGenerator):
     """
     Generates XML changes for random foraging.
 
@@ -288,7 +263,7 @@ class RNGenerator(ForagingScenarioGenerator):
 
     - Square arena
     - Random block distribution
-
+    - One nest
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -296,16 +271,6 @@ class RNGenerator(ForagingScenarioGenerator):
 
     def generate(self):
         exp_def = super().generate()
-
-        # Generate time definitions for TITAN
-        self.generate_time(exp_def)
-
-        # Generate physics engine definitions
-        self.generate_physics(exp_def,
-                              self.cmdopts,
-                              self.cmdopts['physics_engine_type2D'],
-                              self.cmdopts['physics_n_engines'],
-                              [self.spec.arena_dim])
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
@@ -313,25 +278,17 @@ class RNGenerator(ForagingScenarioGenerator):
                                                                                        self.spec.arena_dim.ysize())
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
-                                      dist_type='RN')
+                                      dist_type='RN',
+                                      gen_nests=True)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        super().generate_block_dist(exp_def, block_distribution.RandomDistribution())
-
-        # Generate and apply # blocks definitions
-        self.generate_block_count(exp_def)
-
-        # Generate and apply robot count definitions
-        self.generate_n_robots(exp_def)
-
-        # Generate and apply convergence definitions
-        self.generate_convergence(exp_def)
+        self.generate_block_dist(exp_def, block_distribution.RandomDistribution())
 
         return exp_def
 
 
-class PLGenerator(ForagingScenarioGenerator):
+class ForagingPLGenerator(ForagingScenarioGenerator):
     """
     Generates XML changes for powerlaw source foraging.
 
@@ -339,7 +296,7 @@ class PLGenerator(ForagingScenarioGenerator):
 
     - Square arena
     - Powerlaw block distribution
-
+    - One nest
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -347,16 +304,6 @@ class PLGenerator(ForagingScenarioGenerator):
 
     def generate(self):
         exp_def = super().generate()
-
-        # Generate time definitions for TITAN
-        self.generate_time(exp_def)
-
-        # Generate physics engine definitions
-        self.generate_physics(exp_def,
-                              self.cmdopts,
-                              self.cmdopts['physics_engine_type2D'],
-                              self.cmdopts['physics_n_engines'],
-                              [self.spec.arena_dim])
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
@@ -365,29 +312,31 @@ class PLGenerator(ForagingScenarioGenerator):
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
-                                      dist_type='PL')
+                                      dist_type='PL',
+                                      gen_nests=True)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        super().generate_block_dist(exp_def, block_distribution.PowerLawDistribution(self.spec.arena_dim))
-
-        # Generate and apply # blocks definitions
-        self.generate_block_count(exp_def)
-
-        # Generate and apply robot count definitions
-        self.generate_n_robots(exp_def)
-
-        # Generate and apply convergence definitions
-        self.generate_convergence(exp_def)
+        self.generate_block_dist(exp_def,
+                                 block_distribution.PowerLawDistribution(self.spec.arena_dim))
 
         return exp_def
 
 
+def gen_generator_name(scenario_name: str) -> str:
+    res = re.search('[SDQPR][SSSLN]', scenario_name)
+    assert res is not None, "Bad block distribution in {0}".format(scenario_name)
+    abbrev = res.group(0)
+
+    return abbrev + 'Generator'
+
+
 __api__ = [
+    'BaseScenarioGenerator',
     'ForagingScenarioGenerator',
-    'SSGenerator',
-    'DSGenerator',
-    'QSGenerator',
-    'PLGenerator',
-    'RNGenerator',
+    'ForagingSSGenerator',
+    'ForagingDSGenerator',
+    'ForagingQSGenerator',
+    'ForagingPLGenerator',
+    'ForagingRNGenerator',
 ]

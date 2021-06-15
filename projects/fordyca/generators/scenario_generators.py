@@ -18,10 +18,186 @@
 import typing as tp
 
 # Project packages
-import projects.titan.generators.common as gc
-from projects.fordyca.variables import dynamic_cache, static_cache
 from sierra.core.utils import ArenaExtent as ArenaExtent
 from sierra.core.xml_luigi import XMLLuigi
+
+import projects.titan.generators.common as ticom
+from projects.fordyca.variables import dynamic_cache, static_cache
+
+
+class SSGenerator(ticom.ForagingSSGenerator):
+    """
+    FORDYCA extensions to the single source foraging generator
+    :class:`~titan.generators.scenario_generator.SSGenerator`.
+
+    This includes:
+
+    - Static caches
+    - Dynamic caches
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        ticom.ForagingSSGenerator.__init__(self, *args, **kwargs)
+
+    def generate(self):
+
+        exp_def = super().generate()
+
+        # Generate physics engine definitions. Cannot be in common, because not
+        # shared between FORDYCA and SILICON.
+        self.generate_physics(exp_def,
+                              self.cmdopts,
+                              self.cmdopts['physics_engine_type2D'],
+                              self.cmdopts['physics_n_engines'],
+                              [self.spec.arena_dim])
+
+        if "d1" in self.controller:
+            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
+        if "d2" in self.controller:
+            generate_dynamic_cache(exp_def, self.spec.arena_dim)
+
+        return exp_def
+
+
+class DSGenerator(ticom.ForagingDSGenerator):
+    """
+    FORDYCA extensions to the single source foraging generator
+    :class:`~titan.generators.single_source.DSGenerator`.
+
+    This includes:
+
+    - Static caches
+    - Dynamic caches
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        ticom.ForagingDSGenerator.__init__(self, *args, **kwargs)
+
+    def generate(self):
+
+        exp_def = super().generate()
+
+        # Generate physics engine definitions. Cannot be in common, because not
+        # shared between FORDYCA and SILICON.
+        self.generate_physics(exp_def,
+                              self.cmdopts,
+                              self.cmdopts['physics_engine_type2D'],
+                              self.cmdopts['physics_n_engines'],
+                              [self.spec.arena_dim])
+
+        if "d1" in self.controller:
+            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
+        if "d2" in self.controller:
+            generate_dynamic_cache(exp_def, self.spec.arena_dim)
+
+        return exp_def
+
+
+class QSGenerator(ticom.ForagingQSGenerator):
+    """
+    FORDYCA extensions to the single source foraging generator
+    :class:`~titan.generators.scenario_generator.QSGenerator`.
+
+    This includes:
+
+    - Static caches
+    - Dynamic caches
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        ticom.ForagingQSGenerator.__init__(self, *args, **kwargs)
+
+    def generate(self):
+
+        exp_def = super().generate()
+
+        # Generate physics engine definitions. Cannot be in common, because not
+        # shared between FORDYCA and SILICON.
+        self.generate_physics(exp_def,
+                              self.cmdopts,
+                              self.cmdopts['physics_engine_type2D'],
+                              self.cmdopts['physics_n_engines'],
+                              [self.spec.arena_dim])
+
+        if "d1" in self.controller:
+            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
+        if "d2" in self.controller:
+            generate_dynamic_cache(exp_def, self.spec.arena_dim)
+
+        return exp_def
+
+
+class RNGenerator(ticom.ForagingRNGenerator):
+    """
+    FORDYCA extensions to the single source foraging generator
+    :class:`~titan.generators.scenario_generator.RNGenerator`.
+
+    This includes:
+
+    - Static caches
+    - Dynamic caches
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        ticom.ForagingRNGenerator.__init__(self, *args, **kwargs)
+
+    def generate(self):
+
+        exp_def = super().generate()
+
+        # Generate physics engine definitions. Cannot be in common, because not
+        # shared between FORDYCA and SILICON
+        self.generate_physics(exp_def,
+                              self.cmdopts,
+                              self.cmdopts['physics_engine_type2D'],
+                              self.cmdopts['physics_n_engines'],
+                              [self.spec.arena_dim])
+
+        if "d1" in self.controller:
+            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
+        if "d2" in self.controller:
+            generate_dynamic_cache(exp_def, self.spec.arena_dim)
+
+        return exp_def
+
+
+class PLGenerator(ticom.ForagingPLGenerator):
+    """
+    FORDYCA extensions to the single source foraging generator
+    :class:`~titan.generators.scenario_generator.PLGenerator`.
+
+    This includes:
+
+    - Static caches
+    - Dynamic caches
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        ticom.ForagingPLGenerator.__init__(self, *args, **kwargs)
+
+    def generate(self):
+
+        exp_def = super().generate()
+
+        # Generate physics engine definitions. Cannot be in common, because not
+        # shared between FORDYCA and SILICON.
+        self.generate_physics(exp_def,
+                              self.cmdopts,
+                              self.cmdopts['physics_engine_type2D'],
+                              self.cmdopts['physics_n_engines'],
+                              [self.spec.arena_dim])
+
+        if "d1" in self.controller:
+            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
+        if "d2" in self.controller:
+            generate_dynamic_cache(exp_def, self.spec.arena_dim)
+
+        return exp_def
 
 
 def generate_dynamic_cache(exp_def: XMLLuigi, extent: ArenaExtent):
@@ -33,9 +209,8 @@ def generate_dynamic_cache(exp_def: XMLLuigi, extent: ArenaExtent):
     cache = dynamic_cache.DynamicCache([extent])
 
     [exp_def.attr_change(a.path, a.attr, a.value) for a in cache.gen_attr_changelist()[0]]
-    rms = cache.gen_tag_rmlist()
-    if rms:  # non-empty
-        [exp_def.tag_remove(a.path, a.tag) for a in rms[0]]
+    for r in cache.gen_tag_rmlist()[0] or []:
+        exp_def.tag_remove(r.path, r.tag)
 
 
 def generate_static_cache(exp_def: XMLLuigi,
@@ -56,141 +231,9 @@ def generate_static_cache(exp_def: XMLLuigi,
                                          [extent])
 
     [exp_def.attr_change(a.path, a.attr, a.value) for a in cache.gen_attr_changelist()[0]]
-    rms = cache.gen_tag_rmlist()
-    if rms:  # non-empty
-        [exp_def.tag_remove(a.path, a.tag) for a in rms[0]]
+    for r in cache.gen_tag_rmlist()[0] or []:
+        exp_def.tag_remove(r.path, r.tag)
 
 
-class SSGenerator(gc.SSGenerator):
-    """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~sierra.core.generators.scenario_generator.SSGenerator`.
-
-    This includes:
-
-    - Static caches
-    - Dynamic caches
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        gc.SSGenerator.__init__(self, *args, **kwargs)
-
-    def generate(self):
-
-        exp_def = super().generate()
-
-        if "d1" in self.controller:
-            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
-        if "d2" in self.controller:
-            generate_dynamic_cache(exp_def, self.spec.arena_dim)
-
-        return exp_def
-
-
-class DSGenerator(gc.DSGenerator):
-    """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~sierra.core.generators.single_source.DSGenerator`.
-
-    This includes:
-
-    - Static caches
-    - Dynamic caches
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        gc.DSGenerator.__init__(self, *args, **kwargs)
-
-    def generate(self):
-
-        exp_def = super().generate()
-
-        if "d1" in self.controller:
-            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
-        if "d2" in self.controller:
-            generate_dynamic_cache(exp_def, self.spec.arena_dim)
-
-        return exp_def
-
-
-class QSGenerator(gc.QSGenerator):
-    """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~sierra.core.generators.scenario_generator.QSGenerator`.
-
-    This includes:
-
-    - Static caches
-    - Dynamic caches
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        gc.QSGenerator.__init__(self, *args, **kwargs)
-
-    def generate(self):
-
-        exp_def = super().generate()
-
-        if "d1" in self.controller:
-            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
-        if "d2" in self.controller:
-            generate_dynamic_cache(exp_def, self.spec.arena_dim)
-
-        return exp_def
-
-
-class RNGenerator(gc.RNGenerator):
-    """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~sierra.core.generators.scenario_generator.RNGenerator`.
-
-    This includes:
-
-    - Static caches
-    - Dynamic caches
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        gc.RNGenerator.__init__(self, *args, **kwargs)
-
-    def generate(self):
-
-        exp_def = super().generate()
-
-        if "d1" in self.controller:
-            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
-        if "d2" in self.controller:
-            generate_dynamic_cache(exp_def, self.spec.arena_dim)
-
-        return exp_def
-
-
-class PLGenerator(gc.PLGenerator):
-    """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~sierra.core.generators.scenario_generator.PLGenerator`.
-
-    This includes:
-
-    - Static caches
-    - Dynamic caches
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        gc.PLGenerator.__init__(self, *args, **kwargs)
-
-    def generate(self):
-
-        exp_def = super().generate()
-
-        if "d1" in self.controller:
-            generate_static_cache(exp_def, self.spec.arena_dim, self.cmdopts)
-        if "d2" in self.controller:
-            generate_dynamic_cache(exp_def, self.spec.arena_dim)
-
-        return exp_def
+def gen_generator_name(scenario_name: str) -> str:
+    return ticom.gen_generator_name(scenario_name)

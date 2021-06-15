@@ -44,16 +44,31 @@ class RectangularArena():
     classes defined in this file should be used instead.
 
     Attributes:
-        extents: List of :class:`~sierra.core.utils.ArenaExtent` arena dimensions.
+        extent_spec: Dictionary mapping arena extents to a list of nests which should appear in the
+                     arena.
         attr_changes: List of sets of XML changes to apply to a template input file.
     """
 
-    def __init__(self, extents: tp.List[ArenaExtent], dist_type: str) -> None:
+    def __init__(self,
+                 extents: tp.List[ArenaExtent],
+                 gen_nests: bool,
+                 dist_type: str) -> None:
         self.dist_type = dist_type
-        self.shape = ArenaShape(extents)
-        self.nest = Nest(self.dist_type, extents)
+        self.shapes = ArenaShape(extents)
         self.extents = extents
+        self.gen_nests = gen_nests
+
+        if self.gen_nests:
+            self.nests = {arena: Nest(dist_type=self.dist_type,
+                                      src='arena',
+                                      nest=None,
+                                      arena=arena) for arena in self.extents}
+        else:
+            self.nests = {}
+
         self.attr_changes = []
+        self.tag_adds = []
+        self.tag_rms = []
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         """
@@ -70,13 +85,9 @@ class RectangularArena():
                                                                                 extent.ysize())),
                                              )
                             for extent in self.extents]
-            nest_changes = self.nest.gen_attr_changelist()
-            shape_changes = self.shape.gen_attr_changelist()
-
+            shape_changes = self.shapes.gen_attr_changelist()
             self.attr_changes = [XMLAttrChangeSet() for extent in self.extents]
             for achgs in self.attr_changes:
-                for nchgs in nest_changes:
-                    achgs |= nchgs
                 for gchgs in grid_changes:
                     achgs |= gchgs
                 for schgs in shape_changes:
@@ -85,10 +96,25 @@ class RectangularArena():
         return self.attr_changes
 
     def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
-        return []
+        if not self.tag_rms:
+            for arena in self.nests.keys():
+                rms = self.nests[arena].gen_tag_rmlist()
+                for rm in rms:
+                    self.tag_rms.append(rm)
+
+        return self.tag_rms
 
     def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
-        return []
+        if not self.tag_adds:
+            for arena in self.nests.keys():
+                adds = self.nests[arena].gen_tag_addlist()
+                for add in adds:
+                    self.tag_adds.append(add)
+
+        return self.tag_adds
+
+    def gen_files(self) -> None:
+        pass
 
 
 class RectangularArenaTwoByOne(RectangularArena):
@@ -101,9 +127,11 @@ class RectangularArenaTwoByOne(RectangularArena):
                  x_range: tp.List[float],
                  y_range: tp.List[float],
                  z: float,
-                 dist_type: str) -> None:
+                 dist_type: str,
+                 gen_nests: bool) -> None:
         super().__init__([ArenaExtent(Vector3D(x, y, z)) for x in x_range for y in y_range],
-                         dist_type=dist_type)
+                         dist_type=dist_type,
+                         gen_nests=gen_nests)
 
 
 class SquareArena(RectangularArena):
@@ -115,13 +143,17 @@ class SquareArena(RectangularArena):
     def __init__(self,
                  sqrange: tp.List[float],
                  z: float,
-                 dist_type: str) -> None:
+                 dist_type: str,
+                 gen_nests: bool) -> None:
         super().__init__([ArenaExtent(Vector3D(x, x, z)) for x in sqrange],
-                         dist_type=dist_type)
+                         dist_type=dist_type,
+                         gen_nests=gen_nests)
 
 
 __api__ = [
     'RectangularArena',
     'RectangularArenaTwoByOne',
     'SquareArena',
+
+
 ]

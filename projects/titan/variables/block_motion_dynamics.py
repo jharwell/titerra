@@ -28,8 +28,9 @@ import implements
 # Project packages
 from sierra.core.variables import batch_criteria as bc
 import sierra.core.utils
-import sierra.core.variables.dynamics_parser as dp
 from sierra.core.xml_luigi import XMLAttrChangeSet, XMLAttrChange
+
+import projects.titan.variables.dynamics_parser as dp
 
 
 @implements.implements(bc.IConcreteBatchCriteria)

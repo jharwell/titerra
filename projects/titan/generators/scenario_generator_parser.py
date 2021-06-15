@@ -1,4 +1,4 @@
-# Copyright 201h21 John Harwell, All rights reserved.
+# Copyright 2021 John Harwell, All rights reserved.
 #
 #  This file is part of TITERRA.
 #
@@ -17,6 +17,7 @@
 # Core packages
 import re
 import logging
+import typing as tp
 
 # 3rd party packages
 
@@ -45,7 +46,7 @@ class ScenarioGeneratorParser:
         self.scenario = None
         self.logger = logging.getLogger(__name__)
 
-    def to_scenario_name(self, args):
+    def to_scenario_name(self, args) -> str:
         """
         Parse the scenario generator from cmdline arguments into a string.
         """
@@ -68,10 +69,10 @@ class ScenarioGeneratorParser:
         self.scenario = res1.group(0) + "." + res2.group(0)
         return self.scenario
 
-    def to_dict(self, scenario: str):
+    def to_dict(self, scenario: str) -> tp.Dict[str, tp.Any]:
         """
         Given a string (presumably a result of an earlier cmdline parse), parse it into a dictionary
-        of components: arena_x, arena_y, arena_z, dist_type
+        of components: arena_x, arena_y, arena_z, scenario_tag
         """
         x, y, z = scenario.split('+')[0].split('.')[1].split('x')
         dist_type = scenario.split('.')[0]

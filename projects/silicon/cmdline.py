@@ -36,12 +36,12 @@ class Cmdline(titan.cmdline.Cmdline):
         super().scaffold_cli(bootstrap)
 
         if not for_sphinx:
-            super().init_cli(stages)
+            super().init_cli(stages, for_sphinx)
 
-        if -1 in stages:
+        if -1 in stages and for_sphinx:
             self.init_multistage(for_sphinx)
 
-        if 1 in stages:
+        if 1 in stages and for_sphinx:
             self.init_stage1(for_sphinx)
 
     def init_multistage(self, for_sphinx: bool):
@@ -69,42 +69,25 @@ class Cmdline(titan.cmdline.Cmdline):
         construct = self.parser.add_argument_group('Stage1: Construction',
                                                    'Construction target options for stage1')
 
-        construct.add_argument("--construct-targets",
-                               metavar="<type>.AxBxC@X,Y",
+        construct.add_argument("--ct-specs",
+                               metavar="<type>.AxBxC@D,E",
                                help="""
 
-                               A list of construction targets within a scenario, separated by spaces.
+                               A list of construction targets within a scenario to direct the swarm to build, separated
+                               by spaces. See :ref:`ln-silicon-vars-construct-targets` for a full description.
 
-                               (A,B,C) are the dimensions of the bounding box for the target, and must be
-                               integers. (X,Y) specifies the anchor of the target in the XY plane, defined as the
-                               lower-left hand corner of the target.
+                               """ + self.stage_usage_doc([1]),
+                               nargs='+')
 
-                               Valid types are:
-
-                               - ``rectprism`` - A rectangular, prismatic solid comprising a 4 sided polygonal base of
-                                 dimensions AxB in X and Y, respectively, a second base which is a copy of the first,
-                                 translated upward in Z by C units, and 4 other rectangular faces.
-
-                               - ``ramp`` - A sloped ramp with slope along the X-axis from 0 to C.
-
-                               For all structures, the active face is always on the positive X axis (for now).
-                               Use=stage{1}; can be omitted otherwise.
-
-                               """,
-                               nargs='*',
-                               default=None)
-
-        construct.add_argument("--construct-orientation",
-                               choices=['X', 'Y'],
+        construct.add_argument("--ct-orientations",
+                               choices=['0', 'PI/2', 'PI', '3PI/2'],
                                help="""
 
-                               Specify the primary orientation for the target, which defines the axis along which the
-                               slope will be placed (for ``ramp`` structures), and the orientation of the X axis for
-                               ``rectprism`` structures.
+                               Space separated list of the orientations for the targets specified in ``--ct-specs``,
+                               defining the X-axis for each target.
 
-                               Using=stage{1}; can be omitted otherwise.
-                               """,
-                               default=1)
+                               """ + self.stage_usage_doc([1]),
+                               nargs='+')
 
     @staticmethod
     def cmdopts_update(cli_args, cmdopts: tp.Dict[str, str]):
@@ -113,17 +96,25 @@ class Cmdline(titan.cmdline.Cmdline):
         options.
 
         """
+        titan.cmdline.Cmdline.cmdopts_update(cli_args, cmdopts)
         # Stage1
         updates = {
             'controller': cli_args.controller,
-            'construct_targets': cli_args.construct_targets,
-            'construct_orientation': cli_args.construct_orientation
+            'ct_specs': cli_args.ct_specs,
+            'ct_orientations': cli_args.ct_orientations
         }
         cmdopts.update(updates)
 
 
 class CmdlineValidator(titan.cmdline.CmdlineValidator):
-    pass
+    def __call__(self, args) -> None:
+        super().__call__(args)
+
+        assert args.ct_specs is not None,\
+            "FATAL: --ct-specs is required for SILICON"
+
+        assert args.ct_orientations is not None,\
+            "FATAL: --ct-orientations is required for SILICON"
 
 
 def sphinx_cmdline_multistage():

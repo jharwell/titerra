@@ -336,13 +336,15 @@ class InterExp_ODE_NRobots():
 
     def run(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
 
+        # We always run the models for all experiments, regardless of --exp-range, because we depend
+        # on the experiment at the 0-th position being exp0.
         dirs = criteria.gen_exp_dirnames(cmdopts)
+
         res_df_avoiding = pd.DataFrame(columns=dirs, index=[0])
         res_df_searching = pd.DataFrame(columns=dirs, index=[0])
         res_df_homing = pd.DataFrame(columns=dirs, index=[0])
 
         # attempting to get one model datapoint from batch to be representative of ODE solution
-
         for i, exp in enumerate(dirs):
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
@@ -366,10 +368,6 @@ class InterExp_ODE_NRobots():
             res_df_searching[exp] = intra_dfs[0].iloc[-1]
             res_df_homing[exp] = intra_dfs[1].iloc[-1]
             res_df_avoiding[exp] = intra_dfs[2].iloc[-1]
-
-            # print(res_df_searching)
-            # print(res_df_homing)
-            # print(res_df_avoiding)
 
         return [res_df_searching, res_df_homing, res_df_avoiding]
 
@@ -424,13 +422,8 @@ class InterExp_ODEWrapper_NRobots():
             criteria: bc.IConcreteBatchCriteria,
             cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
 
-        dirs = criteria.gen_exp_dirnames(cmdopts)
-
-        ode = InterExp_ODE_NRobots(self.main_config, self.config)
-        dfs = ode.run(criteria, cmdopts)
-
         perf_df = self.raw_perf.run(criteria, cmdopts)[0]
-        sc_df = self.scalability.kernel(criteria, cmdopts, perf_df)
-        so_df = self.self_org.kernel(criteria, cmdopts, perf_df, dfs[2])
+        sc_df = self.scalability.run(criteria, cmdopts)[0]
+        so_df = self.self_org.run(criteria, cmdopts)[0]
 
         return [perf_df, sc_df, so_df]
