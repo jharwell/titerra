@@ -40,22 +40,25 @@ def crwD_for_searching(N: float,
 
     if 'RN' in scenario:
         # ODE-3 small const-rho,var-rho
-        # L_s = 0.055 * 1.5 * (math.sqrt(2.0))
+        L_s = 0.055 * 1.5 * (math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        L_s = 0.055 * (3.75 * math.sqrt(2.0))
+        # L_s = 0.055 * (3.75 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
-        L_s = 0.055 * (3.5 * math.sqrt(2.0))
+        # L_s = 0.055 * (3.5 * math.sqrt(2.0))
     elif 'PL' in scenario:
         # ODE-3 small const-rho
         # L_s = 0.055 / (math.sqrt(2.0))
 
         # ODE-3 small var-rho
-        # L_s = 0.055 / (3.75 * math.sqrt(2.0))
+        L_s = 0.055 / (3.75 * math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        L_s = 0.055 * (3.75 * math.sqrt(2.0))
+        # L_s = 0.055 * (4.0 * math.sqrt(2.0))
+
+        # ODE-3 large var-rho
+        # L_s = 0.055 * (3.0 * math.sqrt(2.0))
     elif 'DS' in scenario:
         # ODE-3 small const-rho
         L_s = 0.055 * (1.5 * math.sqrt(2.0))
@@ -99,19 +102,22 @@ def crwD_for_avoiding(N: float, wander_speed: float, ticks_per_sec: int, scenari
         # return D / (math.sqrt(2.0))
 
         # ODE-3 small var-rho
-        # return D  # / (math.sqrt(2.0))
+        return D * (10 * math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        return D / (4.0 * math.sqrt(2.0))
+        # return D / (4.0 * math.sqrt(2.0))
+
+        # ODE-3 large var-rho
+        # return -D / (1200 * math.sqrt(2.0))
     elif 'RN' in scenario:
         # ODE-3 small const-rho,var-rho
-        # return D * 2.5 * (math.sqrt(2.0))
+        return D * 2.5 * (math.sqrt(2.0))
 
         # ODE-3 large const-rho
         # return D / (1.75 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
-        return -D / (2400 * math.sqrt(2.0))
+        # return -D / (2400 * math.sqrt(2.0))
 
     elif 'DS' in scenario:
         # ODE-3 small const-rho

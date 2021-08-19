@@ -73,17 +73,18 @@ VD_CARDINALITY_LARGE=C10
 
 TIME_LARGE=time_setup.T200000
 CD_LARGE=1p0
-CD_CARDINALITY_LARGE=C16
+CD_CARDINALITY_LARGE=C14
 CD_SIZEINC_LARGE=I72
 
 CD_CRITERIA_LARGE=population_constant_density.${CD_LARGE}.${CD_SIZEINC_LARGE}.${CD_CARDINALITY_LARGE}
 VD_CRITERIA_LARGE=population_variable_density.${VD_MIN_LARGE}.${VD_MAX_LARGE}.${VD_CARDINALITY_LARGE}
 
-SCENARIOS_LIST_CD=(PL.8x8x2)
+# SCENARIOS_LIST_CD=(RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
-# SCENARIOS_LIST_VD_LARGE=(PL.256x256x2)
+# SCENARIOS_LIST_VD_LARGE=(RN.256x256x2)
 # SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
+SCENARIOS_LIST_VD_SMALL=(PL.16x16x2)
 
 NSIMS=32
 
@@ -192,9 +193,9 @@ if [ "$TASK" == "comp" ]; then
     #             --scenarios-list=SS.32x16x2,DS.32x16x2\
     #             --scenarios-legend="SS","DS"
 
-    # $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
-    #             --scenarios-list=RN.16x16x2,PL.16x16x2\
-    #             --scenarios-legend="RN","PL"
+    $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
+                --scenarios-list=RN.16x16x2,PL.16x16x2\
+                --scenarios-legend="RN","PL"
 
     # $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
     #             --scenarios-list=SS.16x8x2,DS.16x8x2\
@@ -202,11 +203,11 @@ if [ "$TASK" == "comp" ]; then
     #             --plot-log-yscale\
     #             --scenarios-legend="SS","DS"
 
-    $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
-                --scenarios-list=RN.8x8x2,PL.8x8x2\
-                --plot-enumerated-xscale\
-                --plot-log-yscale\
-                --scenarios-legend="RN","PL"
+    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
+    #             --scenarios-list=RN.8x8x2,PL.8x8x2\
+    #             --plot-enumerated-xscale\
+    #             --plot-log-yscale\
+    #             --scenarios-legend="RN","PL"
 
     # # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
     #             --scenarios-list=SS.256x128x2,DS.256x128x2\

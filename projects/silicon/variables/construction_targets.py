@@ -20,7 +20,6 @@ variable on the cmdline. See :ref:`ln-silicon-var-ct-set` for usage documentatio
 """
 
 # Core packages
-import os
 import logging
 import typing as tp
 
@@ -44,12 +43,14 @@ class BaseConstructTarget():
         target_id: Numerical UUID for the structure.
 
     """
+    kGRAPH_TYPE_CUBE = 1
+    kGRAPH_TYPE_RAMP = 2
 
-    def __init__(self, spec: dict, uuid: int, gml_path: str):
+    def __init__(self, spec: dict, uuid: int, graphml_path: str):
 
         self.spec = spec
         self.uuid = uuid
-        self.gml_path = gml_path
+        self.graphml_path = graphml_path
         self.extent = ArenaExtent(origin=Vector3D(self.spec['anchor'][0],
                                                   self.spec['anchor'][1],
                                                   self.spec['anchor'][2]),
@@ -64,17 +65,17 @@ class BaseConstructTarget():
         """
         raise NotImplementedError
 
-    def gen_gml(self) -> nx.Graph:
+    def gen_graphml(self) -> nx.Graph:
         """
         Generates GraphML for the construction target.
         """
         raise NotImplementedError
 
-    def write_gml(self, graph: nx.Graph, path: str) -> None:
+    def write_graphml(self, graph: nx.Graph, path: str) -> None:
         """
         Writes generated GraphML to the filesystem.
         """
-        nx.write_gml(graph, path, lambda x: str(x))
+        nx.write_graphml(graph, path)
 
     def graph_block_add(self,
                         graph: nx.Graph,
@@ -93,9 +94,19 @@ class BaseConstructTarget():
             self._graph_ramp_add(graph, length_ratio, c)
 
     def _graph_cube_add(self, graph: nx.Graph, c: Vector3D) -> None:
+        """
+        .. IMPORTANT:: The attribute names and types specified here for vertices and edges must
+                       match the names of the structs attached to the boost:graph properties in
+                       SILICON exactly, or run-time errors will result.
+        """
         # Add anchor node
         self.logger.trace("Add cube anchor: %s", c)
-        graph.add_node(c, color='b', pos=c)
+        anchor = self._calc_node_descriptor(c)
+
+        graph.add_node(anchor,
+                       type=self.kGRAPH_TYPE_CUBE,
+                       color='b',
+                       z_rot=self.spec['orientation'])  # orientation doesn't matter for cube blocks
 
         xratio = 1
         yratio = 1
@@ -103,22 +114,34 @@ class BaseConstructTarget():
 
         if c.x < self.extent.xsize() - xratio:
             dest = Vector3D(c.x + xratio, c.y, c.z)
-            graph.add_edge(c, dest, weight=xratio)
+            graph.add_edge(anchor, self._calc_node_descriptor(dest), weight=xratio)
             self.logger.trace("Add cube edge: %s -> %s,weight=%s", c, dest, xratio)
 
         if c.y < self.extent.ysize() - yratio:
             dest = Vector3D(c.x, c.y + yratio, c.z)
-            graph.add_edge(c, dest, weight=yratio)
+            graph.add_edge(anchor, self._calc_node_descriptor(dest), weight=yratio)
             self.logger.trace("Add cube edge: %s -> %s,weight=%s", c, dest, yratio)
 
         if c.z < self.extent.zsize() - zratio:
             dest = Vector3D(c.x, c.y, c.z + zratio)
-            graph.add_edge(c, dest, weight=zratio)
+            graph.add_edge(anchor, self._calc_node_descriptor(dest), weight=zratio)
             self.logger.trace("Add cube edge: %s -> %s,weight=%s", c, dest, zratio)
 
     def _graph_ramp_add(self, graph: nx.Graph, length_ratio: int, c: Vector3D) -> None:
+        """
+        .. IMPORTANT:: The attribute names and types specified here for vertices and edges must
+                       match the names of the structs attached to the boost:graph properties in
+                       SILICON exactly, or run-time errors will result.
+        """
+        # Add anchor node
         self.logger.trace("Add ramp anchor: %s", c)
-        graph.add_node(c, color='r', pos=c)
+
+        anchor = self._calc_node_descriptor(c)
+        graph.add_node(anchor,
+                       type=self.kGRAPH_TYPE_RAMP,
+                       color='r',
+                       z_rot=self.spec['orientation'])
+
         zratio = 1
         if self.spec['orientation'] in ['0', 'PI']:
             xratio = length_ratio
@@ -129,18 +152,24 @@ class BaseConstructTarget():
 
         if c.x < self.extent.xsize() - xratio:
             dest = Vector3D(c.x + xratio, c.y, c.z)
-            graph.add_edge(c, dest, weight=xratio)
-            self.logger.trace("Add cube edge: %s -> %s,weight=%s", c, dest, xratio)
+            print(anchor, self._calc_node_descriptor(dest))
+            graph.add_edge(anchor, self._calc_node_descriptor(dest), weight=xratio)
+            self.logger.trace("Add ramp edge: %s -> %s,weight=%s", c, dest, xratio)
 
         if c.y < self.extent.ysize() - yratio:
             dest = Vector3D(c.x, c.y + yratio, c.z)
-            graph.add_edge(c, dest, weight=yratio)
-            self.logger.trace("Add cube edge: %s -> %s,weight=%s", c, dest, yratio)
+            graph.add_edge(anchor, self._calc_node_descriptor(dest), weight=yratio)
+            self.logger.trace("Add ramp edge: %s -> %s,weight=%s", c, dest, yratio)
 
         if c.z < self.extent.zsize() - zratio:
             dest = Vector3D(c.x, c.y, c.z + zratio)
-            graph.add_edge(c, dest, weight=zratio)
-            self.logger.trace("Add cube edge: %s -> %s,weight=%s", c, dest, zratio)
+            graph.add_edge(anchor, self._calc_node_descriptor(dest), weight=zratio)
+            self.logger.trace("Add ramp edge: %s -> %s,weight=%s", c, dest, zratio)
+
+    def _calc_node_descriptor(self, n: Vector3D) -> int:
+        return n.z * self.extent.xsize() * self.extent.ysize() + \
+            n.y * self.extent.ysize() + \
+            n.x
 
 
 class RectPrismTarget(BaseConstructTarget):
@@ -154,8 +183,8 @@ class RectPrismTarget(BaseConstructTarget):
     def __init__(self,
                  spec: tp.Dict[str, tp.Any],
                  uuid: int,
-                 gml_path: str) -> None:
-        super().__init__(spec, uuid, gml_path)
+                 graphml_path: str) -> None:
+        super().__init__(spec, uuid, graphml_path)
         self.tag_adds = []
 
     def gen_xml(self) -> XMLTagAddList:
@@ -165,22 +194,22 @@ class RectPrismTarget(BaseConstructTarget):
                                                      'rectprism',
                                                      {
                                                          'id': self.target_id(self.uuid),
-                                                         'bb': "{0},{1},{2}".format(self.extent.xsize(),
-                                                                                    self.extent.ysize(),
-                                                                                    self.extent.zsize()),
+                                                         'bounding_box': "{0},{1},{2}".format(self.extent.xsize(),
+                                                                                              self.extent.ysize(),
+                                                                                              self.extent.zsize()),
                                                          'anchor': "{0},{1},{2}".format(self.extent.origin().x,
                                                                                         self.extent.origin().y,
                                                                                         self.extent.origin().z),
                                                          'orientation': self.spec['orientation'],
-                                                         'gml': self.gml_path
+                                                         'graphml': self.graphml_path
                                                      })))
 
         return self.tag_adds
 
-    def gen_gml(self) -> nx.Graph:
+    def gen_graphml(self) -> nx.Graph:
         graph = nx.Graph()
 
-        # For rectprisms, there is no difference in the generated GML for +X vs
+        # For rectprisms, there is no difference in the generated GRAPHML for +X vs
         # -X, or +Y vs -Y.
         if self.spec['orientation'] in ['0', 'PI']:
             for x in range(0, self.extent.xsize()):
@@ -218,8 +247,8 @@ class RampTarget(BaseConstructTarget):
     def __init__(self,
                  spec: tp.Dict[str, tp.Any],
                  uuid: int,
-                 gml_path: str) -> None:
-        super().__init__(spec, uuid, gml_path)
+                 graphml_path: str) -> None:
+        super().__init__(spec, uuid, graphml_path)
         self.tag_adds = []
         self._structure_sanity_checks()
 
@@ -242,19 +271,19 @@ class RampTarget(BaseConstructTarget):
                                                      'ramp',
                                                      {
                                                          'id': self.target_id(self.uuid),
-                                                         'bb': "{0},{1},{2}".format(self.extent.xsize(),
-                                                                                    self.extent.ysize(),
-                                                                                    self.extent.zsize()),
+                                                         'bounding_box': "{0},{1},{2}".format(self.extent.xsize(),
+                                                                                              self.extent.ysize(),
+                                                                                              self.extent.zsize()),
                                                          'anchor': "{0},{1},{2}".format(self.extent.origin().x,
                                                                                         self.extent.origin().y,
                                                                                         self.extent.origin().z),
                                                          'orientation': self.spec['orientation'],
-                                                         'gml': self.gml_path
+                                                         'graphml': self.graphml_path
                                                      })))
 
         return self.tag_adds
 
-    def gen_gml(self) -> nx.Graph:
+    def gen_graphml(self) -> nx.Graph:
         graph = nx.Graph()
 
         # First, generate cube blocks

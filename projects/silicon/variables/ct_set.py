@@ -45,9 +45,9 @@ class ConstructionTargetSet():
 
     def __init__(self,
                  target_specs: tp.Dict[str, tp.Any],
-                 gml_root: str) -> None:
+                 graphml_root: str) -> None:
         self.target_specs = target_specs
-        self.gml_root = gml_root
+        self.graphml_root = graphml_root
 
         self.targets = []
         self.tag_adds = []
@@ -55,11 +55,13 @@ class ConstructionTargetSet():
         uuid = 0
         for spec in self.target_specs:
             if spec['type'] == 'rectprism':
-                gml_path = os.path.join(self.gml_root, ct.RectPrismTarget.target_id(uuid) + '.gml')
-                self.targets.append(ct.RectPrismTarget(spec, uuid, gml_path))
+                graphml_path = os.path.join(
+                    self.graphml_root, ct.RectPrismTarget.target_id(uuid) + '.graphml')
+                self.targets.append(ct.RectPrismTarget(spec, uuid, graphml_path))
             elif spec['type'] == 'ramp':
-                gml_path = os.path.join(self.gml_root, ct.RampTarget.target_id(uuid) + '.gml')
-                self.targets.append(ct.RampTarget(spec, uuid, gml_path))
+                graphml_path = os.path.join(
+                    self.graphml_root, ct.RampTarget.target_id(uuid) + '.graphml')
+                self.targets.append(ct.RampTarget(spec, uuid, graphml_path))
 
             uuid += 1
 
@@ -90,9 +92,10 @@ class ConstructionTargetSet():
 
     def gen_files(self) -> None:
         for target in self.targets:
-            graph = target.gen_gml()
-            gml_path = os.path.join(self.gml_root, target.target_id(target.uuid) + '.gml')
-            target.write_gml(graph, gml_path)
+            graph = target.gen_graphml()
+            graphml_path = os.path.join(
+                self.graphml_root, target.target_id(target.uuid) + '.graphml')
+            target.write_graphml(graph, graphml_path)
 
 
 class ConstructionTargetSetParser():

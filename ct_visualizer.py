@@ -49,7 +49,7 @@ class CTVisualizer():
 
     def __init__(self, args) -> None:
         self.graph_type = os.path.basename(args.input_file).split('.')[0]
-        self.graph = nx.read_gml(args.input_file, label=None, destringizer=self._destringizer)
+        self.graph = nx.read_graphml(args.input_file, label=None, destringizer=self._destringizer)
         self.output_dir = args.output_dir
 
     def __call__(self) -> None:

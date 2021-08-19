@@ -128,7 +128,7 @@ class ConstructionScenarioGenerator(ForagingScenarioGenerator):
                                    self.spec.exp_input_root)
         scutils.apply_to_expdef(target_set, exp_def)
 
-        # Generate .gml files
+        # Generate .graphml files
         target_set.gen_files()
 
         # Generate nests
