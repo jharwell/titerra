@@ -115,7 +115,7 @@ nitpick_ignore = [
 ]
 autoapi_modules = {
     'projects.fordyca': {'output': 'api/projects/fordyca'},
-    'projects.silicon': {'output': 'api/projects/silicon'},
+    'projects.prism': {'output': 'api/projects/prism'},
     'projects.titan': {'output': 'api/projects/titan'}
 }
 
@@ -125,7 +125,7 @@ xref_links = {
     "TITAN": ("TITAN", "STUB for TITAN docs"),
     "SIERRA": ("SIERRA", "https://swarm-robotics-sierra.readthedocs.io"),
     "FORDYCA": ("FORDYCA", "https://swarm-robotics-fordyca.readthedocs.io"),
-    "SILICON": ("SILICON", "https://swarm-robotics-silicon.readthedocs.io"),
+    "PRISM": ("PRISM", "https://swarm-robotics-prism.readthedocs.io"),
     "COSM": ("COSM", "https://swarm-robotics-cosm.readthedocs.io"),
     "RCPPSW": ("RCPPSW", "https://swarm-robotics-rcppsw.readthedocs.io"),
     "RCSW": ("RCSW", "https://swarm-robotics-rcsw.readthedocs.io"),
@@ -208,10 +208,19 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-autosectionlabel_prefix_document = True
+# autosectionlabel_prefix_document = True
 man_pages = [
-    ('man/titerra-cli', 'titerra-cli', 'The TITERRA Command Line Interface', [author], 1),
-    ('man/titerra', 'titerra', 'TITERRA: SIERRA Extensions For The TITAN Project ', [author], 7),
+    ('man/fordyca-cli',
+     'fordyca-cli',
+     'The Command Line Interface to the TITAN sub-project FORDYCA',
+     [author],
+     1),
+    ('man/prism-cli',
+     'prism-cli',
+     'The Command Line Interface to the TITAN sub-project PRISM',
+     [author],
+     1),
+    ('man/titerra', 'titerra', 'TITERRA: SIERRA Extensions For The TITAN Project', [author], 7),
     ('man/sierra-msi', 'sierra-msi', 'How to use SIERRA on MSI', [author], 7),
 ]
 

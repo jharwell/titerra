@@ -1,6 +1,6 @@
-==============================
-FORDYCA Project Batch Criteria
-==============================
+**************
+Batch Criteria
+**************
 
 - :ref:`Block Density <ln-bc-block-density>`
 - :ref:`Swarm Population Dynamics <ln-bc-population-dynamics>`

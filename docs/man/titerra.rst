@@ -1,15 +1,26 @@
-.. _ln-titerra:
+########
+SYNOPSIS
+########
 
-********
-Synopsis
-********
+.. toctree::
+   :maxdepth: 1
 
-.. include:: description.rst
+   /src/synopsis.rst
 
-.. include:: /src/cli.rst
+########
+PROJECTS
+########
 
-********
-See Also
-********
+.. toctree::
+   :maxdepth: 1
 
-- :manpage:`titerra-cli`
+   /src/projects/index.rst
+
+########
+SEE ALSO
+########
+
+.. toctree::
+   :maxdepth: 1
+
+   /man/seealso.rst

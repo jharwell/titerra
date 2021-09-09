@@ -26,13 +26,13 @@ from setuptools import setup, find_packages
 here = pathlib.Path(__file__).parent
 
 # The text of the README file
-readme = (here / "docs/src/description.rst").read_text()
+readme = (here / "docs/src/synopsis.rst").read_text()
 
 # This call to setup() does all the work
 setup(
     name="titerra",
-    version="1.0.3",
-    description="SIERRA extenisons for the TITAN project",
+    version="1.0.0",
+    description="SIERRA extensions for the TITAN project",
     long_description=readme,
     long_description_content_type="text/markdown",
     url="https://github.com/swarm-robotics/titerra",
@@ -46,26 +46,27 @@ setup(
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
     ],
-    packages=find_packages(exclude=("projects")),
+    packages=['titerra', 'titerra.projects', 'titerra.tools'],
+    package_dir={'titerra': 'titerra',
+                 'titerra.projects': 'titerra/projects',
+                 'titerra.tools': 'titerra/tools'
+                 },
     include_package_data=True,
-    data_files=[('man/man1', ['docs/_build/man/titerra-cli.1']),
-                ('man/man7', ['docs/_build/man/titerra.7'])],
+    data_files=[('share/man/man1', ['docs/_build/man/fordyca-cli.1']),
+                ('share/man/man1', ['docs/_build/man/prism-cli.1']),
+                ('share/man/man7', ['docs/_build/man/titerra.7'])],
     install_requires=[
-        "pyyaml",
-        "pandas",
-        "matplotlib",
-        "sympy",
+        "sierra>=1.0"
 
         "similaritymeasures",
         "fastdtw",
-        "coloredlogs",
-        "singleton_decorator",
-        "implements",
-        "retry"],
+    ],
     python_requires=">=3.6",
     entry_points={
         "console_scripts": [
-            "titerra-cli=titerra.main:__main__",
+            "titerra-cli=sierra.main:main",
+            "titerra-gmtg=titerra.tools.gmt_generator:main",
+            "titerra-gmtv=titerra.tools.gmt_visualizer:main"
         ]
     },
 )
