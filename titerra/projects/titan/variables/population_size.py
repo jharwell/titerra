@@ -27,7 +27,7 @@ import implements
 # Project packages
 import sierra.core.variables.population_size
 from sierra.core.variables import batch_criteria as bc
-from sierra.core.xml_luigi import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
@@ -51,7 +51,8 @@ class PopulationSizeWithDynamics(sierra.core.variables.population_size.Populatio
         queueing theoretic predictions of long-run population size are accurate.
 
         """
-        chgsets = sierra.core.variables.population_size.PopulationSize.gen_attr_changelist_from_list(sizes)
+        chgsets = sierra.core.variables.population_size.PopulationSize.gen_attr_changelist_from_list(
+            sizes)
         for i, chgset in enumerate(chgsets):
             chgset |= XMLAttrChangeSet(XMLAttrChange(".//population_dynamics",
                                                      "max_size",

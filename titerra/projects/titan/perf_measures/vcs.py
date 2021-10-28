@@ -30,7 +30,7 @@ import similaritymeasures as sm
 
 # Project packages
 import sierra.core.utils
-from projects.titan.variables.temporal_variance_parser import TemporalVarianceParser
+from titerra.projects.titan.variables.temporal_variance_parser import TemporalVarianceParser
 
 
 def method_xlabel(method: str) -> str:
@@ -180,9 +180,12 @@ class AdaptabilityCS():
         self.main_config = main_config
 
         self.perf_csv_col = main_config['perf']['intra_perf_col']
-        self.var_csv_col = TemporalVarianceParser()(self.criteria.cli_arg)['variance_csv_col']
-        self.perf_leaf = self.main_config['perf']['intra_perf_csv'].split('.')[0]
-        self.tv_env_leaf = self.main_config['perf']['intra_tv_environment_csv'].split('.')[0]
+        self.var_csv_col = TemporalVarianceParser()(
+            self.criteria.cli_arg)['variance_csv_col']
+        self.perf_leaf = self.main_config['perf']['intra_perf_csv'].split('.')[
+            0]
+        self.tv_env_leaf = self.main_config['perf']['intra_tv_environment_csv'].split('.')[
+            0]
 
     def from_batch(self,
                    ideal_num: int,
@@ -250,7 +253,8 @@ class AdaptabilityCS():
                                               sierra.core.config.kStatsExtensions['mean'],
                                               ideal_num)
 
-        ideal_df = pd.DataFrame(index=ideal_var_df.index, columns=[self.perf_csv_col])
+        ideal_df = pd.DataFrame(index=ideal_var_df.index,
+                                columns=[self.perf_csv_col])
 
         # The performance curve of an adaptable system should resist all changes in the
         # environment, and be the same as exp0
@@ -298,9 +302,12 @@ class ReactivityCS():
         self.exp_num = exp_num
 
         self.perf_csv_col = self.main_config['perf']['intra_perf_col']
-        self.var_csv_col = TemporalVarianceParser()(criteria.cli_arg)['variance_csv_col']
-        self.perf_leaf = self.main_config['perf']['intra_perf_csv'].split('.')[0]
-        self.tv_env_leaf = self.main_config['perf']['intra_tv_environment_csv'].split('.')[0]
+        self.var_csv_col = TemporalVarianceParser()(criteria.cli_arg)[
+            'variance_csv_col']
+        self.perf_leaf = self.main_config['perf']['intra_perf_csv'].split('.')[
+            0]
+        self.tv_env_leaf = self.main_config['perf']['intra_tv_environment_csv'].split('.')[
+            0]
 
     def from_batch(self,
                    ideal_perf_df: pd.DataFrame,
@@ -370,7 +377,8 @@ class ReactivityCS():
                                              sierra.core.config.kStatsExtensions['mean'],
                                              self.exp_num)
 
-        ideal_df = pd.DataFrame(index=ideal_var_df.index, columns=[self.perf_csv_col])
+        ideal_df = pd.DataFrame(index=ideal_var_df.index,
+                                columns=[self.perf_csv_col])
 
         # The performance curve of a reactive system should respond proportionally to both adverse
         # and beneficial changes in the environment.
@@ -385,7 +393,8 @@ class ReactivityCS():
             expx_var = expx_var_df.loc[i, self.var_csv_col]
             ideal_perf = ideal_perf_df.iloc[i]
 
-            scale_factor = self.criteria.calc_reactivity_scaling(ideal_var, expx_var)
+            scale_factor = self.criteria.calc_reactivity_scaling(
+                ideal_var, expx_var)
 
             ideal_df.loc[i, self.perf_csv_col] = ideal_perf * scale_factor
 
@@ -418,7 +427,8 @@ class CSRaw():
         if method == "pcm":
             return sm.pcm(exp_data, ideal_data)  # type: ignore
         elif method == "area_between":
-            return sm.area_between_two_curves(exp_data, ideal_data)  # type: ignore
+            # type: ignore
+            return sm.area_between_two_curves(exp_data, ideal_data)
         elif method == "frechet":
             return sm.frechet_dist(exp_data, ideal_data)  # type: ignore
         elif method == "dtw":

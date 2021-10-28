@@ -210,16 +210,39 @@ class Cmdline(cmd.CoreCmdline):
                          default="dtw")
 
     @staticmethod
-    def cmdopts_update(cli_args, cmdopts: tp.Dict[str, str]):
+    def cmdopts_update(cli_args, cmdopts: tp.Dict[str, tp.Any]):
         """
         Updates the core cmdopts dictionary with (key,value) pairs from the FORDYCA-specific cmdline options.
         """
         # Stage1
         updates = {
+            # multi-stage
             'scenario': cli_args.scenario,
-            'n_blocks': cli_args.n_blocks
 
+            # stage 1
+            'n_blocks': cli_args.n_blocks,
+
+            # stage 4
+            'envc_cs_method': cli_args.envc_cs_method,
+            'gen_vc_plots': cli_args.gen_vc_plots,
+            'reactivity_cs_method': cli_args.reactivity_cs_method,
+            'adaptability_cs_method': cli_args.adaptability_cs_method,
+            'rperf_cs_method': cli_args.rperf_cs_method,
+
+            'pm_scalability_normalize': cli_args.pm_scalability_normalize,
+            'pm_scalability_from_exp0': cli_args.pm_scalability_from_exp0,
+            'pm_self_org_normalize': cli_args.pm_self_org_normalize,
+            'pm_flexibility_normalize': cli_args.pm_flexibility_normalize,
+            'pm_robustness_normalize': cli_args.pm_robustness_normalize,
+            'pm_normalize_method': cli_args.pm_normalize_method,
         }
+
+        if cli_args.pm_all_normalize:
+            updates['pm_scalability_normalize'] = True
+            updates['pm_self_org_normalize'] = True
+            updates['pm_flexibility_normalize'] = True
+            updates['pm_robustness_normalize'] = True
+
         cmdopts.update(updates)
 
 

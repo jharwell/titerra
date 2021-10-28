@@ -25,8 +25,8 @@ from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
 from sierra.core.variables.arena_shape import ArenaShape
 from sierra.core.variables.base_variable import IBaseVariable
-from projects.titan.variables.nest import Nest
-from sierra.core.xml_luigi import XMLAttrChange, XMLAttrChangeSet, XMLTagRmList, XMLTagAddList
+from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLTagRmList, XMLTagAddList
+from titerra.projects.titan.variables.nest import Nest
 
 
 @implements.implements(IBaseVariable)

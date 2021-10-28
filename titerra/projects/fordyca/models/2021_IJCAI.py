@@ -36,16 +36,16 @@ import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment_spec import ExperimentSpec
 import sierra.core.variables.time_setup as ts
-from sierra.core.xml_luigi import XMLAttrChangeSet
+from sierra.core.xml import XMLAttrChangeSet
 import sierra.core.config
 import sierra.core.variables.time_setup as ts
 
 import titerra.projects.fordyca.models.representation as rep
-from projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots, IntraExp_WallInterferenceRate_1Robot
-from projects.fordyca.models.homing_time import IntraExp_HomingTime_NRobots, IntraExp_HomingTime_1Robot
+from titerra.projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots, IntraExp_WallInterferenceRate_1Robot
+from titerra.projects.fordyca.models.homing_time import IntraExp_HomingTime_NRobots, IntraExp_HomingTime_1Robot
 import titerra.projects.fordyca.models.ode_solver as ode
-from projects.fordyca.models.blocks import IntraExp_BlockAcqRate_NRobots
-from projects.fordyca.models.perf_measures import InterExp_RawPerf_NRobots, InterExp_Scalability_NRobots, InterExp_SelfOrg_NRobots
+from titerra.projects.fordyca.models.blocks import IntraExp_BlockAcqRate_NRobots
+from titerra.projects.fordyca.models.perf_measures import InterExp_RawPerf_NRobots, InterExp_Scalability_NRobots, InterExp_SelfOrg_NRobots
 import titerra.projects.fordyca.models.diffusion as diffusion
 
 

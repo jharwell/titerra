@@ -30,7 +30,7 @@ import implements
 from sierra.core.variables import constant_density as cd
 import sierra.core.utils
 from sierra.core.vector import Vector3D
-from sierra.core.xml_luigi import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 import sierra.core.plugin_manager as pm
 
 

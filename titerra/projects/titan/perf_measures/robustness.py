@@ -31,11 +31,11 @@ import sierra.core.variables.batch_criteria as bc
 from sierra.core.graphs.heatmap import Heatmap
 import sierra.core.variables.saa_noise as saan
 import sierra.core.utils
-from sierra.core.xml_luigi import XMLAttrChangeSet
+from sierra.core.xml import XMLAttrChangeSet
 
-from projects.titan.perf_measures import vcs
+from titerra.projects.titan.perf_measures import vcs
 import titerra.projects.titan.perf_measures.common as pmcommon
-from projects.titan.variables.population_dynamics import PopulationDynamics
+from titerra.projects.titan.variables.population_dynamics import PopulationDynamics
 
 kIDEAL_SAA_ROBUSTNESS = 0.0
 
@@ -145,7 +145,8 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
         pm_dfs = self.df_kernel(criteria, self.main_config, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + sierra.core.config.kImageExt)
@@ -159,9 +160,10 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
                          ylabel=vcs.method_ylabel(self.cmdopts["rperf_cs_method"],
                                                   'robustness-saa'),
                          xticks=criteria.graph_xticks(self.cmdopts)[1:],
-                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[1:],
-                         logyscale=self.cmdopts['plot_log_yscale'],
-                         large_text=self.cmdopts['plot_large_text']).generate()
+                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+            1:],
+            logyscale=self.cmdopts['plot_log_yscale'],
+            large_text=self.cmdopts['plot_large_text']).generate()
 
 
 class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
@@ -193,7 +195,8 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
                                                               exp_dirs[i],
                                                               sierra.core.config.kPickleLeaf))
             for sim in expx_perf_df.columns:
-                T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(expN_def)
+                T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(
+                    expN_def)
                 perf0 = exp0_perf_df.loc[exp0_perf_df.index[-1], sim]
                 perfN = expx_perf_df.loc[expx_perf_df.index[-1], sim]
 
@@ -230,7 +233,8 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + sierra.core.config.kImageExt)
@@ -243,9 +247,10 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
                          xlabel=criteria.graph_xlabel(self.cmdopts),
                          ylabel="Robustness Value",
                          xticks=criteria.graph_xticks(self.cmdopts)[1:],
-                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[1:],
-                         logyscale=self.cmdopts['plot_log_yscale'],
-                         large_text=self.cmdopts['plot_large_text']).generate()
+                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+            1:],
+            logyscale=self.cmdopts['plot_log_yscale'],
+            large_text=self.cmdopts['plot_large_text']).generate()
 
 
 class RobustnessUnivarGenerator:
@@ -309,7 +314,8 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
                                              index=[0])  # Steady state
 
                 if axis == 0:
-                    exp_ideal = list(collated_perf.keys())[j]  # exp0 in first row with i=0
+                    exp_ideal = list(collated_perf.keys())[
+                        j]  # exp0 in first row with i=0
                 else:
                     # exp0 in first col with j=0
                     exp_ideal = list(collated_perf.keys())[i * ysize]
@@ -347,10 +353,12 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
                                                   [saan.SAANoise],
                                                   self.cmdopts)
 
-        pm_dfs = self.df_kernel(criteria, self.main_config, self.cmdopts, axis, dfs)
+        pm_dfs = self.df_kernel(
+            criteria, self.main_config, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -362,7 +370,8 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
                 title='Swarm Robustness (SAA)',
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -392,7 +401,8 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
                                              exp_dirs[i * ysize + j],
                                              sierra.core.config.kPickleLeaf)
                 expx_def = XMLAttrChangeSet.unpickle(expx_pkl_path)
-                T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(expx_def)
+                T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(
+                    expx_def)
 
                 if axis == 0:
                     # exp0 in first row with i=0
@@ -409,7 +419,8 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
 
                 exp0_perf_df = collated_perf[exp0]
                 exp0_def = XMLAttrChangeSet.unpickle(exp0_pkl_path)
-                T_Sbar0 = PopulationDynamics.calc_untasked_swarm_system_time(exp0_def)
+                T_Sbar0 = PopulationDynamics.calc_untasked_swarm_system_time(
+                    exp0_def)
 
                 for sim in expx_perf_df.columns:
                     perf0 = exp0_perf_df.loc[exp0_perf_df.index[-1], sim]
@@ -446,7 +457,8 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -457,7 +469,8 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
                 title='Swarm Robustness (Fluctuating Populations)',
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -489,7 +502,8 @@ class RobustnessBivarGenerator:
                                           perf_col).from_batch(criteria)
 
         if criteria.pm_query('robustness-pd'):
-            SteadyStateRobustnessPDBivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
+            SteadyStateRobustnessPDBivar(
+                cmdopts, perf_csv, perf_col).from_batch(criteria)
 
 
 __api__ = [

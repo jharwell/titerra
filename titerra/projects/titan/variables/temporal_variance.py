@@ -29,10 +29,10 @@ import implements
 # Project packages
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.variables.population_size import PopulationSize
-from sierra.core.xml_luigi import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 
-from projects.titan.perf_measures import vcs
-from projects.titan.variables.temporal_variance_parser import TemporalVarianceParser
+from titerra.projects.titan.perf_measures import vcs
+from titerra.projects.titan.variables.temporal_variance_parser import TemporalVarianceParser
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
@@ -65,7 +65,8 @@ class TemporalVariance(bc.UnivarBatchCriteria):
                                              float,
                                              float]],
                  population: int) -> None:
-        bc.UnivarBatchCriteria.__init__(self, cli_arg, main_config, batch_input_root)
+        bc.UnivarBatchCriteria.__init__(
+            self, cli_arg, main_config, batch_input_root)
 
         self.variance_type = variance_type
         self.variances = variances

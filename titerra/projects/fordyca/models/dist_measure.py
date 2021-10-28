@@ -22,7 +22,7 @@ import scipy.integrate as si
 
 # Project packages
 from sierra.core.vector import Vector3D
-from projects.fordyca.models.representation import Nest
+from titerra.projects.fordyca.models.representation import Nest
 
 
 class DistanceMeasure2D():

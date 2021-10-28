@@ -14,8 +14,13 @@
 #  You should have received a copy of the GNU General Public License along with
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
+# Core packages
 import re
 import typing as tp
+
+# 3rd party packages
+
+# Project packages
 
 
 class DynamicsParser():

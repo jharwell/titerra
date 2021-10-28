@@ -29,7 +29,7 @@ import networkx as nx
 
 # Project packages
 from sierra.core.vector import Vector3D
-from sierra.core.xml_luigi import XMLTagAddList, XMLTagAdd
+from sierra.core.xml import XMLTagAddList, XMLTagAdd
 from sierra.core.utils import ArenaExtent
 
 

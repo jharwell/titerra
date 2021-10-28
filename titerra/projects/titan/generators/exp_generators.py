@@ -24,7 +24,7 @@ Extensions to the :class:`~sierra.core.generators.ExpCreator` and
 
 # Project packages
 import sierra.core.generators.exp_generators as exp_generators
-from sierra.core.xml_luigi import XMLLuigi
+from sierra.core.xml import XMLLuigi
 
 
 class SimDefUniqueGenerator(exp_generators.SimDefUniqueGenerator):

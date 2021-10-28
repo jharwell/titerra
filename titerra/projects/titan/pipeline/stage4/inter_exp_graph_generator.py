@@ -24,15 +24,15 @@ import copy
 import typing as tp
 
 # 3rd party packages
+import sierra.core.pipeline.stage4 as stage4
 
 # Project packages
-import sierra.core.pipeline.stage4 as stage4
+from sierra.core.variables import batch_criteria as bc
 import titerra.projects.titan.perf_measures.self_organization as pmso
 import titerra.projects.titan.perf_measures.raw as pmraw
 import titerra.projects.titan.perf_measures.robustness as pmb
 import titerra.projects.titan.perf_measures.flexibility as pmf
 import titerra.projects.titan.perf_measures.scalability as pms
-from sierra.core.variables import batch_criteria as bc
 
 
 class InterExpGraphGenerator(stage4.inter_exp_graph_generator.InterExpGraphGenerator):
@@ -40,12 +40,6 @@ class InterExpGraphGenerator(stage4.inter_exp_graph_generator.InterExpGraphGener
     Extends :class:`~sierra.core.pipeline.stage4.inter_exp_graph_generator.InterExpGraphGenerator`
     with additional graphs for the TITAN project.
     """
-
-    def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
-                 targets: tp.List[tp.Dict[str, tp.Any]]) -> None:
-        super().__init__(main_config, cmdopts, targets)
 
     def __call__(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
@@ -60,10 +54,10 @@ class InterExpGraphGenerator(stage4.inter_exp_graph_generator.InterExpGraphGener
            to generate performance measures (bivariate batch criteria only).
         """
         super().__call__(criteria)
-        # if criteria.is_univar():
-        #     UnivarPerfMeasuresGenerator(self.main_config, self.cmdopts)(criteria)
-        # else:
-        #     BivarPerfMeasuresGenerator(self.main_config, self.cmdopts)(criteria)
+        if criteria.is_univar():
+            UnivarPerfMeasuresGenerator(self.main_config, self.cmdopts)(criteria)
+        else:
+            BivarPerfMeasuresGenerator(self.main_config, self.cmdopts)(criteria)
 
 
 class UnivarPerfMeasuresGenerator:

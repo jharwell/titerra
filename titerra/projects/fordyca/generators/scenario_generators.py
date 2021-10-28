@@ -19,10 +19,10 @@ import typing as tp
 
 # Project packages
 from sierra.core.utils import ArenaExtent as ArenaExtent
-from sierra.core.xml_luigi import XMLLuigi
+from sierra.core.xml import XMLLuigi
 
 import titerra.projects.titan.generators.common as ticom
-from projects.fordyca.variables import dynamic_cache, static_cache
+from titerra.projects.fordyca.variables import dynamic_cache, static_cache
 
 
 class SSGenerator(ticom.ForagingSSGenerator):

@@ -17,6 +17,7 @@
 # Core packages
 import os
 import typing as tp
+import logging
 
 # 3rd party packages
 import yaml
@@ -33,6 +34,9 @@ class YAMLConfigLoader(ycl.YAMLConfigLoader):
     def __call__(self, cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Dict[str, str]]:
         joint_config = super().__call__(cmdopts)
 
+        # Replace logger for more accurate messages
+        self.logger = logging.getLogger(__name__)
+
         fordyca_inter_LN = os.path.join(cmdopts['project_config_root'],
                                         'inter-graphs-line.yaml')
         fordyca_intra_LN = os.path.join(cmdopts['project_config_root'],
@@ -42,35 +46,37 @@ class YAMLConfigLoader(ycl.YAMLConfigLoader):
 
         # Load FORDYCA config
         if sierra.core.utils.path_exists(fordyca_intra_LN):
-            self.logger.info("Loading intra-experiment linegraph config for FORDYCA")
+            self.logger.info("Intra-experiment linegraph config for FORDYCA")
             fordyca_dict = yaml.load(open(fordyca_intra_LN), yaml.FullLoader)
 
             for category in fordyca_dict:
                 if category not in joint_config['intra_LN']:
-                    joint_config['intra_LN'].update({category: fordyca_dict[category]})
+                    joint_config['intra_LN'].update(
+                        {category: fordyca_dict[category]})
                 else:
                     joint_config['intra_LN'][category]['graphs'].extend(
                         fordyca_dict[category]['graphs'])
 
         if sierra.core.utils.path_exists(fordyca_intra_HM):
-            self.logger.info("Loading intra-experiment heatmap config for FORDYCA")
+            self.logger.info("Intra-experiment heatmap config for FORDYCA")
             fordyca_dict = yaml.load(open(fordyca_intra_HM), yaml.FullLoader)
 
             for category in fordyca_dict:
                 if category not in joint_config['intra_HM']:
-                    joint_config['intra_HM'].update({category: fordyca_dict[category]})
+                    joint_config['intra_HM'].update(
+                        {category: fordyca_dict[category]})
                 else:
                     joint_config['intra_HM'][category]['graphs'].extend(
                         fordyca_dict[category]['graphs'])
 
         if sierra.core.utils.path_exists(fordyca_inter_LN):
-            self.logger.info("Loading inter-experiment linegraph config for project '%s'",
-                             cmdopts['project'])
+            self.logger.info("Inter-experiment linegraph config for FORDYCA")
             fordyca_dict = yaml.load(open(fordyca_inter_LN), yaml.FullLoader)
 
             for category in fordyca_dict:
                 if category not in joint_config['inter_LN']:
-                    joint_config['inter_LN'].update({category: fordyca_dict[category]})
+                    joint_config['inter_LN'].update(
+                        {category: fordyca_dict[category]})
                 else:
                     joint_config['inter_LN'][category]['graphs'].extend(
                         fordyca_dict[category]['graphs'])

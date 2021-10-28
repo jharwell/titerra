@@ -35,13 +35,13 @@ import sierra.core.variables.time_setup as ts
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.experiment_spec import ExperimentSpec
-from sierra.core.xml_luigi import XMLAttrChangeSet
+from sierra.core.xml import XMLAttrChangeSet
 
 import titerra.projects.fordyca.models.representation as rep
-from projects.fordyca.models.density import BlockAcqDensity
-from projects.fordyca.models.dist_measure import DistanceMeasure2D
-from projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots, IntraExp_RobotInterferenceTime_NRobots
-from projects.fordyca.models.blocks import ExpectedAcqDist
+from titerra.projects.fordyca.models.density import BlockAcqDensity
+from titerra.projects.fordyca.models.dist_measure import DistanceMeasure2D
+from titerra.projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots, IntraExp_RobotInterferenceTime_NRobots
+from titerra.projects.fordyca.models.blocks import ExpectedAcqDist
 
 
 def available_models(category: str):

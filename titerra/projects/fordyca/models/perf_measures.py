@@ -35,13 +35,13 @@ import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 
 import titerra.projects.titan.perf_measures.common as pmcommon
-from projects.titan.perf_measures.scalability import SteadyStateParallelFractionUnivar
-from projects.titan.perf_measures.self_organization import SteadyStateFLMarginalUnivar
+from titerra.projects.titan.perf_measures.scalability import SteadyStateParallelFractionUnivar
+from titerra.projects.titan.perf_measures.self_organization import SteadyStateFLMarginalUnivar
 
 import titerra.projects.fordyca.models.representation as rep
-from projects.fordyca.models.density import BlockAcqDensity
-from projects.fordyca.models.dist_measure import DistanceMeasure2D
-from projects.fordyca.models.blocks import IntraExp_BlockAcqRate_NRobots
+from titerra.projects.fordyca.models.density import BlockAcqDensity
+from titerra.projects.fordyca.models.dist_measure import DistanceMeasure2D
+from titerra.projects.fordyca.models.blocks import IntraExp_BlockAcqRate_NRobots
 
 
 def available_models(category: str):
@@ -98,15 +98,23 @@ class InterExp_RawPerf_NRobots():
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
 
-            cmdopts2["exp0_output_root"] = os.path.join(cmdopts["batch_output_root"], dirs[0])
-            cmdopts2["exp0_stat_root"] = os.path.join(cmdopts["batch_stat_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = os.path.join(
+                cmdopts["batch_output_root"], dirs[0])
+            cmdopts2["exp0_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], dirs[0])
 
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets a single graph
             intra_df = IntraExp_BlockAcqRate_NRobots(self.main_config,
@@ -155,7 +163,8 @@ class InterExp_Scalability_NRobots():
         perf_df = InterExp_RawPerf_NRobots(self.main_config, self.config).run(criteria,
                                                                               cmdopts)[0]
 
-        perf_dfs_mock = _mock_distribution_gen(criteria, self.main_config, cmdopts, perf_df)
+        perf_dfs_mock = _mock_distribution_gen(
+            criteria, self.main_config, cmdopts, perf_df)
 
         sc_dfs = self.kernel(criteria, cmdopts, perf_dfs_mock)
 
@@ -210,10 +219,12 @@ class InterExp_SelfOrg_NRobots():
         perf_df = InterExp_RawPerf_NRobots(self.main_config, self.config).run(criteria,
                                                                               cmdopts)[0]
 
-        perf_dfs_mock = _mock_distribution_gen(criteria, self.main_config, cmdopts, perf_df)
+        perf_dfs_mock = _mock_distribution_gen(
+            criteria, self.main_config, cmdopts, perf_df)
 
         # Just needed to extract simulation names/n_sims
-        interference_leaf = self.main_config['perf']['intra_interference_csv'].split('.')[0]
+        interference_leaf = self.main_config['perf']['intra_interference_csv'].split('.')[
+            0]
         interference_col = self.main_config['perf']['intra_interference_col']
 
         interference_dfs = pmcommon.gather_collated_sim_dfs(cmdopts,
@@ -246,7 +257,8 @@ def _mock_distribution_gen(criteria: bc.IConcreteBatchCriteria,
     exp_dirs = sierra.core.utils.exp_range_calc(cmdopts, '', criteria)
 
     # Just needed to extract simulation names/n_sims
-    interference_leaf = main_config['perf']['intra_interference_csv'].split('.')[0]
+    interference_leaf = main_config['perf']['intra_interference_csv'].split('.')[
+        0]
     interference_col = main_config['perf']['intra_interference_col']
 
     interference_dfs = pmcommon.gather_collated_sim_dfs(cmdopts,
@@ -259,7 +271,8 @@ def _mock_distribution_gen(criteria: bc.IConcreteBatchCriteria,
     sims = interference_dfs[exps[0]].columns
 
     for d in exp_dirs:
-        dfs_mock[d] = pd.DataFrame(index=range(len(interference_dfs[exps[0]][sims[0]])))
+        dfs_mock[d] = pd.DataFrame(index=range(
+            len(interference_dfs[exps[0]][sims[0]])))
 
     for d in exp_dirs:
         for s in sims:

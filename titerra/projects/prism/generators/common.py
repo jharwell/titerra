@@ -25,7 +25,7 @@ import typing as tp
 
 # Project packages
 from sierra.core.utils import ArenaExtent
-from sierra.core.xml_luigi import XMLLuigi
+from sierra.core.xml import XMLLuigi
 import sierra.core.generators.scenario_generator as sg
 import sierra.core.utils as scutils
 

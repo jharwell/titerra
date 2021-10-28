@@ -19,10 +19,11 @@ import sys
 
 # 3rd party packages
 
-# TITAN packages to lift into 'fordyca.generators' namespace
-from projects.titan.generators import scenario_generator_parser
-from projects.titan.generators import exp_generators
+# TITAN packages to lift into 'fordyca.generators' namespace for use in the the SIERRA project for
+# FORDYCA.
+from titerra.projects.titan.generators import scenario_generator_parser
+from titerra.projects.titan.generators import exp_generators
 
 # Do the lifts
-sys.modules['projects.fordyca.generators.scenario_generator_parser'] = scenario_generator_parser
-sys.modules['projects.fordyca.generators.exp_generators'] = exp_generators
+sys.modules['fordyca.generators.scenario_generator_parser'] = scenario_generator_parser
+sys.modules['fordyca.generators.exp_generators'] = exp_generators

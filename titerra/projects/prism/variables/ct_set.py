@@ -29,7 +29,7 @@ import implements
 
 # Project packages
 from sierra.core.variables.base_variable import IBaseVariable
-from sierra.core.xml_luigi import XMLTagAddList, XMLTagRmList, XMLTagRm, XMLTagAdd, XMLAttrChangeSet
+from sierra.core.xml import XMLTagAddList, XMLTagRmList, XMLTagRm, XMLTagAdd, XMLAttrChangeSet
 
 from titerra.projects.prism.variables import construction_targets as ct
 import titerra.projects.prism.variables.orientation as orientation

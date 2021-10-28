@@ -26,7 +26,7 @@ import sierra.core.utils
 from sierra.core.vector import Vector3D
 
 import titerra.projects.fordyca.models.representation as rep
-from projects.fordyca.models.dist_measure import DistanceMeasure2D
+from titerra.projects.fordyca.models.dist_measure import DistanceMeasure2D
 
 
 class BaseDensity():

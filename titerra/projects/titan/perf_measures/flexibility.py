@@ -35,7 +35,7 @@ import sierra.core.config
 
 import titerra.projects.titan.variables.temporal_variance as tv
 import titerra.projects.titan.perf_measures.common as pmcommon
-from projects.titan.perf_measures import vcs
+from titerra.projects.titan.perf_measures import vcs
 
 
 class BaseSteadyStateReactivity:
@@ -105,7 +105,8 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
         pm_dfs = self.df_kernel(criteria, self.main_config, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + sierra.core.config.kImageExt)
@@ -119,9 +120,10 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
                          ylabel=vcs.method_ylabel(self.cmdopts["reactivity_cs_method"],
                                                   'reactivity'),
                          xticks=criteria.graph_xticks(self.cmdopts)[1:],
-                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[1:],
-                         logyscale=self.cmdopts['plot_log_yscale'],
-                         large_text=self.cmdopts['plot_large_text']).generate()
+                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+            1:],
+            logyscale=self.cmdopts['plot_log_yscale'],
+            large_text=self.cmdopts['plot_large_text']).generate()
 
 
 class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
@@ -177,7 +179,8 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
         pm_dfs = self.df_kernel(criteria, self.main_config, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + sierra.core.config.kImageExt)
@@ -191,9 +194,10 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
                          ylabel=vcs.method_ylabel(self.cmdopts["adaptability_cs_method"],
                                                   'adaptability'),
                          xticks=criteria.graph_xticks(self.cmdopts)[1:],
-                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[1:],
-                         logyscale=self.cmdopts['plot_log_yscale'],
-                         large_text=self.cmdopts['plot_large_text']).generate()
+                         xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+            1:],
+            logyscale=self.cmdopts['plot_log_yscale'],
+            large_text=self.cmdopts['plot_large_text']).generate()
 
 
 class FlexibilityUnivarGenerator:
@@ -216,8 +220,10 @@ class FlexibilityUnivarGenerator:
         perf_csv = main_config['perf']['intra_perf_csv']
         perf_col = main_config['perf']['intra_perf_col']
 
-        SteadyStateReactivityUnivar(main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
-        SteadyStateAdaptabilityUnivar(main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateReactivityUnivar(
+            main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateAdaptabilityUnivar(
+            main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
 
 ################################################################################
 # Bivariate Classes
@@ -250,7 +256,8 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
                                             index=[0])  # Steady state
                 for sim in expx_perf_df.columns:
                     if axis == 0:
-                        exp_ideal = list(collated_perf.keys())[j]  # exp0 in first row with i=0
+                        exp_ideal = list(collated_perf.keys())[
+                            j]  # exp0 in first row with i=0
                         ideal_perf_df = collated_perf[exp_ideal]
 
                         reactivity = vcs.ReactivityCS(main_config,
@@ -311,24 +318,28 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
                                                   [tv.TemporalVariance],
                                                   self.cmdopts)
 
-        pm_dfs = self.df_kernel(criteria, self.main_config, self.cmdopts, axis, dfs)
+        pm_dfs = self.df_kernel(
+            criteria, self.main_config, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + sierra.core.config.kImageExt)
 
-        axis = sierra.core.utils.get_primary_axis(criteria, [tv.TemporalVariance], self.cmdopts)
+        axis = sierra.core.utils.get_primary_axis(
+            criteria, [tv.TemporalVariance], self.cmdopts)
 
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,
                 title='Swarm Reactivity',
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -357,7 +368,8 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
                                             index=[0])  # Steady state
                 for sim in expx_perf_df.columns:
                     if axis == 0:
-                        exp_ideal = list(collated_perf.keys())[j]  # exp0 in first row with i=0
+                        exp_ideal = list(collated_perf.keys())[
+                            j]  # exp0 in first row with i=0
                         ideal_perf_df = collated_perf[exp_ideal]
 
                         adaptability = vcs.AdaptabilityCS(main_config,
@@ -406,10 +418,12 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
                                                   [tv.TemporalVariance],
                                                   self.cmdopts)
 
-        pm_dfs = self.df_kernel(criteria, self.main_config, self.cmdopts, axis, dfs)
+        pm_dfs = self.df_kernel(
+            criteria, self.main_config, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -421,7 +435,8 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
                 title='Swarm Adaptability',
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -445,8 +460,10 @@ class FlexibilityBivarGenerator:
         perf_csv = main_config['perf']['intra_perf_csv']
         perf_col = main_config['perf']['intra_perf_col']
 
-        SteadyStateReactivityBivar(main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
-        SteadyStateAdaptabilityBivar(main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateReactivityBivar(
+            main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateAdaptabilityBivar(
+            main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
 
 
 __api__ = [

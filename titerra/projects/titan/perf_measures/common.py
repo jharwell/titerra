@@ -30,7 +30,7 @@ import sierra.core.utils
 from sierra.core.variables.population_size import PopulationSize
 from sierra.core.variables import batch_criteria as bc
 import sierra.core.config
-from sierra.core.xml_luigi import XMLAttrChangeSet
+from sierra.core.xml import XMLAttrChangeSet
 from sierra.core.variables import population_size
 from sierra.core.variables import population_constant_density as pcd
 from sierra.core.variables import population_variable_density as pvd

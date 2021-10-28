@@ -29,7 +29,7 @@ import implements
 # Project packages
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.variables.population_size import PopulationSize
-from sierra.core.xml_luigi import XMLAttrChangeSet, XMLAttrChange
+from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
 
 
 @implements.implements(bc.IConcreteBatchCriteria)

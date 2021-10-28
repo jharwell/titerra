@@ -29,7 +29,7 @@ from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
 
 import titerra.projects.titan.generators.scenario_generator_parser as sgp
-import titerra.projects.fordyca.variables.nest as nest
+import titerra.projects.titan.variables.nest as nest
 
 
 class BlockCluster():
@@ -48,8 +48,10 @@ class BlockCluster():
         # We approximate the # blocks in a cluster (which changes dynamically) as a steady state
         # quantity, where each cluster always contains the fraction of total blocks in the arena
         # corresponding to how much of the overall distributable area it contains.
-        total_blocks = clusters_df.filter(regex='int_avg_cluster[0-9]*_block_count').iloc[-1].sum()
-        total_area = clusters_df.filter(regex='cluster[0-9]*_area').iloc[-1].sum()
+        total_blocks = clusters_df.filter(
+            regex='int_avg_cluster[0-9]*_block_count').iloc[-1].sum()
+        total_area = clusters_df.filter(
+            regex='cluster[0-9]*_area').iloc[-1].sum()
         cluster_area = ArenaExtent.from_corners(ll=Vector3D(xmin, ymin),
                                                 ur=Vector3D(xmax, ymax)).area()
         cluster_avg_blocks = total_blocks * cluster_area / total_area
@@ -100,7 +102,8 @@ class BlockClusterSet():
                  nest: Nest,
                  sim_opath: str) -> None:
 
-        clusters_df = sierra.core.utils.pd_csv_read(os.path.join(sim_opath, 'block-clusters.csv'))
+        clusters_df = sierra.core.utils.pd_csv_read(
+            os.path.join(sim_opath, 'block-clusters.csv'))
         n_clusters = len([c for c in clusters_df.columns if 'xmin' in c])
 
         # Create extents from clusters

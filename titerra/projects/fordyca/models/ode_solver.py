@@ -26,7 +26,7 @@ import numpy as np
 import scipy.integrate as si
 
 # Project packages
-from projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots
+from titerra.projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots
 
 
 class CRWSolver():

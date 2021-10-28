@@ -24,7 +24,7 @@ import re
 
 # Project packages
 from sierra.core.utils import ArenaExtent
-from sierra.core.xml_luigi import XMLLuigi
+from sierra.core.xml import XMLLuigi
 from sierra.core.generators.scenario_generator import ARGoSScenarioGenerator
 import sierra.core.utils as scutils
 
