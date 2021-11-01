@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # TITERRA.  If not, see <http://www.gnu.org/licenses/
 """
-Classes for the block motion batch criteria. See :ref:`ln-bc-block-motion-dynamics` for usage
-documentation.
+Classes for the block motion batch criteria. See
+:ref:`ln-bc-block-motion-dynamics` for usage documentation.
 """
 
 # Core packages
@@ -24,11 +24,13 @@ import os
 
 # 3rd party packages
 import implements
-
-# Project packages
 from sierra.core.variables import batch_criteria as bc
 import sierra.core.utils
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
+from sierra.core import types
+import sierra.core.config
+
+# Project packages
 import titerra.projects.titan.variables.dynamics_parser as dp
 
 
@@ -52,7 +54,8 @@ class BlockMotionDynamics(bc.UnivarBatchCriteria):
                  batch_input_root: str,
                  dynamics_type: str,
                  dynamics: tp.List[tp.Tuple[str, int]]) -> None:
-        bc.UnivarBatchCriteria.__init__(self, cli_arg, main_config, batch_input_root)
+        bc.UnivarBatchCriteria.__init__(
+            self, cli_arg, main_config, batch_input_root)
         # For now, only a single dynamics type
         self.dynamics_type = dynamics_type
         self.dynamics = dynamics
@@ -63,12 +66,12 @@ class BlockMotionDynamics(bc.UnivarBatchCriteria):
         """
         return self.dynamics
 
-    def gen_exp_dirnames(self, cmdopts: tp.Dict[str, tp.Any]) -> list:
+    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> list:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
-                     cmdopts: tp.Dict[str, tp.Any],
+                     cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
         if exp_dirs is None:
             exp_dirs = self.gen_exp_dirnames(cmdopts)
@@ -84,11 +87,11 @@ class BlockMotionDynamics(bc.UnivarBatchCriteria):
         return ticks
 
     def graph_xticklabels(self,
-                          cmdopts: tp.Dict[str, tp.Any],
+                          cmdopts: types.Cmdopts,
                           exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         return list(map(str, self.graph_xticks(cmdopts, exp_dirs)))
 
-    def graph_xlabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         labels = {'RW': 'Random Walk Probability'}
         return labels[self.dynamics_type]
 

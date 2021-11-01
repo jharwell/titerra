@@ -25,26 +25,30 @@ import itertools
 
 # 3rd party packages
 import implements
-
-# Project packages
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
+from sierra.core import types
+
+# Project packages
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
 class Oracle(bc.UnivarBatchCriteria):
     """
-    A univariate range specifiying the types of oracular information to disseminate to the swarm
-    during simulation. This class is a base class which should (almost) never be used on its
-    own. Instead, the ``factory()`` function should be used to dynamically create derived classes
-    expressing the user's desired types to disseminate.
+    A univariate range specifiying the types of oracular information to
+    disseminate to the swarm during simulation. This class is a base class which
+    should (almost) never be used on its own. Instead, the ``factory()``
+    function should be used to dynamically create derived classes expressing the
+    user's desired types to disseminate.
 
     Attributes:
-        tuples: List of tuples of types of oracular information to enable for a specific.
-        simulation. Each tuple is (oracle name, list(tuple(oracle feature name, oracle
-        feature value))).
+        tuples: List of tuples of types of oracular information to enable for a
+                specific.  simulation. Each tuple is (oracle name,
+                list(tuple(oracle feature name, oracle feature value))).
+
         population: Swarm size to set for the swarm (can be ``None``).
+
     """
     kInfoTypes = {'entities': ['caches', 'blocks']}
 
@@ -53,7 +57,10 @@ class Oracle(bc.UnivarBatchCriteria):
                  batch_input_root: str,
                  tuples: tp.List[tuple],
                  population: int) -> None:
-        bc.UnivarBatchCriteria.__init__(self, cli_arg, main_config, batch_input_root)
+        bc.UnivarBatchCriteria.__init__(self,
+                                        cli_arg,
+                                        main_config,
+                                        batch_input_root)
 
         self.tuples = tuples
         self.population = population
@@ -61,10 +68,10 @@ class Oracle(bc.UnivarBatchCriteria):
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChange]:
         if not self.attr_changes:
-            # Swarm size is optional. It can be (1) controlled via this variable, (2) controlled by
-            # another variable in a bivariate batch criteria, (3) not controlled at all. For (2),
-            # (3), the swarm size can be None.
-
+            # Swarm size is optional. It can be (1) controlled via this
+            # variable, (2) controlled by another variable in a bivariate batch
+            # criteria, (3) not controlled at all. For (2), (3), the swarm size
+            # can be None.
             for oracle, features in self.tuples:
                 s = XMLAttrChangeSet()
                 for t in features:
@@ -83,12 +90,12 @@ class Oracle(bc.UnivarBatchCriteria):
 
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: tp.Dict[str, tp.Any]) -> tp.List[str]:
+    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> tp.List[str]:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
-                     cmdopts: tp.Dict[str, tp.Any],
+                     cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
         if exp_dirs is None:
             exp_dirs = self.gen_exp_dirnames(cmdopts)
@@ -96,11 +103,11 @@ class Oracle(bc.UnivarBatchCriteria):
         return list(map(float, range(0, len(exp_dirs))))
 
     def graph_xticklabels(self,
-                          cmdopts: tp.Dict[str, tp.Any],
+                          cmdopts: types.Cmdopts,
                           exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         raise NotImplementedError
 
-    def graph_xlabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return "Oracular Information Type"
 
     def pm_query(self, pm: str) -> bool:

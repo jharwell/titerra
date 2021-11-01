@@ -15,25 +15,26 @@
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
 """
-Inter-experiment models for some of the performance measures the SIERRA core supports.
+Inter-experiment models for some of the performance measures the SIERRA core
+supports.
 """
 # Core packages
 import os
 import typing as tp
 import copy
-import math
 
 # 3rd party packages
 import implements
 import pandas as pd
-
-# Project packages
 import sierra.core.models.interface
 import sierra.core.utils
 import sierra.core.config
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
+from sierra.core import types
+import sierra.core.stat_kernels
 
+# Project packages
 import titerra.projects.titan.perf_measures.common as pmcommon
 from titerra.projects.titan.perf_measures.scalability import SteadyStateParallelFractionUnivar
 from titerra.projects.titan.perf_measures.self_organization import SteadyStateFLMarginalUnivar
@@ -74,7 +75,7 @@ class InterExp_RawPerf_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -88,7 +89,7 @@ class InterExp_RawPerf_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         dirs = criteria.gen_exp_dirnames(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
@@ -136,7 +137,7 @@ class InterExp_Scalability_NRobots():
 
     @staticmethod
     def kernel(criteria: bc.IConcreteBatchCriteria,
-               cmdopts: tp.Dict[str, tp.Any],
+               cmdopts: types.Cmdopts,
                perf_df: pd.DataFrame) -> pd.DataFrame:
         return SteadyStateParallelFractionUnivar.df_kernel(criteria, cmdopts, perf_df)
 
@@ -144,7 +145,7 @@ class InterExp_Scalability_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -158,7 +159,7 @@ class InterExp_Scalability_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         perf_df = InterExp_RawPerf_NRobots(self.main_config, self.config).run(criteria,
                                                                               cmdopts)[0]
@@ -186,7 +187,7 @@ class InterExp_SelfOrg_NRobots():
 
     @staticmethod
     def kernel(criteria: bc.IConcreteBatchCriteria,
-               cmdopts: tp.Dict[str, tp.Any],
+               cmdopts: types.Cmdopts,
                perf_dfs: tp.Dict[str, pd.DataFrame],
                N_av: tp.Dict[str, pd.DataFrame]) -> pd.DataFrame:
         plostN = pmcommon.SteadyStatePerfLostInteractiveSwarmUnivar.df_kernel(criteria,
@@ -200,7 +201,7 @@ class InterExp_SelfOrg_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -214,7 +215,7 @@ class InterExp_SelfOrg_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         perf_df = InterExp_RawPerf_NRobots(self.main_config, self.config).run(criteria,
                                                                               cmdopts)[0]
@@ -245,7 +246,7 @@ class InterExp_SelfOrg_NRobots():
 
 def _mock_distribution_gen(criteria: bc.IConcreteBatchCriteria,
                            main_config: tp.Dict[str, tp.Any],
-                           cmdopts: tp.Dict[str, tp.Any],
+                           cmdopts: types.Cmdopts,
                            prediction: pd.DataFrame) -> tp.Dict[str, pd.DataFrame]:
     """
     The TITAN performance measures expect a distribution of simulation data as input, in the form of

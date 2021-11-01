@@ -36,7 +36,7 @@ import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChangeSet
 import sierra.core.variables.time_setup as ts
-
+from sierra.core import types
 from titerra.projects.fordyca.models.density import BlockAcqDensity
 from titerra.projects.fordyca.models.dist_measure import DistanceMeasure2D
 import titerra.projects.fordyca.models.diffusion as diffusion
@@ -92,7 +92,7 @@ class IntraExp_BlockAcqRate_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -107,7 +107,7 @@ class IntraExp_BlockAcqRate_NRobots():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
 
@@ -140,7 +140,8 @@ class IntraExp_BlockAcqRate_NRobots():
         time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
 
         alpha_b = self._kernel(N=n_robots,
-                               wander_speed=float(self.config['wander_mean_speed']),
+                               wander_speed=float(
+                                   self.config['wander_mean_speed']),
                                ticks_per_sec=time_params['ticks_per_sec'],
                                avg_acq_dist=avg_acq_dist,
                                scenario=cmdopts['scenario'])
@@ -199,7 +200,7 @@ class IntraExp_BlockCollectionRate_NRobots():
     @staticmethod
     def calc_kernel_args(criteria:  bc.IConcreteBatchCriteria,
                          exp_num: int,
-                         cmdopts: tp.Dict[str, tp.Any],
+                         cmdopts: types.Cmdopts,
                          main_config: tp.Dict[str, tp.Any],
                          config: tp.Dict[str, tp.Any]):
         block_manip_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
@@ -223,7 +224,7 @@ class IntraExp_BlockCollectionRate_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -238,13 +239,14 @@ class IntraExp_BlockCollectionRate_NRobots():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
         rate_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
                                                              'block-manipulation.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=rate_df.index)
-        kargs = self.calc_kernel_args(criteria, exp_num, cmdopts, self.main_config, self.config)
+        kargs = self.calc_kernel_args(
+            criteria, exp_num, cmdopts, self.main_config, self.config)
         res_df['model'] = self.kernel(**kargs)
 
         # All done!
@@ -270,7 +272,7 @@ class InterExp_BlockAcqRate_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -284,7 +286,7 @@ class InterExp_BlockAcqRate_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         dirs = criteria.gen_exp_dirnames(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
@@ -294,15 +296,23 @@ class InterExp_BlockAcqRate_NRobots():
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
 
-            cmdopts2["exp0_output_root"] = os.path.join(cmdopts["batch_output_root"], dirs[0])
-            cmdopts2["exp0_stat_root"] = os.path.join(cmdopts["batch_stat_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = os.path.join(
+                cmdopts["batch_output_root"], dirs[0])
+            cmdopts2["exp0_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], dirs[0])
 
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets a single graph
             intra_df = IntraExp_BlockAcqRate_NRobots(self.main_config,
@@ -330,7 +340,7 @@ class InterExp_BlockCollectionRate_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -344,7 +354,7 @@ class InterExp_BlockCollectionRate_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         dirs = criteria.gen_exp_dirnames(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
@@ -354,15 +364,23 @@ class InterExp_BlockCollectionRate_NRobots():
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
 
-            cmdopts2["exp0_output_root"] = os.path.join(cmdopts["batch_output_root"], dirs[0])
-            cmdopts2["exp0_stat_root"] = os.path.join(cmdopts["batch_stat_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = os.path.join(
+                cmdopts["batch_output_root"], dirs[0])
+            cmdopts2["exp0_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], dirs[0])
 
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets a single graph
             intra_df = IntraExp_BlockCollectionRate_NRobots(self.main_config,
@@ -380,7 +398,7 @@ class InterExp_BlockCollectionRate_NRobots():
 
 
 class ExpectedAcqDist():
-    def __call__(self, cmdopts: tp.Dict[str, tp.Any], result_opath: str, nest: rep.Nest) -> float:
+    def __call__(self, cmdopts: types.Cmdopts, result_opath: str, nest: rep.Nest) -> float:
 
         # Get clusters in the arena
         clusters = rep.BlockClusterSet(cmdopts, nest, result_opath)
@@ -399,7 +417,8 @@ class ExpectedAcqDist():
                          scenario: str) -> float:
         dist_measure = DistanceMeasure2D(scenario, nest=nest)
 
-        density = BlockAcqDensity(nest=nest, cluster=cluster, dist_measure=dist_measure)
+        density = BlockAcqDensity(
+            nest=nest, cluster=cluster, dist_measure=dist_measure)
 
         # Compute expected value of X coordinate of average distance from nest to acquisition
         # location.

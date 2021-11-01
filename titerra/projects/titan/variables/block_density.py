@@ -25,22 +25,27 @@ import os
 
 # 3rd party packages
 import implements
-
-# Project packages
 from sierra.core.variables import constant_density as cd
 import sierra.core.utils
 from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 import sierra.core.plugin_manager as pm
+from sierra.core import types
+import sierra.core.config
+import sierra.core.variables.batch_criteria as bc
+
+# Project packages
 
 
-@implements.implements(sierra.core.variables.batch_criteria.IConcreteBatchCriteria)
+@implements.implements(bc.IConcreteBatchCriteria)
 class BlockConstantDensity(cd.ConstantDensity):
     """
-    A univariate range specifiying the block density (ratio of block count to arena size) to hold
-    constant as arena size is increased. This class is a base class which should (almost)
-    never be used on its own. Instead, the ``factory()`` function should be used to dynamically
-    create derived classes expressing the user's desired density.
+    A univariate range specifiying the block density (ratio of block count to
+    arena size) to hold constant as arena size is increased. This class is a
+    base class which should (almost) never be used on its own. Instead, the
+    ``factory()`` function should be used to dynamically create derived classes
+    expressing the user's desired density.
+
     """
 
     def __init__(self,
@@ -61,8 +66,10 @@ class BlockConstantDensity(cd.ConstantDensity):
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         """
-        Generate list of sets of changes to input file to set the # blocks for a set of arena
-        sizes such that the blocks density is constant. Blocks are approximated as point masses.
+        Generate list of sets of changes to input file to set the # blocks for a
+        set of arena sizes such that the blocks density is constant. Blocks are
+        approximated as point masses.
+
         """
         if not self.already_added:
             for changeset in self.attr_changes:
@@ -73,7 +80,8 @@ class BlockConstantDensity(cd.ConstantDensity):
                         extent = sierra.core.utils.ArenaExtent(dims)
 
                         # Always need at least 1 block
-                        n_blocks = max(2, extent.area() * (self.target_density / 100.0))
+                        n_blocks = max(2, extent.area() *
+                                       (self.target_density / 100.0))
 
                         changeset.add(XMLAttrChange(".//arena_map/blocks/distribution/manifest",
                                                     "n_cube",
@@ -91,7 +99,7 @@ class BlockConstantDensity(cd.ConstantDensity):
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
-                     cmdopts: tp.Dict[str, tp.Any],
+                     cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
         if exp_dirs is None:
             exp_dirs = self.gen_exp_dirnames(cmdopts)
@@ -107,11 +115,11 @@ class BlockConstantDensity(cd.ConstantDensity):
         return areas
 
     def graph_xticklabels(self,
-                          cmdopts: tp.Dict[str, tp.Any],
+                          cmdopts: types.Cmdopts,
                           exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         return [str(x) + r' $m^2$' for x in self.graph_xticks(cmdopts, exp_dirs)]
 
-    def graph_xlabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return r"Block Density ({0}\%)".format(self.target_density)
 
     def pm_query(self, pm: str) -> bool:
@@ -123,19 +131,20 @@ def factory(cli_arg: str,
             batch_input_root: str,
             **kwargs) -> BlockConstantDensity:
     """
-    Factory to create :class:`BlockConstantDensity` derived classes from the command line definition
-    of batch criteria.
-
+    Factory to create :class:`BlockConstantDensity` derived classes from the
+    command line definition of batch criteria.
     """
     attr = cd.Parser()(cli_arg)
-    sgp = pm.module_load_tiered(kwargs['project'], 'generators.scenario_generator_parser')
+    sgp = pm.module_load_tiered(
+        kwargs['project'], 'generators.scenario_generator_parser')
     kw = sgp.ScenarioGeneratorParser().to_dict(kwargs['scenario'])
 
     if kw['dist_type'] == "SS" or kw['dist_type'] == "DS":
         r = range(kw['arena_x'],
                   kw['arena_x'] + attr['cardinality'] * attr['arena_size_inc'],
                   attr['arena_size_inc'])
-        dims = [sierra.core.utils.ArenaExtent(Vector3D(x, x / 2.0, 0)) for x in r]
+        dims = [sierra.core.utils.ArenaExtent(
+            Vector3D(x, x / 2.0, 0)) for x in r]
     elif kw['dist_type'] == "PL" or kw['dist_type'] == "RN":
         r = range(kw['arena_x'],
                   kw['arena_x'] + attr['cardinality'] * attr['arena_size_inc'],

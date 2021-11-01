@@ -21,9 +21,10 @@ Command line parsing and validation for the :xref:`TITAN` project.
 import typing as tp
 
 # 3rd party packages
+from sierra.core import types
+import sierra.core.cmdline as cmd
 
 # Project packages
-import sierra.core.cmdline as cmd
 
 
 class Cmdline(cmd.CoreCmdline):
@@ -77,7 +78,8 @@ class Cmdline(cmd.CoreCmdline):
         super().init_stage4(for_sphinx)
 
         # Performance measure calculation options
-        pm = self.parser.add_argument_group('Stage4: Summary Performance Measure Options')
+        pm = self.parser.add_argument_group(
+            'Stage4: Summary Performance Measure Options')
 
         pm.add_argument("--pm-scalability-from-exp0",
                         help="""
@@ -152,7 +154,8 @@ class Cmdline(cmd.CoreCmdline):
                         default='sigmoid')
 
         # Variance curve similarity options
-        vcs = self.parser.add_argument_group('Stage4: Variance Curve Similarity (VCS) Options')
+        vcs = self.parser.add_argument_group(
+            'Stage4: Variance Curve Similarity (VCS) Options')
 
         vcs.add_argument("--gen-vc-plots",
                          help="""
@@ -171,7 +174,8 @@ class Cmdline(cmd.CoreCmdline):
                          self.cs_methods_doc() +
                          self.bc_applicable_doc([':ref:`SAA Noise <ln-bc-saa-noise>`']) +
                          self.stage_usage_doc([4]),
-                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         choices=["pcm", "area_between",
+                                  "frechet", "dtw", "curve_length"],
                          default="dtw")
         vcs.add_argument("--envc-cs-method",
                          help="""
@@ -182,7 +186,8 @@ class Cmdline(cmd.CoreCmdline):
                          self.cs_methods_doc() +
                          self.bc_applicable_doc([':ref:`Temporal Variance <ln-bc-tv>`']) +
                          self.stage_usage_doc([4]),
-                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         choices=["pcm", "area_between",
+                                  "frechet", "dtw", "curve_length"],
                          default="dtw")
 
         vcs.add_argument("--reactivity-cs-method",
@@ -194,7 +199,8 @@ class Cmdline(cmd.CoreCmdline):
                          self.cs_methods_doc() +
                          self.bc_applicable_doc([':ref:`Temporal Variance <ln-bc-tv>`']) +
                          self.stage_usage_doc([4]),
-                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         choices=["pcm", "area_between",
+                                  "frechet", "dtw", "curve_length"],
                          default="dtw")
 
         vcs.add_argument("--adaptability-cs-method",
@@ -206,11 +212,12 @@ class Cmdline(cmd.CoreCmdline):
                          self.cs_methods_doc() +
                          self.bc_applicable_doc([':ref:`Temporal Variance <ln-bc-tv>`']) +
                          self.stage_usage_doc([4]),
-                         choices=["pcm", "area_between", "frechet", "dtw", "curve_length"],
+                         choices=["pcm", "area_between",
+                                  "frechet", "dtw", "curve_length"],
                          default="dtw")
 
     @staticmethod
-    def cmdopts_update(cli_args, cmdopts: tp.Dict[str, tp.Any]):
+    def cmdopts_update(cli_args, cmdopts: types.Cmdopts):
         """
         Updates the core cmdopts dictionary with (key,value) pairs from the FORDYCA-specific cmdline options.
         """

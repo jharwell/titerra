@@ -35,8 +35,6 @@ import math
 
 # 3rd party packages
 import pandas as pd
-
-# Project packages
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
 from sierra.core.variables import batch_criteria as bc
@@ -45,6 +43,9 @@ from sierra.core.variables import population_constant_density as pcd
 from sierra.core.variables import population_variable_density as pvd
 import sierra.core.utils
 import sierra.core.config
+from sierra.core import types
+
+# Project packages
 
 import titerra.projects.titan.perf_measures.common as pmcommon
 
@@ -152,7 +153,7 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[pd.DataFrame, str]:
         populations = criteria.populations(cmdopts)
         sc_dfs = {}
@@ -171,7 +172,7 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
 
         return sc_dfs
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -189,7 +190,8 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
         pm_dfs = self.df_kernel(criteria, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -213,14 +215,14 @@ class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
     (See :class:`BaseSteadyStateParallelFraction`).
     """
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
         size = len(criteria.gen_attr_changelist())
@@ -260,7 +262,8 @@ class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -288,12 +291,14 @@ class ScalabilityUnivarGenerator:
     def __call__(self,
                  perf_csv: str,
                  perf_col: str,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])
 
-        SteadyStateNormalizedEfficiencyUnivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
-        SteadyStateParallelFractionUnivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateNormalizedEfficiencyUnivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateParallelFractionUnivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
 
 ################################################################################
 # Bivariate Classes
@@ -308,7 +313,7 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         xsize = len(criteria.criteria1.gen_attr_changelist())
@@ -329,7 +334,7 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
                                                                                           populations[i][j])
         return sc_dfs
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -346,7 +351,8 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -370,7 +376,7 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
@@ -391,14 +397,17 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
                     n_robots_x = populations[i][j]
 
                     if axis == 0:
-                        exp_xminus1 = list(collated_perf.keys())[(i - 1) * ysize + j]
+                        exp_xminus1 = list(collated_perf.keys())[
+                            (i - 1) * ysize + j]
                         n_robots_xminus1 = populations[i - 1][j]
                     else:
-                        exp_xminus1 = list(collated_perf.keys())[i * ysize + j - 1]
+                        exp_xminus1 = list(collated_perf.keys())[
+                            i * ysize + j - 1]
                         n_robots_xminus1 = populations[i][j - 1]
 
                     exp_xminus1_df = collated_perf[exp_xminus1]
-                    perf_xminus1 = exp_xminus1_df.loc[exp_xminus1_df.index[-1], sim]  # steady state
+                    # steady state
+                    perf_xminus1 = exp_xminus1_df.loc[exp_xminus1_df.index[-1], sim]
 
                     if perf_xminus1 == 0:
                         speedup_i = math.inf
@@ -414,7 +423,7 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
 
         return sc_dfs
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -441,7 +450,8 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -453,7 +463,8 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
                 title="Swarm Parallel Performance Fraction",
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -469,13 +480,15 @@ class ScalabilityBivarGenerator:
     def __call__(self,
                  perf_csv: str,
                  perf_col: str,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])
 
-        SteadyStateNormalizedEfficiencyBivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateNormalizedEfficiencyBivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
 
-        SteadyStateParallelFractionBivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStateParallelFractionBivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
 
 
 __api__ = [

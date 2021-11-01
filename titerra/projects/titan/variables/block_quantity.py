@@ -26,11 +26,13 @@ import os
 
 # 3rd party packages
 import implements
-
-# Project packages
 from sierra.core.variables import batch_criteria as bc
 import sierra.core.utils
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
+from sierra.core import types
+import sierra.core.config
+
+# Project packages
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
@@ -53,7 +55,8 @@ class BlockQuantity(bc.UnivarBatchCriteria):
                  batch_input_root: str,
                  quantities: tp.List[int],
                  block_type: str) -> None:
-        bc.UnivarBatchCriteria.__init__(self, cli_arg, main_config, batch_input_root)
+        bc.UnivarBatchCriteria.__init__(
+            self, cli_arg, main_config, batch_input_root)
         self.quantities = quantities
         self.block_type = block_type
         self.attr_changes = []  # type: tp.List
@@ -63,16 +66,17 @@ class BlockQuantity(bc.UnivarBatchCriteria):
         Generate list of sets of changes for block quantities to define a batch experiment.
         """
         if not self.attr_changes:
-            self.attr_changes = self.gen_attr_changelist_from_list(self.quantities, self.block_type)
+            self.attr_changes = self.gen_attr_changelist_from_list(
+                self.quantities, self.block_type)
 
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: tp.Dict[str, tp.Any]) -> list:
+    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> list:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
-                     cmdopts: tp.Dict[str, tp.Any],
+                     cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
 
         if exp_dirs is None:
@@ -91,12 +95,12 @@ class BlockQuantity(bc.UnivarBatchCriteria):
         return quantities
 
     def graph_xticklabels(self,
-                          cmdopts: tp.Dict[str, tp.Any],
+                          cmdopts: types.Cmdopts,
                           exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
 
         return list(map(str, self.graph_xticks(cmdopts, exp_dirs)))
 
-    def graph_xlabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return "Block Quantity"
 
     def pm_query(self, pm: str) -> bool:
@@ -129,13 +133,15 @@ class Parser():
         # Parse block type
         res = re.search("cube|ramp", criteria_str.split('.')[1])
         assert res is not None, \
-            "FATAL: Bad block type specification in criteria '{0}'".format(criteria_str)
+            "FATAL: Bad block type specification in criteria '{0}'".format(
+                criteria_str)
         ret['block_type'] = res.group(0)
 
         # Parse increment type
         res = re.search("Log|Linear", criteria_str.split('.')[2])
         assert res is not None, \
-            "FATAL: Bad quantity increment specification in criteria '{0}'".format(criteria_str)
+            "FATAL: Bad quantity increment specification in criteria '{0}'".format(
+                criteria_str)
         ret['increment_type'] = res.group(0)
 
         # Parse max size
@@ -146,7 +152,8 @@ class Parser():
 
         # Set linear_increment if needed
         if ret['increment_type'] == 'Linear':
-            ret['linear_increment'] = int(ret['max_quantity'] / 10.0)  # type: ignore
+            ret['linear_increment'] = int(
+                ret['max_quantity'] / 10.0)  # type: ignore
 
         return ret
 

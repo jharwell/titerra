@@ -176,14 +176,18 @@
                            max="0.08"/>
             <wander_force circle_distance="4.0"
                           circle_radius="100.0"
-                          max_angle_delta="5"
                           max="0.09"
-                          interval="1"
-                          normal_dist="false"/>
+                          interval="1">
+              <!-- 5 degrees max delta. -->
+              <bias_angle src="uniform"
+                          max_delta="0.0872"/>
+              
+            </wander_force>
             <phototaxis_force max="0.08"/>
           </force_calculator>
 
-          <diff_drive soft_turn_max="15"
+          <!-- 15 degrees soft_turn_max. -->
+          <diff_drive soft_turn_max="0.262"
                       max_speed="0.1" />
         </actuation_subsystem2D>
       </params>
@@ -205,7 +209,7 @@
         <append
             output_interval="1000"
             block_acq_counts="block-acq-counts"
-            fsm_interference_counts="fsm-interference-counts"
+            spatial_interference_counts="spatial-interference-counts"
             block_transporter="block-transporter"
             block_transportee="block-transportee"
             block_manipulation="block-manipulation"
@@ -227,19 +231,20 @@
             task_distribution="task-distribution"
             block_clusters="block-clusters"
             nest_acq_strategy='nest-acq-strategy'
+            spatial_nest_zone='spatial-nest-zone'
             perception_dpo="perception-dpo"
             tv_population="tv-population"
             tv_environment="tv-environment"/>
 
         <truncate output_interval="10"
-                  fsm_interference_locs2D="fsm-interference-locs2D"
+                  spatial_interference_locs2D="spatial-interference-locs2D"
                   block_acq_explore_locs2D="block-acq-explore-locs2D"
                   block_acq_locs2D="block-acq-locs2D"
                   cache_acq_locs2D="cache-acq-locs2D"
                   cache_acq_explore_locs2D="cache-acq-explore-locs2D"
                   cache_acq_vector_locs2D="cache-acq-vector-locs2D"
                   cache_locations="cache-locations"
-                  swarm_dist2D_pos="swarm-dist-pos2D"/>
+                  spatial_dist2D_pos="spatial-dist2D-pos"/>
           </csv>
         </sinks>
       </metrics>

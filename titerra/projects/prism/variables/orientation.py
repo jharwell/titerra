@@ -37,21 +37,32 @@ class Orientation():
         return str(self.num_val)
 
     def is_NS(self) -> bool:
-        return self.str_val in ['PI/2', '3PI/2']
+        return self.is_N() or self.is_S()
 
     def is_EW(self) -> bool:
-        return self.str_val in ['0', 'PI']
+        return self.is_E() or self.is_W()
+
+    def is_N(self) -> bool:
+        return self.str_val in ['PI/2']
+
+    def is_S(self) -> bool:
+        return self.str_val in ['3PI/2']
+
+    def is_E(self) -> bool:
+        return self.str_val in ['0']
+
+    def is_W(self) -> bool:
+        return self.str_val in ['PI']
 
     @staticmethod
     def to_radians(orientation: str) -> float:
         if orientation == '0':
             return 0.0
-        elif orientation == 'PI/2':
+        if orientation == 'PI/2':
             return math.pi / 2.0
-        elif orientation == 'PI':
+        if orientation == 'PI':
             return math.pi
-        elif orientation == '3PI/2':
-            return math.pi * 1.5
+        return math.pi * 1.5
 
 
 class OrientationParser():

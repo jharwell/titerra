@@ -19,6 +19,7 @@ import re
 import typing as tp
 
 # 3rd party packages
+from sierra.core import types
 
 # Project packages
 
@@ -31,7 +32,7 @@ class DynamicsParser():
     def __init__(self) -> None:
         pass
 
-    def specs_dict(self) -> tp.Dict[str, tp.Any]:
+    def specs_dict(self) -> types.CLIArgSpec:
         raise NotImplementedError
 
     def __call__(self,
@@ -46,13 +47,15 @@ class DynamicsParser():
         # Parse cardinality
         res = re.search(r".C[0-9]+", criteria_str)
         assert res is not None, \
-            "FATAL: Bad cardinality for dynamics in criteria '{0}'".format(criteria_str)
+            "FATAL: Bad cardinality for dynamics in criteria '{0}'".format(
+                criteria_str)
         ret['cardinality'] = int(res.group(0)[2:])
 
         # Parse factor characteristic
         res = re.search(r'F[0-9]+p[0-9]+', criteria_str)
         assert res is not None, \
-            "FATAL: Bad Factor specification in criteria '{0}'".format(criteria_str)
+            "FATAL: Bad Factor specification in criteria '{0}'".format(
+                criteria_str)
         characteristic = float(res.group(0)[1:].split('p')[0])
         mantissa = float("0." + res.group(0)[1:].split('p')[1])
 

@@ -26,14 +26,15 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-
-# Project packages
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
 import sierra.core.variables.batch_criteria as bc
 import sierra.core.utils
 import sierra.core.config
 import sierra.core.stat_kernels
+from sierra.core import types
+
+# Project packages
 import titerra.projects.titan.perf_measures.common as pmcommon
 
 
@@ -62,7 +63,7 @@ class SteadyStateRawUnivar(BaseSteadyStateRaw):
 
     """
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -81,7 +82,8 @@ class SteadyStateRawUnivar(BaseSteadyStateRaw):
         pm_dfs = self.df_kernel(dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -104,7 +106,7 @@ class SteadyStateRawBivar(BaseSteadyStateRaw):
 
     """
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -121,7 +123,8 @@ class SteadyStateRawBivar(BaseSteadyStateRaw):
         pm_dfs = self.df_kernel(dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
 
         stat_opath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                                   self.kLeaf + sierra.core.config.kStatsExtensions['mean'])

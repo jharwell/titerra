@@ -15,16 +15,20 @@
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
 r"""
-Measures for swarm self-organization/emergence in univariate and bivariate batched experiments.
+Measures for swarm self-organization/emergence in univariate and bivariate
+batched experiments.
 
-.. IMPORTANT:: The calculations performed by classes in this module make the following assumptions:
+.. IMPORTANT:: The calculations performed by classes in this module make the
+               following assumptions:
 
-               - Different swarm sizes are used for at least `some` experiments in the batch.
+               - Different swarm sizes are used for at least `some` experiments
+                 in the batch.
 
                - exp0 has $\mathcal{N}=1$
 
-               If these assumptions are violated, the calculations may still have some
-               value/utility, but it will be reduced.
+               If these assumptions are violated, the calculations may still
+               have some value/utility, but it will be reduced.
+
 """
 
 
@@ -36,7 +40,6 @@ import typing as tp
 # 3rd party packages
 import pandas as pd
 
-# Project packages
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
 from sierra.core.variables import batch_criteria as bc
@@ -45,6 +48,9 @@ from sierra.core.variables import population_constant_density as pcd
 from sierra.core.variables import population_variable_density as pvd
 import sierra.core.utils
 import sierra.core.config
+from sierra.core import types
+
+# Project packages
 
 import titerra.projects.titan.perf_measures.common as pmcommon
 
@@ -55,9 +61,10 @@ import titerra.projects.titan.perf_measures.common as pmcommon
 
 class BaseSteadyStateFLMarginal():
     r"""
-    Calculates the self organization due to inter-robot interaction for a  swarm configuration of
-    size :math:`N_2`, given fractional performance losses for :math:`N_2` robots and for a
-    smaller swarm of size :math:`N_1` with the same configuration.
+    Calculates the self organization due to inter-robot interaction for a swarm
+    configuration of size :math:`N_2`, given fractional performance losses for
+    :math:`N_2` robots and for a smaller swarm of size :math:`N_1` with the same
+    configuration.
 
     .. math::
        E_S(N_1,N_2,\kappa) = \sum_{t\in{T}}\theta_{E_S}(t)
@@ -91,7 +98,8 @@ class BaseSteadyStateFLMarginal():
                normalize_method: str) -> tp.Optional[float]:
 
         if n_robots_i > 1:
-            theta = float(n_robots_i) / float(n_robots_iminus1) * fl_iminus1 - fl_i
+            theta = float(n_robots_i) / \
+                float(n_robots_iminus1) * fl_iminus1 - fl_i
         else:
             theta = 0.0
 
@@ -106,9 +114,9 @@ class BaseSteadyStateFLMarginal():
 
 class BaseSteadyStateFLInteractive():
     r"""
-    Calculates the self organization due to inter-robot interaction for a swarm configuration of
-    size :math:`N`, using scaled fractional performance losses in comparison to a non-interactive
-    swarm of size :math:`N`.
+    Calculates the self organization due to inter-robot interaction for a swarm
+    configuration of size :math:`N`, using scaled fractional performance losses
+    in comparison to a non-interactive swarm of size :math:`N`.
 
     .. math::
        E_S(N,\kappa) = \sum_{t\in{T}}\theta_{E_S}(N,\kappa)
@@ -186,7 +194,8 @@ class BaseSteadyStatePGMarginal():
                normalize: bool,
                normalize_method: str) -> tp.Optional[float]:
         if n_robots_i > 1:
-            theta = perf_i - (float(n_robots_i) / float(n_robots_iminus1)) * perf_iminus1
+            theta = perf_i - (float(n_robots_i) /
+                              float(n_robots_iminus1)) * perf_iminus1
         else:
             theta = 0.0
 
@@ -257,7 +266,7 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_fl: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
         so_dfs = {}
@@ -289,7 +298,7 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
         return so_dfs
 
     def __init__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str,
                  interference_csv: str,
@@ -320,7 +329,8 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, fl)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -349,7 +359,7 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_fl: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
         so_dfs = {}
@@ -378,7 +388,7 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
         return so_dfs
 
     def __init__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str,
                  interference_csv: str,
@@ -409,7 +419,8 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, fl)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -438,7 +449,7 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
         so_dfs = {}
@@ -468,7 +479,7 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
 
         return so_dfs
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -485,7 +496,8 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -514,7 +526,7 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
         so_dfs = {}
@@ -543,7 +555,7 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
 
         return so_dfs
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -560,7 +572,8 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
+        pmcommon.univar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -587,7 +600,7 @@ class SelfOrgUnivarGenerator:
         self.logger = logging.getLogger(__name__)
 
     def __call__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str,
                  interference_csv: str,
@@ -605,8 +618,10 @@ class SelfOrgUnivarGenerator:
                                        perf_col,
                                        interference_csv,
                                        interference_col).from_batch(criteria)
-        SteadyStatePGMarginalUnivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
-        SteadyStatePGInteractiveUnivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStatePGMarginalUnivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStatePGInteractiveUnivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
 
 
 ################################################################################
@@ -631,7 +646,7 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   axis: int,
                   collated_fl: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
@@ -652,14 +667,17 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
                     fl_x = flx_df.loc[flx_df.index[-1], sim]  # steady state
 
                     if axis == 0:
-                        exp_xminus1 = list(collated_fl.keys())[(i - 1) * ysize + j]
+                        exp_xminus1 = list(collated_fl.keys())[
+                            (i - 1) * ysize + j]
                         n_robots_xminus1 = populations[i - 1][j]
                     else:
-                        exp_xminus1 = list(collated_fl.keys())[i * ysize + (j - 1)]
+                        exp_xminus1 = list(collated_fl.keys())[
+                            i * ysize + (j - 1)]
                         n_robots_xminus1 = populations[i][j - 1]
 
                     fl_xminus1_df = collated_fl[exp_xminus1]
-                    fl_xminus1 = fl_xminus1_df.loc[fl_xminus1_df.index[-1], sim]  # steady state
+                    # steady state
+                    fl_xminus1 = fl_xminus1_df.loc[fl_xminus1_df.index[-1], sim]
 
                     self_org = BaseSteadyStateFLMarginal.kernel(fl_i=fl_x,
                                                                 n_robots_i=n_robots_x,
@@ -673,7 +691,7 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
         return so_dfs
 
     def __init__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str,
                  interference_csv: str,
@@ -699,7 +717,8 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
                                                                              interference_dfs,
                                                                              perf_dfs)
 
-        fl = pmcommon.SteadyStateFLBivar.df_kernel(criteria, self.cmdopts, perf_dfs, plostN)
+        fl = pmcommon.SteadyStateFLBivar.df_kernel(
+            criteria, self.cmdopts, perf_dfs, plostN)
 
         # We need to know which of the 2 variables was swarm size, in order to determine
         # the correct dimension along which to compute the metric, which depends on
@@ -713,7 +732,8 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, fl)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -725,7 +745,8 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
                 title="Swarm Self-Organization via Marginal Sub-Linear Performance Losses",
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -741,7 +762,7 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   axis: int,
                   collated_fl: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
@@ -780,7 +801,7 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
         return so_dfs
 
     def __init__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str,
                  interference_csv: str,
@@ -805,7 +826,8 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
                                                                              self.cmdopts,
                                                                              interference_dfs,
                                                                              perf_dfs)
-        fl = pmcommon.SteadyStateFLBivar.df_kernel(criteria, self.cmdopts, perf_dfs, plostN)
+        fl = pmcommon.SteadyStateFLBivar.df_kernel(
+            criteria, self.cmdopts, perf_dfs, plostN)
 
         # We need to know which of the 2 variables was swarm size, in order to determine
         # the correct dimension along which to compute the metric, which depends on
@@ -819,7 +841,8 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, fl)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -831,7 +854,8 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
                 title="Swarm Self-Organization via Sub-Linear Performance Losses",
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -848,7 +872,7 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
@@ -868,14 +892,16 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
                     perf_x = expx_df.loc[expx_df.index[-1], sim]  # steady state
 
                     if axis == 0:
-                        exp_xminus1 = list(collated_perf.keys())[(i - 1) * ysize + j]
+                        exp_xminus1 = list(collated_perf.keys())[
+                            (i - 1) * ysize + j]
                         exp_xminus1_df = collated_perf[exp_xminus1]
 
                         # steady state
                         perf_xminus1 = exp_xminus1_df.loc[exp_xminus1_df.index[-1], sim]
                         n_robots_xminus1 = populations[i - 1][j]
                     else:
-                        exp_xminus1 = list(collated_perf.keys())[i * ysize + (j - 1)]
+                        exp_xminus1 = list(collated_perf.keys())[
+                            i * ysize + (j - 1)]
                         exp_xminus1_df = collated_perf[exp_xminus1]
 
                         # steady state
@@ -892,7 +918,7 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
 
         return so_dfs
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -918,9 +944,11 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        so_opath = os.path.join(self.cmdopts["batch_stat_collate_root"], self.kLeaf)
+        so_opath = os.path.join(
+            self.cmdopts["batch_stat_collate_root"], self.kLeaf)
 
         Heatmap(input_fpath=so_opath + '.csv',
                 output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
@@ -928,7 +956,8 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
                 title="Swarm Self-Organization via Marginal Performance Gains",
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -944,7 +973,7 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
@@ -980,7 +1009,7 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
 
         return so_dfs
 
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], perf_csv: str, perf_col: str) -> None:
+    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
@@ -1005,7 +1034,8 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.bivar_distribution_prepare(self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
+        pmcommon.bivar_distribution_prepare(
+            self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
                              self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
@@ -1017,7 +1047,8 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
                 title="Swarm Self-Organization via Performance Gains Through Interaction",
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
-                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[axis == 0:],
+                xtick_labels=criteria.graph_xticklabels(self.cmdopts)[
+                    axis == 0:],
                 ytick_labels=criteria.graph_yticklabels(self.cmdopts)[axis == 1:]).generate()
 
 
@@ -1031,7 +1062,7 @@ class SelfOrgBivarGenerator:
         self.logger = logging.getLogger(__name__)
 
     def __call__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str,
                  interference_csv: str,
@@ -1049,8 +1080,10 @@ class SelfOrgBivarGenerator:
                                       perf_col,
                                       interference_csv,
                                       interference_col).from_batch(criteria)
-        SteadyStatePGMarginalBivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
-        SteadyStatePGInteractiveBivar(cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStatePGMarginalBivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
+        SteadyStatePGInteractiveBivar(
+            cmdopts, perf_csv, perf_col).from_batch(criteria)
 
 
 ################################################################################

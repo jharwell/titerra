@@ -1,8 +1,8 @@
 HM_arena:
   graphs:
-    - src_stem: fsm-collision-locs2D
+    - src_stem: spatial-interference-locs2D
       title: 'Robot Collision Density'
-    - src_stem: swarm-dist-pos2D
+    - src_stem: spatial-dist2D-pos
       title: 'Robot Occupancy Density'
 
 HM_swarm:

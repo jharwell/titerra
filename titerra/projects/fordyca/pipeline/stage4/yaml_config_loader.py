@@ -21,17 +21,18 @@ import logging
 
 # 3rd party packages
 import yaml
+import sierra.core.utils
+from sierra.core import types
 
 # Project packages
 import titerra.projects.titan.pipeline.stage4.yaml_config_loader as ycl
-import sierra.core.utils
 
 
 class YAMLConfigLoader(ycl.YAMLConfigLoader):
     def __init__(self) -> None:
         super().__init__()
 
-    def __call__(self, cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Dict[str, str]]:
+    def __call__(self, cmdopts: types.Cmdopts) -> tp.Dict[str, tp.Dict[str, str]]:
         joint_config = super().__call__(cmdopts)
 
         # Replace logger for more accurate messages

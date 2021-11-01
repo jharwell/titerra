@@ -25,9 +25,10 @@ import typing as tp
 
 # 3rd party packages
 import sierra.core.pipeline.stage4 as stage4
+from sierra.core.variables import batch_criteria as bc
+from sierra.core import types
 
 # Project packages
-from sierra.core.variables import batch_criteria as bc
 import titerra.projects.titan.perf_measures.self_organization as pmso
 import titerra.projects.titan.perf_measures.raw as pmraw
 import titerra.projects.titan.perf_measures.robustness as pmb
@@ -55,7 +56,8 @@ class InterExpGraphGenerator(stage4.inter_exp_graph_generator.InterExpGraphGener
         """
         super().__call__(criteria)
         if criteria.is_univar():
-            UnivarPerfMeasuresGenerator(self.main_config, self.cmdopts)(criteria)
+            UnivarPerfMeasuresGenerator(
+                self.main_config, self.cmdopts)(criteria)
         else:
             BivarPerfMeasuresGenerator(self.main_config, self.cmdopts)(criteria)
 
@@ -73,7 +75,7 @@ class UnivarPerfMeasuresGenerator:
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any]) -> None:
+                 cmdopts: types.Cmdopts) -> None:
         # Copy because we are modifying it and don't want to mess up the arguments for graphs that
         # are generated after us
         self.cmdopts = copy.deepcopy(cmdopts)
@@ -126,7 +128,7 @@ class BivarPerfMeasuresGenerator:
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any]) -> None:
+                 cmdopts: types.Cmdopts) -> None:
         # Copy because we are modifying it and don't want to mess up the arguments for graphs that
         # are generated after us
         self.cmdopts = copy.deepcopy(cmdopts)

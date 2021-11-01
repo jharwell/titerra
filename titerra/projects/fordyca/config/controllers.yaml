@@ -1,6 +1,7 @@
 base_graphs: &base_graphs
-  - LN_fsm_interference
+  - LN_spatial_interference
   - LN_spatial_movement
+  - LN_spatial_nest_zone
   - LN_block_trans
   - LN_block_acq
   - LN_block_manip

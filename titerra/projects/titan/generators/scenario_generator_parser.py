@@ -2,9 +2,10 @@
 #
 #  This file is part of TITERRA.
 #
-#  TITERRA is free software: you can redistribute it and/or modify it under the terms of the GNU
-#  General Public License as published by the Free Software Foundation, either version 3 of the
-#  License, or (at your option) any later version.
+#  TITERRA is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later
+#  version.
 #
 #  TITERRA is distributed in the hope that it will be useful, but WITHOUT ANY
 #  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
@@ -20,6 +21,7 @@ import logging
 import typing as tp
 
 # 3rd party packages
+from sierra.core import types
 
 # Project packages
 
@@ -31,22 +33,24 @@ class ScenarioGeneratorParser:
 
     Format for pair is <scenario>.AxBxC
 
-    <scenario> can be one of [SS,DS,QS,PL,RN]. A,B,C are the scenario dimensions.
+    <scenario> can be one of [SS,DS,QS,PL,RN]. A,B,C are the scenario
+    dimensions.
 
-    The Z dimension (C) is not optional (even for 2D simulations), due to how ARGoS handles LEDs
-    internally.
+    The Z dimension (C) is not optional (even for 2D simulations), due to how
+    ARGoS handles LEDs internally.
 
-    Return:
-        Parsed scenario specification, unless missing from the command line altogether; this can
-        occur if the user is only running stage [4,5], and is not an error. In that case, None is
-        returned.
+    Returns:
+        Parsed scenario specification, unless missing from the command line
+        altogether; this can occur if the user is only running stage [4,5], and
+        is not an error. In that case, None is returned.
+
     """
 
     def __init__(self) -> None:
         self.scenario = None
         self.logger = logging.getLogger(__name__)
 
-    def to_scenario_name(self, args) -> str:
+    def to_scenario_name(self, args) -> tp.Optional[str]:
         """
         Parse the scenario generator from cmdline arguments into a string.
         """
@@ -60,7 +64,8 @@ class ScenarioGeneratorParser:
 
         res1 = re.search('[SDQPR][SSSLN]', args.scenario)
         assert res1 is not None,\
-            "FATAL: Bad block distribution specification in '{0}'".format(args.scenario)
+            "FATAL: Bad block distribution specification in '{0}'".format(
+                args.scenario)
         res2 = re.search('[0-9]+x[0-9]+x[0-9]+', args.scenario)
 
         assert res2 is not None,\
@@ -69,10 +74,10 @@ class ScenarioGeneratorParser:
         self.scenario = res1.group(0) + "." + res2.group(0)
         return self.scenario
 
-    def to_dict(self, scenario: str) -> tp.Dict[str, tp.Any]:
+    def to_dict(self, scenario: str) -> types.CLIArgSpec:
         """
-        Given a string (presumably a result of an earlier cmdline parse), parse it into a dictionary
-        of components: arena_x, arena_y, arena_z, scenario_tag
+        Given a string (presumably a result of an earlier cmdline parse), parse
+        it into a dictionary of components: arena_x, arena_y, arena_z, scenario_tag
         """
         x, y, z = scenario.split('+')[0].split('.')[1].split('x')
         dist_type = scenario.split('.')[0]

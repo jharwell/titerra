@@ -14,8 +14,9 @@
 #  You should have received a copy of the GNU General Public License along with
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 """
-Graph Manipulation Target (GMT) visualizer for verifying that the structure you hand to the swarm to
-build is what you think it is.
+Graph Manipulation Target (GMT) visualizer for verifying that the structure
+you hand to the swarm to build is what you think it is.
+
 """
 # Core packages
 import argparse
@@ -30,8 +31,10 @@ import networkx as nx
 
 # Project packages
 from sierra.core.cmdline import BaseCmdline
-from titerr.aprojects.prism.variables.construction_targets import BaseConstructTarget
+from titerra.projects.prism.variables.construction_targets import BaseConstructTarget
+from titerra.projects.prism import gmt_spec
 import sierra.core.config
+from sierra.core import vector
 
 
 class GMTVisualizerCmdline(BaseCmdline):
@@ -52,58 +55,82 @@ class GMTVisualizer():
 
     def __init__(self, args) -> None:
         self.graph_type = os.path.basename(args.input_file).split('.')[0]
-        self.graph = nx.read_graphml(args.input_file, label=None, destringizer=self._destringizer)
+        self.graph = nx.read_graphml(args.input_file)
         self.output_dir = args.output_dir
 
     def __call__(self) -> None:
         """
-        Generate multiple rotated copies of the same structure graph plotted in 3D, to aid in
-        diagnostic debugging.
+        Generate multiple rotated copies of the same structure graph plotted in
+        3D, to aid in diagnostic debugging.
+
         """
         for angle in range(0, 360, 30):
             ax = self._gen_plot(self.graph, angle)
             ax.view_init(elev=None, azim=angle)
             fig = ax.get_figure()
-            # The path we are passed may contain dots from the controller same, so we extract the
-            # leaf of that for manipulation to add the angle of the view right before the file
-            # extension.
-            fname = "{0}_{1}{2}".format(self.graph_type, angle, sierra.core.config.kImageExt)
+            # The path we are passed may contain dots from the controller name,
+            # so we extract the leaf of that for manipulation to add the angle
+            # of the view right before the file extension.
+            fname = "{0}_{1}{2}".format(
+                self.graph_type, angle, sierra.core.config.kImageExt)
             fig.savefig(os.path.join(self.output_dir, fname),
                         bbox_inches='tight',
                         dpi=sierra.core.config.kGraphDPI,
                         pad_inches=0)
-            plt.close(fig)  # Prevent memory accumulation (fig.clf() does not close everything)
+            # Prevent memory accumulation (fig.clf() does not close everything)
+            plt.close(fig)
 
     def _gen_plot(self, graph: nx.Graph, angle: int) -> Axes3D:
 
         # Get node attributes
-        positions = nx.get_node_attributes(graph, 'pos')
+        anchors = nx.get_node_attributes(graph, gmt_spec.kVertexAnchorKey)
+        assert anchors, \
+            ("'{0}' is not the attribute of block anchors".format(
+                gmt_spec.kVertexAnchorKey))
 
         # 3D network plot
         fig = plt.figure(figsize=(10, 7))
         ax = Axes3D(fig)
+        # Hide grid lines
+        ax.grid(False)
 
-        # Loop on the pos dictionary to extract the x,y,z coordinates of each node
-        for key, value in positions.items():
-            # Scatter plot
-            ax.scatter(value[0],
-                       value[1],
-                       value[2],
-                       edgecolors='k',
-                       c=graph.nodes[key]['color'],
-                       s=200)
+        # Hide axes (easier to see graphs)
+        ax.set_axis_off()
 
-        # Loop on the list of edges to get the x,y,z, coordinates of the connected nodes
-        # Those two points are the extrema of the line to be plotted
+        # Loop on the pos dictionary to extract the x,y,z coordinates of each
+        # node
+        vals = [(vd, vector.from_str(value)) for vd, value in anchors.items()]
+
+        # Scatter plot
+        ax.scatter([v[1].x for v in vals],
+                   [v[1].y for v in vals],
+                   [v[1].z for v in vals],
+                   c=[graph.nodes[v[0]][gmt_spec.kVertexColorKey]
+                       for v in vals],
+                   s=400)
+
+        # Loop on the list of edges to get the x,y,z, coordinates of the
+        # connected nodes. Those two points are the extrema of the line to be
+        # plotted
+        vals = []
         for i, j in enumerate(graph.edges()):
-            # Not all edge pairs exist
-            if j[0] in positions and j[1] in positions:
-                x = np.array((positions[j[0]][0], positions[j[1]][0]))
-                y = np.array((positions[j[0]][1], positions[j[1]][1]))
-                z = np.array((positions[j[0]][2], positions[j[1]][2]))
+            # Only show edges between pairs of vertices (i.e., ignore dangling
+            # edges)
+            u_vd = j[0]
+            v_vd = j[1]
 
+            if u_vd in anchors and v_vd in anchors:
+                u_coord = vector.from_str(anchors[u_vd])
+                v_coord = vector.from_str(anchors[v_vd])
+                x = np.array((u_coord.x, v_coord.x))
+                y = np.array((u_coord.y, v_coord.y))
+                z = np.array((u_coord.z, v_coord.z))
                 # Plot the connecting lines
-                ax.plot(x, y, z, c='black')
+                ax.plot(x,
+                        y,
+                        z,
+                        linewidth=2,
+                        c='black')
 
         return ax
 

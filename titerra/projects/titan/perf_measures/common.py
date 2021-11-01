@@ -24,9 +24,6 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-
-# Project packages
-import sierra.core.utils
 from sierra.core.variables.population_size import PopulationSize
 from sierra.core.variables import batch_criteria as bc
 import sierra.core.config
@@ -35,6 +32,10 @@ from sierra.core.variables import population_size
 from sierra.core.variables import population_constant_density as pcd
 from sierra.core.variables import population_variable_density as pvd
 import sierra.core.stat_kernels
+import sierra.core.utils
+from sierra.core import types
+
+# Project packages
 
 ################################################################################
 # Base Classes
@@ -85,8 +86,8 @@ class BaseSteadyStatePerfLostInteractiveSwarm():
 
 class BaseSteadyStateFL:
     r"""
-    Base class for calculating the fractional performance losses of a swarm across a range of swarm
-    sizes.
+    Base class for calculating the fractional performance losses of a swarm
+    across a range of swarm sizes.
 
     Fractional performance losses are defined as:
 
@@ -95,7 +96,8 @@ class BaseSteadyStateFL:
 
        FL(N,\kappa) = \frac{P_{lost}(N,\kappa,T)}{P(N,\kappa,T)}
 
-    (i.e the fraction of performance which has been lost due to inter-robot interference).
+    (i.e the fraction of performance which has been lost due to inter-robot
+    interference).
 
     """
     @staticmethod
@@ -106,7 +108,7 @@ class BaseSteadyStateFL:
             return round(plostN / perfN, 8)
 
     def __init__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  inter_perf_csv: str,
                  interference_count_csv: str,
                  criteria: bc.IConcreteBatchCriteria) -> None:
@@ -120,7 +122,8 @@ class BaseSteadyStateFL:
         # Just need to get # timesteps per simulation which is the same for all
         # simulations/experiments, so we pick exp0 for simplicity to calculate
         exp_def = XMLAttrChangeSet.unpickle(os.path.join(cmdopts["batch_input_root"],
-                                                         criteria.gen_exp_dirnames(self.cmdopts)[0],
+                                                         criteria.gen_exp_dirnames(
+                                                             self.cmdopts)[0],
                                                          sierra.core.config.kPickleLeaf))
 
         # Integers always seem to be pickled as floats, so you can't convert directly without an
@@ -158,7 +161,7 @@ class SteadyStatePerfLostInteractiveSwarmUnivar(BaseSteadyStatePerfLostInteracti
 
     @staticmethod
     def df_kernel(criteria: bc.UnivarBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_interference: tp.Dict[str, pd.DataFrame],
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         """
@@ -182,7 +185,8 @@ class SteadyStatePerfLostInteractiveSwarmUnivar(BaseSteadyStatePerfLostInteracti
         plostn_dfs[exp0] = pd.DataFrame(columns=collated_perf[exp0].columns,
                                         index=[0])  # Steady state
 
-        plostn_dfs[exp0].loc[0, :] = 0.0  # By definition, no performance losses in exp0
+        # By definition, no performance losses in exp0
+        plostn_dfs[exp0].loc[0, :] = 0.0
 
         # Case 2 : N>1 robots
         for i in range(1, n_exp):
@@ -200,11 +204,13 @@ class SteadyStatePerfLostInteractiveSwarmUnivar(BaseSteadyStatePerfLostInteracti
             for sim in expx_perf_df.columns:
                 # steady state
                 tlost1 = exp0_interference_df.loc[exp0_interference_df.index[-1], sim]
-                perf1 = exp0_perf_df.loc[exp0_perf_df.index[-1], sim]  # steady state
+                # steady state
+                perf1 = exp0_perf_df.loc[exp0_perf_df.index[-1], sim]
 
                 # steady state
                 tlostN = expx_interference_df.loc[expx_interference_df.index[-1], sim]
-                perfN = expx_perf_df.loc[expx_perf_df.index[-1], sim]  # steady state
+                # steady state
+                perfN = expx_perf_df.loc[expx_perf_df.index[-1], sim]
 
                 plostN = BaseSteadyStatePerfLostInteractiveSwarm.kernel(perf1=perf1,
                                                                         tlost1=tlost1,
@@ -242,7 +248,8 @@ class SteadyStateFLUnivar(BaseSteadyStateFL):
         fl_dfs[exp0] = pd.DataFrame(columns=collated_perf[exp0].columns,
                                     index=[0])  # Steady state
 
-        fl_dfs[exp0].loc[0, :] = 0.0  # By definition, no fractional losses in exp0
+        # By definition, no fractional losses in exp0
+        fl_dfs[exp0].loc[0, :] = 0.0
 
         for i in range(1, n_exp):
             expx = list(collated_perf.keys())[i]
@@ -254,7 +261,8 @@ class SteadyStateFLUnivar(BaseSteadyStateFL):
             for sim in expx_perf_df.columns:
                 plost_x = expx_plost_df.loc[expx_plost_df.index[-1], sim]
                 perf_x = expx_perf_df.loc[expx_perf_df.index[-1], sim]
-                fl_dfs[expx].loc[0, sim] = BaseSteadyStateFL.kernel(perf_x, plost_x)
+                fl_dfs[expx].loc[0, sim] = BaseSteadyStateFL.kernel(
+                    perf_x, plost_x)
 
         return fl_dfs
 
@@ -273,7 +281,7 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
     """
     @staticmethod
     def df_kernel(criteria: bc.BivarBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame],
                   collated_interference: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         xsize = len(criteria.criteria1.gen_attr_changelist())
@@ -314,11 +322,13 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
                     else:
                         # steady state
                         tlost1 = exp0_interference_df.loc[exp0_interference_df.index[-1], sim]
-                        perf1 = exp0_perf_df.loc[exp0_perf_df.index[-1], sim]  # steady state
+                        # steady state
+                        perf1 = exp0_perf_df.loc[exp0_perf_df.index[-1], sim]
 
                         # steady state
                         tlostN = expx_interference_df.loc[expx_interference_df.index[-1], sim]
-                        perfN = expx_perf_df.loc[expx_perf_df.index[-1], sim]  # steady state
+                        # steady state
+                        perfN = expx_perf_df.loc[expx_perf_df.index[-1], sim]
 
                         plostN = BaseSteadyStatePerfLostInteractiveSwarm.kernel(perf1=perf1,
                                                                                 tlost1=tlost1,
@@ -339,7 +349,7 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame],
                   collated_plost: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
@@ -371,8 +381,10 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
                     if (i * ysize + j) == exp0_index:  # exp0
                         fl_x = 0.0  # By definition, no fractional losses in exp0
                     else:
-                        perfN = expx_perf_df.loc[expx_perf_df.index[-1], sim]  # steady state
-                        plostN = expx_plost_df.loc[expx_plost_df.index[-1], sim]  # steady state
+                        # steady state
+                        perfN = expx_perf_df.loc[expx_perf_df.index[-1], sim]
+                        # steady state
+                        plostN = expx_plost_df.loc[expx_plost_df.index[-1], sim]
                         fl_x = BaseSteadyStateFL.kernel(perfN, plostN)
 
                     fl_dfs[expx].loc[0, sim] = fl_x
@@ -380,7 +392,7 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
         return fl_dfs
 
 
-def gather_collated_sim_dfs(cmdopts: tp.Dict[str, tp.Any],
+def gather_collated_sim_dfs(cmdopts: types.Cmdopts,
                             criteria: bc.IConcreteBatchCriteria,
                             csv_leaf: str,
                             csv_col: str) -> tp.Dict[str, pd.DataFrame]:
@@ -394,7 +406,7 @@ def gather_collated_sim_dfs(cmdopts: tp.Dict[str, tp.Any],
     return dfs
 
 
-def univar_distribution_prepare(cmdopts: tp.Dict[str, tp.Any],
+def univar_distribution_prepare(cmdopts: types.Cmdopts,
                                 criteria: bc.IConcreteBatchCriteria,
                                 oleaf: str,
                                 pm_dfs: tp.Dict[str, pd.DataFrame],
@@ -409,10 +421,11 @@ def univar_distribution_prepare(cmdopts: tp.Dict[str, tp.Any],
     if cmdopts['dist_stats'] in ['bw', 'all']:
         dist_dfs = sierra.core.stat_kernels.bw.from_pm(pm_dfs)
 
-    _univar_distribution_do_prepare(cmdopts, criteria, oleaf, dist_dfs, exclude_exp0)
+    _univar_distribution_do_prepare(
+        cmdopts, criteria, oleaf, dist_dfs, exclude_exp0)
 
 
-def bivar_distribution_prepare(cmdopts: tp.Dict[str, tp.Any],
+def bivar_distribution_prepare(cmdopts: types.Cmdopts,
                                criteria: bc.IConcreteBatchCriteria,
                                oleaf: str,
                                pm_dfs: tp.Dict[str, pd.DataFrame],
@@ -428,16 +441,18 @@ def bivar_distribution_prepare(cmdopts: tp.Dict[str, tp.Any],
     if cmdopts['dist_stats'] in ['bw', 'all']:
         dist_dfs = sierra.core.stat_kernels.bw.from_pm(pm_dfs)
 
-    _bivar_distribution_do_prepare(cmdopts, criteria, oleaf, dist_dfs, exclude_exp0, axis)
+    _bivar_distribution_do_prepare(
+        cmdopts, criteria, oleaf, dist_dfs, exclude_exp0, axis)
 
 
-def _univar_distribution_do_prepare(cmdopts: tp.Dict[str, tp.Any],
+def _univar_distribution_do_prepare(cmdopts: types.Cmdopts,
                                     criteria: bc.IConcreteBatchCriteria,
                                     oleaf: str,
                                     dist_dfs: tp.Dict[str, pd.DataFrame],
                                     exclude_exp0: bool) -> None:
 
-    joined = univar_distribution_prepare_join(cmdopts, criteria, dist_dfs, exclude_exp0)
+    joined = univar_distribution_prepare_join(
+        cmdopts, criteria, dist_dfs, exclude_exp0)
 
     for stat in dist_dfs[list(dist_dfs.keys())[0]]:
         stat_opath = os.path.join(cmdopts["batch_stat_collate_root"],
@@ -445,7 +460,7 @@ def _univar_distribution_do_prepare(cmdopts: tp.Dict[str, tp.Any],
         sierra.core.utils.pd_csv_write(joined[stat], stat_opath, index=False)
 
 
-def univar_distribution_prepare_join(cmdopts: tp.Dict[str, tp.Any],
+def univar_distribution_prepare_join(cmdopts: types.Cmdopts,
                                      criteria: bc.IConcreteBatchCriteria,
                                      dist_dfs: tp.Dict[str, pd.DataFrame],
                                      exclude_exp0: bool) -> tp.Dict[str, pd.DataFrame]:
@@ -467,7 +482,7 @@ def univar_distribution_prepare_join(cmdopts: tp.Dict[str, tp.Any],
     return ret
 
 
-def _bivar_distribution_do_prepare(cmdopts: tp.Dict[str, tp.Any],
+def _bivar_distribution_do_prepare(cmdopts: types.Cmdopts,
                                    criteria: bc.IConcreteBatchCriteria,
                                    oleaf: str,
                                    dist_dfs: tp.Dict[str, pd.DataFrame],
@@ -489,7 +504,8 @@ def _bivar_distribution_do_prepare(cmdopts: tp.Dict[str, tp.Any],
         for exp in exp_dirs:
             xlabel, ylabel = exp.split('+')
             if xlabel in xlabels and ylabel in ylabels:
-                df.iloc[xlabels.index(xlabel), ylabels.index(ylabel)] = dist_dfs[exp][stat]
+                df.iloc[xlabels.index(xlabel), ylabels.index(
+                    ylabel)] = dist_dfs[exp][stat]
 
         sierra.core.utils.pd_csv_write(df, stat_opath, index=False)
 

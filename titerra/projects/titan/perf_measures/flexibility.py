@@ -25,13 +25,14 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-
-# Project packages
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
 import sierra.core.variables.batch_criteria as bc
 import sierra.core.utils
 import sierra.core.config
+from sierra.core import types
+
+# Project packages
 
 import titerra.projects.titan.variables.temporal_variance as tv
 import titerra.projects.titan.perf_measures.common as pmcommon
@@ -59,7 +60,7 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
                   main_config: tp.Dict[str, tp.Any],
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[pd.DataFrame, str]:
         rt_dfs = {}
 
@@ -85,7 +86,7 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
         self.main_config = main_config
@@ -134,7 +135,7 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
                   main_config: tp.Dict[str, tp.Any],
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[pd.DataFrame, str]:
         ad_dfs = {}
 
@@ -159,7 +160,7 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
         self.main_config = main_config
@@ -213,7 +214,7 @@ class FlexibilityUnivarGenerator:
         self.logger = logging.getLogger(__name__)
 
     def __call__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  main_config: tp.Dict[str, tp.Any],
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])
@@ -240,7 +241,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
                   main_config: tp.Dict[str, tp.Any],
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         xsize = len(criteria.criteria1.gen_attr_changelist())
@@ -294,7 +295,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
         self.main_config = main_config
@@ -352,7 +353,7 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
                   main_config: tp.Dict[str, tp.Any],
-                  cmdopts: tp.Dict[str, tp.Any],
+                  cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         xsize = len(criteria.criteria1.gen_attr_changelist())
@@ -394,7 +395,7 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
         self.main_config = main_config
@@ -453,7 +454,7 @@ class FlexibilityBivarGenerator:
         self.logger = logging.getLogger(__name__)
 
     def __call__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  main_config: tp.Dict[str, tp.Any],
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])

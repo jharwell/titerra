@@ -28,8 +28,9 @@ def crwD_for_searching(N: float,
                        ticks_per_sec: int,
                        scenario: str) -> float:
     """
-    Approximates the diffusion constant in a swarm of N CRW robots for bounded arena geometry for
-    when searching. From :xref:`Harwell2021b`, inspired by the results in :xref:`Codling2010`.
+    Approximates the diffusion constant in a swarm of N CRW robots for bounded
+    arena geometry for when searching. From :xref:`Harwell2021b`, inspired by
+    the results in :xref:`Codling2010`.
 
     """
     tick_len = 1.0 / ticks_per_sec
@@ -89,58 +90,64 @@ def crwD_for_searching(N: float,
     return F_N
 
 
-def crwD_for_avoiding(N: float, wander_speed: float, ticks_per_sec: int, scenario: str) -> float:
+def crwD_for_avoiding(N: float,
+                      wander_speed: float,
+                      ticks_per_sec: int,
+                      scenario: str) -> float:
     """
-    Approximates the diffusion constant in a swarm of N CRW robots for bounded arena geometry for
-    collision avoidance. From :xref:`Harwell2021b`, inspired by the results in :xref:`Codling2010`.
+    Approximates the diffusion constant in a swarm of N CRW robots for bounded
+    arena geometry for collision avoidance. From :xref:`Harwell2021b`, inspired
+    by the results in :xref:`Codling2010`.
 
     """
     D = crwD_for_searching(N, wander_speed, ticks_per_sec, scenario) * 1.0 / 0.055
 
     if 'PL' in scenario:
         # ODE-3 small const-rho
-        # return D / (math.sqrt(2.0))
+        # D = D / (math.sqrt(2.0))
 
         # ODE-3 small var-rho
-        return D * (10 * math.sqrt(2.0))
+        D = D * (10 * math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        # return D / (4.0 * math.sqrt(2.0))
+        # D = D / (4.0 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
         # return -D / (1200 * math.sqrt(2.0))
     elif 'RN' in scenario:
         # ODE-3 small const-rho,var-rho
-        return D * 2.5 * (math.sqrt(2.0))
+        D = D * 2.5 * (math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        # return D / (1.75 * math.sqrt(2.0))
+        # D = D / (1.75 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
         # return -D / (2400 * math.sqrt(2.0))
 
     elif 'DS' in scenario:
         # ODE-3 small const-rho
-        return D / (1.5 * math.sqrt(2.0))
+        D = D / (1.5 * math.sqrt(2.0))
 
         # ODE-3 small var-rho
-        # return D
+        # D = D
 
         # ODE-3 large const-rho
-        # return D / (4.75 * math.sqrt(2.0))
+        # D = D / (4.75 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
-        # return D / (22.5 * math.sqrt(2.0))
+        # D = D / (22.5 * math.sqrt(2.0))
 
     elif 'SS' in scenario:
         # ODE-3 small const-rho
-        return D / (2.0 * math.sqrt(2.0))
+        D = D / (2.0 * math.sqrt(2.0))
 
         # ODE-3 small var-rho
-        # return D / (math.sqrt(2.0))
+        # D = D / (math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        # return D / (8.5 * math.sqrt(2.0))
+        # D = D / (8.5 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
-        # return D / (45 * math.sqrt(2.0))
+        # D = D / (45 * math.sqrt(2.0))
+
+    return D

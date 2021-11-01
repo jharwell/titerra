@@ -21,11 +21,12 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-
-# Project packages
+from sierra.core import types
 import sierra.core.models.interface
 import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
+
+# Project packages
 
 
 class Model2DError():
@@ -48,7 +49,7 @@ class Model2DError():
         self.model_config = model_config
 
     def generate(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  criteria: bc.IConcreteBatchCriteria) -> tp.List[pd.DataFrame]:
         dirs = criteria.gen_exp_dirnames(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
@@ -57,18 +58,26 @@ class Model2DError():
 
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             # Calculate model prediction heatmap
-            model_df = self.model(self.main_config, self.model_config).run(cmdopts2, criteria, i)
+            model_df = self.model(self.main_config, self.model_config).run(
+                cmdopts2, criteria, i)
 
             # Get data heatmap
-            data_ipath = os.path.join(cmdopts2['exp_stat_root'], self.stddev_fname)
+            data_ipath = os.path.join(
+                cmdopts2['exp_stat_root'], self.stddev_fname)
             data_df = sierra.core.utils.pd_csv_read(data_ipath)
 
             # Compute datapoint

@@ -15,8 +15,9 @@
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
 """
-Intra- and inter-experiment models for the time it takes a single robot to return to the nest after
-picking up an object.
+Intra- and inter-experiment models for the time it takes a single robot to
+return to the nest after picking up an object.
+
 """
 # Core packages
 import os
@@ -27,8 +28,6 @@ import math
 # 3rd party packages
 import implements
 import pandas as pd
-
-# Project packages
 import sierra.core.models.interface
 import sierra.core.utils
 import sierra.core.variables.time_setup as ts
@@ -36,7 +35,9 @@ import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.experiment_spec import ExperimentSpec
 from sierra.core.xml import XMLAttrChangeSet
+from sierra.core import types
 
+# Project packages
 import titerra.projects.fordyca.models.representation as rep
 from titerra.projects.fordyca.models.density import BlockAcqDensity
 from titerra.projects.fordyca.models.dist_measure import DistanceMeasure2D
@@ -79,7 +80,7 @@ class IntraExp_HomingTime_1Robot():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return criteria.populations(cmdopts)[i] == 1
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -94,7 +95,7 @@ class IntraExp_HomingTime_1Robot():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         # Calculate nest extent
         nest = rep.Nest(cmdopts, criteria, exp_num)
@@ -121,7 +122,8 @@ class IntraExp_HomingTime_1Robot():
         res_df['model'] = 0.0
 
         for result in result_opaths:
-            self._calc_for_result(criteria, exp_num, cmdopts, result, nest, res_df)
+            self._calc_for_result(
+                criteria, exp_num, cmdopts, result, nest, res_df)
 
         # Average our results
         res_df['model'] /= len(result_opaths)
@@ -132,7 +134,7 @@ class IntraExp_HomingTime_1Robot():
     def _calc_for_result(self,
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
-                         cmdopts: tp.Dict[str, tp.Any],
+                         cmdopts: types.Cmdopts,
                          result_opath: str,
                          nest: rep.Nest,
                          res_df: pd.DataFrame):
@@ -195,16 +197,18 @@ class IntraExp_HomingTime_NRobots():
     @staticmethod
     def calc_kernel_args(criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
-                         cmdopts: tp.Dict[str, tp.Any],
+                         cmdopts: types.Cmdopts,
                          main_config: tp.Dict[str, tp.Any],
                          model_config: tp.Dict[str, tp.Any]) -> dict:
         homing1 = IntraExp_HomingTime_1Robot(main_config, model_config)
         tau_h1 = homing1.run(criteria, exp_num, cmdopts)[0]
 
-        av_rateN = IntraExp_RobotInterferenceRate_NRobots(main_config, model_config)
+        av_rateN = IntraExp_RobotInterferenceRate_NRobots(
+            main_config, model_config)
         alpha_caN = av_rateN.run(criteria, exp_num, cmdopts)[0]
 
-        av_timeN = IntraExp_RobotInterferenceTime_NRobots(main_config, model_config)
+        av_timeN = IntraExp_RobotInterferenceTime_NRobots(
+            main_config, model_config)
         tau_avN = av_timeN.run(criteria, exp_num, cmdopts)[0]
 
         N = criteria.populations(cmdopts)[exp_num]
@@ -220,7 +224,7 @@ class IntraExp_HomingTime_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -235,14 +239,15 @@ class IntraExp_HomingTime_NRobots():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         cluster_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
                                                                 'block-clusters.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=cluster_df.index)
-        kargs = self.calc_kernel_args(criteria, exp_num, cmdopts, self.main_config, self.config)
+        kargs = self.calc_kernel_args(
+            criteria, exp_num, cmdopts, self.main_config, self.config)
         res_df['model'] = self.kernel(**kargs)
 
         # All done!
@@ -270,7 +275,7 @@ class InterExp_HomingTime_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -284,7 +289,7 @@ class InterExp_HomingTime_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
         dirs = criteria.gen_exp_dirnames(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
 
@@ -292,16 +297,23 @@ class InterExp_HomingTime_NRobots():
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
 
-            cmdopts2["exp0_output_root"] = os.path.join(cmdopts2["batch_output_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = os.path.join(
+                cmdopts2["batch_output_root"], dirs[0])
             cmdopts2["exp0_stat_root"] = os.path.join(cmdopts2["batch_stat_root"],
                                                       dirs[0])
 
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts2["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts2["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets a single graph
             intra_df = IntraExp_HomingTime_NRobots(self.main_config,

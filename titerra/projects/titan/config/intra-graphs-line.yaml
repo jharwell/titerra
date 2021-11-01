@@ -1,7 +1,7 @@
-LN_fsm_interference:
+LN_spatial_interference:
   graphs:
-    - src_stem: fsm-interference-counts
-      dest_stem: fsm-interference-counts
+    - src_stem: spatial-interference-counts
+      dest_stem: spatial-interference-counts
       cols:
         - int_avg_exp_interference
         - cum_avg_exp_interference
@@ -20,8 +20,8 @@ LN_fsm_interference:
       xlabel: 'Interval'
       ylabel: '\# Robots'
 
-    - src_stem: fsm-interference-counts
-      dest_stem: fsm-interference-duration
+    - src_stem: spatial-interference-counts
+      dest_stem: spatial-interference-duration
       cols:
         - int_avg_interference_duration
         - cum_avg_interference_duration
@@ -29,6 +29,40 @@ LN_fsm_interference:
       legend:
         - 'Average Interference Duration (Interval)'
         - 'Average Interference Duration (Cumulative)'
+      xlabel: 'Interval'
+      ylabel: '\# Timesteps'
+
+LN_spatial_nest_zone:
+  graphs:
+    - src_stem: spatial-nest-zone
+      dest_stem: spatial-nest-zone
+      cols:
+        - int_avg_in_nest
+        - cum_avg_in_nest
+        - int_avg_entered_nest
+        - cum_avg_entered_nest
+        - int_avg_exited_nest
+        - cum_avg_exited_nest
+      title: 'Swarm Nest Counts'
+      legend:
+        - 'Average \# Robots In Nest (Interval)'
+        - 'Average \# Robots In Nest (Cumulative)'
+        - 'Average \# Robots Entered Nest (Interval)'
+        - 'Average \# Robots Entered Nest (Cumulative)'
+        - 'Average \# Robots Exited Nest (Interval)'
+        - 'Average \# Robots Exited Nest (Cumulative)'
+      xlabel: 'Interval'
+      ylabel: '\# Robots'
+
+    - src_stem: spatial-nest-zone
+      dest_stem: spatial-nest-duration
+      cols:
+        - int_avg_nest_duration
+        - cum_avg_nest_duration
+      title: 'Swarm Nest Zone Duration'
+      legend:
+        - 'Average Duration (Interval)'
+        - 'Average Duration (Cumulative)'
       xlabel: 'Interval'
       ylabel: '\# Timesteps'
 

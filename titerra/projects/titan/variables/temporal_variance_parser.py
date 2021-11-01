@@ -14,29 +14,35 @@
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 """
-Parser for the :class:`~sierra.core.variables.temporal_variance.TemporalVariance` batch criteria. This
-is its own file due to an otherwise circular import dependence between it and ``vcs.py``.
+Parser for the
+:class:`~sierra.core.variables.temporal_variance.TemporalVariance` batch
+criteria. This is its own file due to an otherwise circular import dependence
+between it and ``vcs.py``.
 
 """
-
+# Core packages
 import re
 import typing as tp
+
+# 3rd party packages
+from sierra.core import types
 
 
 class TemporalVarianceParser():
     """
-    Enforces the cmdline definition of the :class:`TemporalVariance` batch criteria described in
-    :ref:`ln-bc-temporal-variance` .
+    Enforces the cmdline definition of the :class:`TemporalVariance` batch
+    criteria described in :ref:`ln-bc-temporal-variance` .
 
     """
 
-    def __call__(self, criteria_str: str) -> tp.Dict[str, tp.Any]:
+    def __call__(self, criteria_str: str) -> types.CLIArgSpec:
         """
         Returns:
             Dictionary with the following keys:
                 - variance_type: BC|BM|M
                 - xml_parent_path: Parent XPath within template input file
-                - variance_csv_col: Column within configured .csv containing the variance
+                - variance_csv_col: Column within configured .csv containing the
+                  variance
                 - waveform_type: Sine|Square|Sawtooth|StepU|StepD|Constant
                 - waveform_param: Waveform specific parameter(s) (optional)
                 - population: Swarm size to use (optional)
@@ -56,8 +62,8 @@ class TemporalVarianceParser():
             'BM': './/env_dynamics/blocks/manipulation_penalty',
         }
         variance_col = {
-            # I do not currently distinguish between different types of swarm motion throttle,
-            # though that may be added in the future.
+            # I do not currently distinguish between different types of swarm
+            # motion throttle, though that may be added in the future.
             'BC': "swarm_motion_throttle",
             'M': "swarm_motion_throttle",
             'BM': "block_manip_penalty",
@@ -65,7 +71,8 @@ class TemporalVarianceParser():
         }
         # Parse variance type
         res = re.search("BC|BM|M", criteria_str)
-        assert res is not None, "FATAL: Bad variance type in criteria '{0}'".format(criteria_str)
+        assert res is not None, "FATAL: Bad variance type in criteria '{0}'".format(
+            criteria_str)
         variance_type = str(res.group(0))
         ret['variance_type'] = variance_type
         ret['xml_parent_path'] = xml_parent[variance_type]
@@ -73,7 +80,8 @@ class TemporalVarianceParser():
 
         # Parse waveform type
         res = re.search("Sine|Square|Sawtooth|Step[UD]|Constant", criteria_str)
-        assert res is not None, "FATAL: Bad waveform type in criteria '{0}'".format(criteria_str)
+        assert res is not None, "FATAL: Bad waveform type in criteria '{0}'".format(
+            criteria_str)
         waveform_type = str(res.group(0))
 
         if 'Step' in waveform_type:

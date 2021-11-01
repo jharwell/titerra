@@ -27,35 +27,40 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-
-# Project packages
 from sierra.core.variables.batch_criteria import BatchCriteria
-import sierra.core.perf_measures.vcs as vcs
 import sierra.core.utils
 import sierra.core.config
 import sierra.core.plugin_manager as pm
+from sierra.core import types
+
+# Project packages
+import titerra.projects.titan.perf_measures.vcs as vcs
 
 
 class FlexibilityPlotsCSVGenerator:
     """
-    Generates the ``.csv`` definitions for flexibility linegraphs to include with the rest of the
-    intra-experiment graphs for stage 4. Very useful to verify the inter-experiment graphs are
-    correct/make sense and that my waveform comparison calculations are doing what I think they
-    are.
+    Generates the ``.csv`` definitions for flexibility linegraphs to include
+    with the rest of the intra-experiment graphs for stage 4. Very useful to
+    verify the inter-experiment graphs are correct/make sense and that my
+    waveform comparison calculations are doing what I think they are.
 
     Note: Only works for univariate batch criteria.
 
     Attributes:
         main_config: Parsed dictionary of main YAML configuration.
-        cmdopts: Dictionary of commandline arguments used during intra-experiment graph
-                 generation.
-        perf_csv_col: The column within the intra-experiment performance .csv file to use as the
-                      source of the performance waveforms to generate definitions for.
+
+        cmdopts: Dictionary of commandline arguments used during
+                 intra-experiment graph generation.
+
+        perf_csv_col: The column within the intra-experiment performance .csv
+                      file to use as the source of the performance waveforms to
+                      generate definitions for.
+
     """
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any]) -> None:
+                 cmdopts: types.Cmdopts) -> None:
         self.cmdopts = copy.deepcopy(cmdopts)
         self.main_config = main_config
         self.perf_csv_col = main_config['perf']['intra_perf_col']

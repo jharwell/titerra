@@ -14,8 +14,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 """
-Classes for the temporal variance batch criteria. See :ref:`ln-bc-tv` for usage documentation.
-
+Classes for the temporal variance batch criteria. See :ref:`ln-bc-tv` for usage
+documentation.
 """
 
 # Core packages
@@ -25,12 +25,12 @@ import logging
 
 # 3rd party packages
 import implements
-
-# Project packages
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
+from sierra.core import types
 
+# Project packages
 from titerra.projects.titan.perf_measures import vcs
 from titerra.projects.titan.variables.temporal_variance_parser import TemporalVarianceParser
 
@@ -38,19 +38,27 @@ from titerra.projects.titan.variables.temporal_variance_parser import TemporalVa
 @implements.implements(bc.IConcreteBatchCriteria)
 class TemporalVariance(bc.UnivarBatchCriteria):
     """
-    A univariate range specifiying the set of temporal variances (and possibly swarm size) to
-    use to define the batched experiment. This class is a base class which should (almost) never be
-    used on its own. Instead, the ``factory()`` function should be used to dynamically create
-    derived classes expressing the user's desired variance set.
+    A univariate range specifiying the set of temporal variances (and possibly
+    swarm size) to use to define the batched experiment. This class is a base
+    class which should (almost) never be used on its own. Instead, the
+    ``factory()`` function should be used to dynamically create derived classes
+    expressing the user's desired variance set.
 
     Attributes:
-        variances: List of tuples specifying the waveform characteristics for each type of
-                   applied variance. Cardinality of each tuple is 3, and defined as follows:
 
-                   - xml parent path: The path to the parent element in the XML tree.
-                   - [type, frequency, amplitude, offset, phase]: Waveform parameters.
-                   - value: Waveform specific parameters (optional, will be None if not used for the
-                            selected variance)
+        variances: List of tuples specifying the waveform characteristics for
+                   each type of applied variance. Cardinality of each tuple is
+                   3, and defined as follows:
+
+                   - xml parent path: The path to the parent element in the XML
+                     tree.
+
+                   - [type, frequency, amplitude, offset, phase]: Waveform
+                     parameters.
+
+                   - value: Waveform specific parameters (optional, will be None
+                            if not used for the selected variance).
+
     """
 
     def __init__(self,
@@ -95,9 +103,10 @@ class TemporalVariance(bc.UnivarBatchCriteria):
                                                                 "phase",
                                                                 str(v[5]))) for v in self.variances]
 
-            # Swarm size is optional. It can be (1) controlled via this variable, (2) controlled by
-            # another variable in a bivariate batch criteria, (3) not controlled at all. For (2),
-            # (3), the swarm size can be None.
+            # Swarm size is optional. It can be (1) controlled via this
+            # variable, (2) controlled by another variable in a bivariate batch
+            # criteria, (3) not controlled at all. For (2), (3), the swarm size
+            # can be None.
             if self.population is not None:
                 size_chgs = PopulationSize(self.cli_arg,
                                            self.main_config,
@@ -123,12 +132,13 @@ class TemporalVariance(bc.UnivarBatchCriteria):
             return 0.0
 
     def graph_xticks(self,
-                     cmdopts: tp.Dict[str, tp.Any],
+                     cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
 
-        # If exp_dirs is passed, then we have been handed a subset of the total # of directories in
-        # the batch exp root, and so n_exp() will return more experiments than we actually
-        # have. This behavior is needed to correct extract x/y values for bivar experiments.
+        # If exp_dirs is passed, then we have been handed a subset of the total
+        # # of directories in the batch exp root, and so n_exp() will return
+        # more experiments than we actually have. This behavior is needed to
+        # correct extract x/y values for bivar experiments.
         if exp_dirs is None:
             exp_dirs = self.gen_exp_dirnames(cmdopts)
 
@@ -138,14 +148,14 @@ class TemporalVariance(bc.UnivarBatchCriteria):
                 for x in range(0, m)]
 
     def graph_xticklabels(self,
-                          cmdopts: tp.Dict[str, tp.Any],
+                          cmdopts: types.Cmdopts,
                           exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         return list(map(str, self.graph_xticks(cmdopts, exp_dirs)))
 
-    def graph_xlabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return vcs.method_xlabel(cmdopts["envc_cs_method"])
 
-    def gen_exp_dirnames(self, cmdopts: tp.Dict[str, tp.Any]) -> tp.List[str]:
+    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> tp.List[str]:
         return ['exp' + str(x) for x in range(0, len(self.gen_attr_changelist()))]
 
     def pm_query(self, pm: str) -> bool:

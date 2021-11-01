@@ -24,13 +24,14 @@ import os
 
 # 3rd party packages
 import implements
-
-# Project packages
 from sierra.core.variables import batch_criteria as bc
 import sierra.core.utils
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLLuigi
 import sierra.core.config
 import sierra.core.variables.time_setup as ts
+from sierra.core import types
+
+# Project packages
 import titerra.projects.titan.variables.dynamics_parser as dp
 
 
@@ -54,7 +55,8 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
                  batch_input_root: str,
                  dynamics_types: tp.List[str],
                  dynamics: tp.List[tp.Set[tp.Tuple[str, float]]]) -> None:
-        bc.UnivarBatchCriteria.__init__(self, cli_arg, main_config, batch_input_root)
+        bc.UnivarBatchCriteria.__init__(
+            self, cli_arg, main_config, batch_input_root)
         self.dynamics_types = dynamics_types
         self.dynamics = dynamics
         self.attr_changes = []  # type: tp.List[XMLAttrChangeSet]
@@ -72,12 +74,12 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
                                                                           str('%3.9f' % t[1])) for t in d}))
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: tp.Dict[str, tp.Any]) -> list:
+    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> list:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
-                     cmdopts: tp.Dict[str, tp.Any],
+                     cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
         # If exp_dirs is passed, then we have been handed a subset of the total # of directories in
         # the batch exp root, and so n_exp() will return more experiments than we actually
@@ -93,7 +95,7 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
         return [float(i) for i in range(len(exp_dirs))]
 
     def graph_xticklabels(self,
-                          cmdopts: tp.Dict[str, tp.Any],
+                          cmdopts: types.Cmdopts,
                           exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
 
         if exp_dirs is None:
@@ -114,22 +116,24 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
             # If we had pure death dynamics, the tasked swarm time is 0 in the steady state, so we
             # use lambda_d as the ticks instead, which is somewhat more meaningful.
             if self.is_pure_death_dynamics():
-                lambda_d, _, _, _ = PopulationDynamics.extract_rate_params(exp_def)
+                lambda_d, _, _, _ = PopulationDynamics.extract_rate_params(
+                    exp_def)
                 ticks.append(lambda_d)
             else:
-                T_Sbar = PopulationDynamics.calc_untasked_swarm_system_time(exp_def)
+                T_Sbar = PopulationDynamics.calc_untasked_swarm_system_time(
+                    exp_def)
 
                 ticks.append(round(T_Sbar0 / T_Sbar, 4))
 
         return list(map(str, ticks))
 
-    def graph_xlabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         if self.is_pure_death_dynamics():
             return "Death Rate"
         else:
             return "Population Variance"
 
-    def graph_ylabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_ylabel(self, cmdopts: types.Cmdopts) -> str:
         return "Superlinearity"
 
     def pm_query(self, pm: str) -> bool:
@@ -142,7 +146,8 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
     def calc_untasked_swarm_system_time(exp_def: XMLAttrChangeSet) -> float:
         params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
         T = params['T_in_secs'] * params['ticks_per_sec']
-        lambda_d, mu_b, lambda_m, mu_r = PopulationDynamics.extract_rate_params(exp_def)
+        lambda_d, mu_b, lambda_m, mu_r = PopulationDynamics.extract_rate_params(
+            exp_def)
 
         # Pure death dynamics with a service rate of infinity. The "how long is a robot part of a
         # tasked swarm" calculation is only valid for stable queueing systems, with well defined

@@ -26,11 +26,12 @@ import typing as tp
 # 3rd party packages
 import implements
 import pandas as pd
-
-# Project packages
 import sierra.core.models.interface
 import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
+from sierra.core import types
+
+# Project packages
 
 
 def available_models(category: str):
@@ -116,7 +117,7 @@ class IntraExp_WallInterferenceRate_1Robot():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return criteria.populations(cmdopts)[i] == 1
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -131,7 +132,7 @@ class IntraExp_WallInterferenceRate_1Robot():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
 
@@ -213,7 +214,8 @@ class IntraExp_RobotInterferenceRate_NRobots():
             entering the interference queue, :math:`\alpha_{ca}^N`.
 
         """
-        alpha_ca1 = IntraExp_WallInterferenceRate_1Robot.kernel(N_av1=N_av1, tau_av1=tau_av1)
+        alpha_ca1 = IntraExp_WallInterferenceRate_1Robot.kernel(
+            N_av1=N_av1, tau_av1=tau_av1)
 
         # All robots can enter the avoidance queue, so we don't need to modify lambda according to
         # the # of contributing robots.
@@ -222,9 +224,10 @@ class IntraExp_RobotInterferenceRate_NRobots():
     @staticmethod
     def calc_kernel_args(criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
-                         cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, pd.DataFrame]:
+                         cmdopts: types.Cmdopts) -> tp.Dict[str, pd.DataFrame]:
         # Calculate kernel args for the 1 robot case
-        kargs = IntraExp_WallInterferenceRate_1Robot.calc_kernel_args(cmdopts['exp0_stat_root'])
+        kargs = IntraExp_WallInterferenceRate_1Robot.calc_kernel_args(
+            cmdopts['exp0_stat_root'])
 
         # Add additional args for N robot case
         resultN_opath = os.path.join(cmdopts['exp_stat_root'])
@@ -240,7 +243,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -255,7 +258,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
         fsm_df = sierra.core.utils.pd_csv_read(
@@ -316,7 +319,8 @@ class IntraExp_RobotInterferenceTime_NRobots():
             the interference queue, :math:`\tau_{av}^N`.
 
         """
-        alpha_ca1 = IntraExp_WallInterferenceRate_1Robot.kernel(N_av1=N_av1, tau_av1=tau_av1)
+        alpha_ca1 = IntraExp_WallInterferenceRate_1Robot.kernel(
+            N_av1=N_av1, tau_av1=tau_av1)
         alpha_caN = IntraExp_RobotInterferenceRate_NRobots.kernel(N_av1=N_av1,
                                                                   tau_av1=tau_av1,
                                                                   N_avN=N_avN,
@@ -331,8 +335,9 @@ class IntraExp_RobotInterferenceTime_NRobots():
     @staticmethod
     def calc_kernel_args(criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
-                         cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, pd.DataFrame]:
-        kargs = IntraExp_RobotInterferenceRate_NRobots.calc_kernel_args(criteria, exp_num, cmdopts)
+                         cmdopts: types.Cmdopts) -> tp.Dict[str, pd.DataFrame]:
+        kargs = IntraExp_RobotInterferenceRate_NRobots.calc_kernel_args(
+            criteria, exp_num, cmdopts)
         kargs['N'] = criteria.populations(cmdopts)[exp_num]
         return kargs
 
@@ -340,7 +345,7 @@ class IntraExp_RobotInterferenceTime_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -355,7 +360,7 @@ class IntraExp_RobotInterferenceTime_NRobots():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
         fsm_df = sierra.core.utils.pd_csv_read(
@@ -395,7 +400,7 @@ class InterExp_RobotInterferenceRate_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -409,7 +414,7 @@ class InterExp_RobotInterferenceRate_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         dirs = criteria.gen_exp_dirnames(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
@@ -419,15 +424,23 @@ class InterExp_RobotInterferenceRate_NRobots():
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
 
-            cmdopts2["exp0_output_root"] = os.path.join(cmdopts["batch_output_root"], dirs[0])
-            cmdopts2["exp0_stat_root"] = os.path.join(cmdopts["batch_stat_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = os.path.join(
+                cmdopts["batch_output_root"], dirs[0])
+            cmdopts2["exp0_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], dirs[0])
 
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets one graph
             intra_df = IntraExp_RobotInterferenceRate_NRobots(self.main_config,
@@ -456,7 +469,7 @@ class InterExp_RobotInterferenceTime_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -470,7 +483,7 @@ class InterExp_RobotInterferenceTime_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         dirs = criteria.gen_exp_dirnames(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
@@ -479,15 +492,23 @@ class InterExp_RobotInterferenceTime_NRobots():
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
 
-            cmdopts2["exp0_output_root"] = os.path.join(cmdopts["batch_output_root"], dirs[0])
-            cmdopts2["exp0_stat_root"] = os.path.join(cmdopts["batch_stat_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = os.path.join(
+                cmdopts["batch_output_root"], dirs[0])
+            cmdopts2["exp0_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], dirs[0])
 
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets one graph
             intra_df = IntraExp_RobotInterferenceTime_NRobots(self.main_config,

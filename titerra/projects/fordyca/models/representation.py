@@ -20,14 +20,14 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-
-# Project packages
 import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment_spec import ExperimentSpec
 from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
+from sierra.core import types
 
+# Project packages
 import titerra.projects.titan.generators.scenario_generator_parser as sgp
 import titerra.projects.titan.variables.nest as nest
 
@@ -68,7 +68,7 @@ class BlockCluster():
 
 
 class Nest():
-    def __init__(self, cmdopts: tp.Dict[str, tp.Any], criteria: bc.IConcreteBatchCriteria, exp_num: int):
+    def __init__(self, cmdopts: types.Cmdopts, criteria: bc.IConcreteBatchCriteria, exp_num: int):
         # Get nest position
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         res = sgp.ScenarioGeneratorParser().to_dict(cmdopts['scenario'])
@@ -98,7 +98,7 @@ class BlockClusterSet():
     """
 
     def __init__(self,
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  nest: Nest,
                  sim_opath: str) -> None:
 

@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License along with
 # TITERRA.  If not, see <http://www.gnu.org/licenses/
 """
-Classes for the population size batch criteria. See :ref:`ln-bc-population-size` for usage
-documentation.
+Classes for the population size batch criteria. See
+:ref:`ln-bc-population-size` for usage documentation.
+
 """
 
 # Core packages
@@ -32,23 +33,20 @@ from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 
 @implements.implements(bc.IConcreteBatchCriteria)
 class PopulationSizeWithDynamics(sierra.core.variables.population_size.PopulationSize):
-    """
-    A univariate range of swarm sizes used to define batched experiments. This class is a base class
-    which should (almost) never be used on its own. Instead, the ``factory()`` function should be
-    used to dynamically create derived classes expressing the user's desired size distribution.
-
-    Attributes:
-        size_list: List of integer swarm sizes defining the range of the variable for the batched
-                   experiment.
-
+    """A
+    univariate range of swarm sizes used to define batched experiments. This
+    class is a base class which should (almost) never be used on its
+    own. Instead, the ``factory()`` function should be used to dynamically
+    create derived classes expressing the user's desired size distribution.
     """
 
     @staticmethod
     def gen_attr_changelist_from_list(sizes: tp.List[int]) -> tp.List[XMLAttrChangeSet]:
         """
-        We give the maximum population size due to population dynamics a value of 4N, where N is the
-        initial quantity of robots for the simulation, in order to provide buffer so that the
-        queueing theoretic predictions of long-run population size are accurate.
+        We give the maximum population size due to population dynamics a value
+        of 4N, where N is the initial quantity of robots for the simulation, in
+        order to provide buffer so that the queueing theoretic predictions of
+        long-run population size are accurate.
 
         """
         chgsets = sierra.core.variables.population_size.PopulationSize.gen_attr_changelist_from_list(
@@ -61,7 +59,9 @@ class PopulationSizeWithDynamics(sierra.core.variables.population_size.Populatio
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         """
-        Generate list of sets of changes for swarm sizes to define a batch experiment.
+        Generate list of sets of changes for swarm sizes to define a batch
+        experiment.
+
         """
         if not self.attr_changes:
             self.attr_changes = PopulationSizeWithDynamics.gen_attr_changelist_from_list(
@@ -74,7 +74,8 @@ def factory(cli_arg: str,
             batch_input_root: str,
             **kwargs) -> PopulationSizeWithDynamics:
     """
-    Factory to create :class:`PopulationSize` derived classes from the command line definition.
+    Factory to create :class:`PopulationSize` derived classes from the command
+    line definition.
 
     """
     parser = sierra.core.variables.population_size.Parser()

@@ -27,9 +27,11 @@ import fastdtw
 import pandas as pd
 import numpy as np
 import similaritymeasures as sm
+import sierra.core.utils
+from sierra.core import types
+import sierra.core.config
 
 # Project packages
-import sierra.core.utils
 from titerra.projects.titan.variables.temporal_variance_parser import TemporalVarianceParser
 
 
@@ -83,7 +85,7 @@ class EnvironmentalCS():
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  exp_num: int) -> None:
         self.cmdopts = cmdopts
         self.exp_num = exp_num
@@ -131,7 +133,7 @@ class RawPerfCS():
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any]) -> None:
+                 cmdopts: types.Cmdopts) -> None:
         self.cmdopts = cmdopts
         self.main_config = main_config
 
@@ -173,7 +175,7 @@ class AdaptabilityCS():
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  criteria) -> None:
         self.cmdopts = cmdopts
         self.criteria = criteria
@@ -291,7 +293,7 @@ class ReactivityCS():
 
     def __init__(self,
                  main_config: tp.Dict[str, tp.Any],
-                 cmdopts: tp.Dict[str, tp.Any],
+                 cmdopts: types.Cmdopts,
                  criteria,
                  ideal_num: int,
                  exp_num: int) -> None:
@@ -427,8 +429,7 @@ class CSRaw():
         if method == "pcm":
             return sm.pcm(exp_data, ideal_data)  # type: ignore
         elif method == "area_between":
-            # type: ignore
-            return sm.area_between_two_curves(exp_data, ideal_data)
+            return sm.area_between_two_curves(exp_data, ideal_data)  # type: ignore
         elif method == "frechet":
             return sm.frechet_dist(exp_data, ideal_data)  # type: ignore
         elif method == "dtw":
@@ -461,7 +462,7 @@ class CSRaw():
 
 class DataFrames:
     @staticmethod
-    def expx_var_df(cmdopts: tp.Dict[str, tp.Any],
+    def expx_var_df(cmdopts: types.Cmdopts,
                     criteria,
                     exp_dirs: tp.Optional[tp.List[str]],
                     tv_environment_csv: str,
@@ -482,7 +483,7 @@ class DataFrames:
                           exp_num)
 
     @staticmethod
-    def expx_perf_df(cmdopts: tp.Dict[str, tp.Any],
+    def expx_perf_df(cmdopts: types.Cmdopts,
                      criteria,
                      exp_dirs: tp.Optional[tp.List[str]],
                      intra_perf_csv: str,

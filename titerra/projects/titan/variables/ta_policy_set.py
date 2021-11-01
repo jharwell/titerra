@@ -25,11 +25,12 @@ import typing as tp
 
 # 3rd party packages
 import implements
-
-# Project packages
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
+from sierra.core import types
+
+# Project packages
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
@@ -44,14 +45,16 @@ class TAPolicySet(bc.UnivarBatchCriteria):
         policies: List of policies to enable for a specific simulation.
         population: Swarm size to use for a specific simulation.
     """
-    kPolicies = ['random', 'stoch_nbhd1', 'strict_greedy', 'epsilon_greedy', 'UCB1']
+    kPolicies = ['random', 'stoch_nbhd1',
+                 'strict_greedy', 'epsilon_greedy', 'UCB1']
 
     def __init__(self, cli_arg: str,
                  main_config: tp.Dict[str, str],
                  batch_input_root: str,
                  policies: list,
                  population: tp.Optional[int]) -> None:
-        bc.UnivarBatchCriteria.__init__(self, cli_arg, main_config, batch_input_root)
+        bc.UnivarBatchCriteria.__init__(
+            self, cli_arg, main_config, batch_input_root)
         self.policies = policies
         self.population = population
         self.attr_changes = []
@@ -78,12 +81,12 @@ class TAPolicySet(bc.UnivarBatchCriteria):
 
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: tp.Dict[str, tp.Any]) -> tp.List[str]:
+    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> tp.List[str]:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
-                     cmdopts: tp.Dict[str, tp.Any],
+                     cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
         if exp_dirs is not None:
             dirs = exp_dirs
@@ -93,11 +96,11 @@ class TAPolicySet(bc.UnivarBatchCriteria):
         return [float(i) for i in range(1, len(dirs) + 1)]
 
     def graph_xticklabels(self,
-                          cmdopts: tp.Dict[str, tp.Any],
+                          cmdopts: types.Cmdopts,
                           exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         return ['Random', 'STOCH-N1', 'MAT-OPT', r'$\epsilon$-greedy', 'UCB1']
 
-    def graph_xlabel(self, cmdopts: tp.Dict[str, tp.Any]) -> str:
+    def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return "Task Allocation Policy"
 
     def pm_query(self, pm: str) -> bool:
@@ -124,14 +127,16 @@ class Parser():
 
         # Parse task allocation policy set
         assert cli_arg.split('.')[1] == 'all', \
-            "FATAL: Bad type specification in criteria '{0}'. Only 'all' supported.".format(cli_arg)
+            "FATAL: Bad type specification in criteria '{0}'. Only 'all' supported.".format(
+                cli_arg)
 
         # Parse swarm size
         if len(cli_arg.split('.')) == 3:
             swarm_size = cli_arg.split('.')[2]
             res = re.search(r"Z[0-9]+", swarm_size)
             assert res is not None,\
-                "FATAL: Bad swarm size specification in criteria '{0}'".format(cli_arg)
+                "FATAL: Bad swarm size specification in criteria '{0}'".format(
+                    cli_arg)
             ret['population'] = int(res.group(0)[1:])
 
         return ret

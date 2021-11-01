@@ -15,8 +15,8 @@
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
 r"""
-Models of the steady state collective foraging behavior of a swarm of :math:`\mathcal{N}` CRW
-robots. Used in the :xref:`Harwell2021b` paper.
+Models of the steady state collective foraging behavior of a swarm of
+:math:`\mathcal{N}` CRW robots. Used in the :xref:`Harwell2021b` paper.
 
 """
 
@@ -29,8 +29,7 @@ from functools import reduce
 # 3rd party packages
 import implements
 import pandas as pd
-
-# Project packages
+from sierra.core import types
 import sierra.core.models.interface
 import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
@@ -40,6 +39,8 @@ from sierra.core.xml import XMLAttrChangeSet
 import sierra.core.config
 import sierra.core.variables.time_setup as ts
 
+
+# Project packages
 import titerra.projects.fordyca.models.representation as rep
 from titerra.projects.fordyca.models.interference import IntraExp_RobotInterferenceRate_NRobots, IntraExp_WallInterferenceRate_1Robot
 from titerra.projects.fordyca.models.homing_time import IntraExp_HomingTime_NRobots, IntraExp_HomingTime_1Robot
@@ -76,7 +77,7 @@ class IntraExp_ODE_1Robot():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return criteria.populations(cmdopts)[i] == 1
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -93,13 +94,14 @@ class IntraExp_ODE_1Robot():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         model_params = self._ode_params_calc(criteria, exp_num, cmdopts)
 
         nest = rep.Nest(cmdopts, criteria, exp_num)
         clusters = rep.BlockClusterSet(cmdopts, nest, cmdopts['exp0_stat_root'])
-        n_blocks = reduce(lambda accum, cluster: accum + cluster.avg_blocks, clusters, 0)
+        n_blocks = reduce(lambda accum, cluster: accum +
+                          cluster.avg_blocks, clusters, 0)
         z0 = {
             'N_s0': 1,
             'N_h0': 0,
@@ -122,7 +124,7 @@ class IntraExp_ODE_1Robot():
     def _ode_params_calc(self,
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
-                         cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, float]:
+                         cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
         fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
                                                                    'fsm-interference-counts.csv'))
 
@@ -183,7 +185,7 @@ class IntraExp_ODE_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any], i: int) -> bool:
+    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -200,7 +202,7 @@ class IntraExp_ODE_NRobots():
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         n_robots = criteria.populations(cmdopts)[exp_num]
 
@@ -214,7 +216,8 @@ class IntraExp_ODE_NRobots():
 
         nest = rep.Nest(cmdopts, criteria, exp_num)
         clusters = rep.BlockClusterSet(cmdopts, nest, cmdopts['exp_stat_root'])
-        n_blocks = reduce(lambda accum, cluster: accum + cluster.avg_blocks, clusters, 0)
+        n_blocks = reduce(lambda accum, cluster: accum +
+                          cluster.avg_blocks, clusters, 0)
         z0 = {
             'N_s0': model_params['N'],
             'N_h0': 0,
@@ -237,7 +240,7 @@ class IntraExp_ODE_NRobots():
     def _ode_params_calc(self,
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
-                         cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, float]:
+                         cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
         fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
                                                                    'fsm-interference-counts.csv'))
 
@@ -273,7 +276,8 @@ class IntraExp_ODE_NRobots():
         acq = IntraExp_BlockAcqRate_NRobots(self.main_config, self.config)
         alpha_bN = acq.run(criteria, exp_num, cmdopts)[0]
         crwD = diffusion.crwD_for_avoiding(N=N,
-                                           wander_speed=float(self.config['wander_mean_speed']),
+                                           wander_speed=float(
+                                               self.config['wander_mean_speed']),
                                            ticks_per_sec=time_params['ticks_per_sec'],
                                            scenario=cmdopts['scenario'])
 
@@ -318,7 +322,7 @@ class InterExp_ODE_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -334,7 +338,7 @@ class InterExp_ODE_NRobots():
     def __repr__(self) -> str:
         return self.__class__.__name__
 
-    def run(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+    def run(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         # We always run the models for all experiments, regardless of --exp-range, because we depend
         # on the experiment at the 0-th position being exp0.
@@ -348,16 +352,24 @@ class InterExp_ODE_NRobots():
         for i, exp in enumerate(dirs):
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
-            cmdopts2["exp_input_root"] = os.path.join(cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(cmdopts['batch_model_root'], exp)
+            cmdopts2["exp_input_root"] = os.path.join(
+                cmdopts['batch_input_root'], exp)
+            cmdopts2["exp_output_root"] = os.path.join(
+                cmdopts['batch_output_root'], exp)
+            cmdopts2["exp_graph_root"] = os.path.join(
+                cmdopts['batch_graph_root'], exp)
+            cmdopts2["exp_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], exp)
+            cmdopts2["exp_model_root"] = os.path.join(
+                cmdopts['batch_model_root'], exp)
 
-            cmdopts2["exp0_output_root"] = os.path.join(cmdopts["batch_output_root"], dirs[0])
-            cmdopts2["exp0_stat_root"] = os.path.join(cmdopts["batch_stat_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = os.path.join(
+                cmdopts["batch_output_root"], dirs[0])
+            cmdopts2["exp0_stat_root"] = os.path.join(
+                cmdopts["batch_stat_root"], dirs[0])
 
-            sierra.core.utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
+            sierra.core.utils.dir_create_checked(
+                cmdopts2['exp_model_root'], exist_ok=True)
 
             intra_dfs = IntraExp_ODE_NRobots(self.main_config,
                                              self.config).run(criteria,
@@ -402,7 +414,7 @@ class InterExp_ODEWrapper_NRobots():
         self.self_org = InterExp_SelfOrg_NRobots(self.main_config,
                                                  self.config)
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: tp.Dict[str, tp.Any]) -> bool:
+    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -420,7 +432,7 @@ class InterExp_ODEWrapper_NRobots():
 
     def run(self,
             criteria: bc.IConcreteBatchCriteria,
-            cmdopts: tp.Dict[str, tp.Any]) -> tp.List[pd.DataFrame]:
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         perf_df = self.raw_perf.run(criteria, cmdopts)[0]
         sc_df = self.scalability.run(criteria, cmdopts)[0]

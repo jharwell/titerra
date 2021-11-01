@@ -15,8 +15,8 @@
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
 """
-Classes for the construct target set variable. See :ref:`ln-prism-var-ct-set` for usage
-documentation.
+Classes for the construct target set variable. See :ref:`ln-prism-var-ct-set`
+for usage documentation.
 """
 
 # Core packages
@@ -26,10 +26,11 @@ import os
 
 # 3rd party packages
 import implements
-
-# Project packages
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.xml import XMLTagAddList, XMLTagRmList, XMLTagRm, XMLTagAdd, XMLAttrChangeSet
+from sierra.core import types
+
+# Project packages
 
 from titerra.projects.prism.variables import construction_targets as ct
 import titerra.projects.prism.variables.orientation as orientation
@@ -42,7 +43,7 @@ class ConstructionTargetSet():
     """
 
     def __init__(self,
-                 target_specs: tp.Dict[str, tp.Any],
+                 target_specs: types.CLIArgSpec,
                  graphml_root: str) -> None:
         self.target_specs = target_specs
         self.graphml_root = graphml_root
@@ -50,18 +51,19 @@ class ConstructionTargetSet():
         self.targets = []
         self.tag_adds = []
 
-        uuid = 0
+        target_id = 0
         for spec in self.target_specs:
-            if spec['type'] == 'rectprism':
-                graphml_path = os.path.join(
-                    self.graphml_root, ct.RectPrismTarget.target_id(uuid) + '.graphml')
-                self.targets.append(ct.RectPrismTarget(spec, uuid, graphml_path))
-            elif spec['type'] == 'ramp':
-                graphml_path = os.path.join(
-                    self.graphml_root, ct.RampTarget.target_id(uuid) + '.graphml')
-                self.targets.append(ct.RampTarget(spec, uuid, graphml_path))
+            if spec['shape'] == 'prism':
+                self.targets.append(self._gen_prism(target_id, spec))
+            elif spec['shape'] == 'pyramid':
+                self.targets.append(self._gen_pyramid(target_id, spec))
+            elif spec['shape'] == 'ramp':
+                self.targets.append(self._gen_ramp(target_id, spec))
+            else:
+                assert False,\
+                    "Missing case for target shape '{0}'".format(spec['type'])
 
-            uuid += 1
+            target_id += 1
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         """
@@ -71,12 +73,14 @@ class ConstructionTargetSet():
 
     def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
         """
-        Always remove the ``<construct_targets>`` tag if it exists so we are starting from a clean
-        slate each time. Obviously you *must* call this function BEFORE adding new
-        definitions. Because both robots and loop functions need the full structure definition, we
-        remove it from each.
+        Always remove the ``<construct_targets>`` tag if it exists so we are
+        starting from a clean slate each time. Obviously you *must* call this
+        function BEFORE adding new definitions. Because both robots and loop
+        functions need the full structure definition, we remove it from each.
+
         """
-        return [XMLTagRmList(XMLTagRm(".//loop_functions", "./construct_targets"))]
+        return [XMLTagRmList(XMLTagRm(".//loop_functions",
+                                      "./construct_targets"))]
 
     def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
         if not self.tag_adds:
@@ -90,25 +94,47 @@ class ConstructionTargetSet():
 
     def gen_files(self) -> None:
         for target in self.targets:
-            graph = target.gen_graphml()
-            graphml_path = os.path.join(
-                self.graphml_root, target.target_id(target.uuid) + '.graphml')
-            target.write_graphml(graph, graphml_path)
+            graph = target.gen_graph()
+            target.write_graphml(graph, target.graphml_path)
+
+    def _gen_prism(self, target_id: int, spec: types.CLIArgSpec):
+        if spec['composition'] == 'beam1':
+            graphml_path = os.path.join(self.graphml_root,
+                                        ct.Beam1Prism.uuid(target_id) + '.graphml')
+            return ct.Beam1Prism(spec, target_id, graphml_path)
+        elif spec['composition'] == 'mixed_beam':
+            graphml_path = os.path.join(self.graphml_root,
+                                        ct.MixedBeamPrism.uuid(target_id) + '.graphml')
+            return ct.MixedBeamPrism(spec, target_id, graphml_path)
+
+    def _gen_pyramid(self, target_id: int, spec: types.CLIArgSpec):
+        if spec['composition'] == 'beam1':
+            graphml_path = os.path.join(self.graphml_root,
+                                        ct.Beam1Pyramid.uuid(target_id) + '.graphml')
+            return ct.Beam1Pyramid(spec, target_id, graphml_path)
+
+    def _gen_ramp(self, target_id: int, spec: types.CLIArgSpec):
+        if spec['composition'] == 'ramp+beam1':
+            graphml_path = os.path.join(self.graphml_root,
+                                        ct.Ramp.uuid(target_id) + '.graphml')
+            return ct.Ramp(spec, target_id, graphml_path)
 
 
-class ConstructionTargetSetParser():
+class Parser():
     """
-    Enforces the cmdline definition of the :class:`ConstructTargets` specified in
-    :ref:`ln-prism-bc-ct-specs`.
+    Enforces the cmdline definition of the :class:`ConstructTargets` specified
+    in :ref:`ln-prism-bc-ct-specs`.
+
     """
 
     def __call__(self,
                  specs: tp.List[str],
-                 orientations: tp.List[str]) -> tp.List[tp.Dict[str, tp.Any]]:
+                 orientations: tp.List[str]) -> tp.List[types.CLIArgSpec]:
         """
         Returns:
             List of dictionaries (one per parsed construction target) with keys:
-                type: ramp|rectprism
+                shape: prism|ramp|pyramid
+                composition: ramp+beam1|beam1|mixed_beam
                 bb: (X,Y,Z)
                 anchor: (X,Y)
                 orientation: X|Y
@@ -116,23 +142,47 @@ class ConstructionTargetSetParser():
         """
         ret = []
         for spec, orient in zip(specs, orientations):
-            spec = '.'.join(spec.split('.')[1:])  # strip off 'construct_target.'
+            # strip off 'construct_target.'
+            spec = '.'.join(spec.split('.')[1:])
             parsed_spec = {}
 
-            # Parse target type
-            res = re.search(r"ramp|rectprism", spec)
-            assert res is not None, "Bad target type specification in {0}".format(spec)
-            parsed_spec['type'] = res.group(0)
+            # Parse target shape
+            res = re.search("prism|ramp|pyramid", spec)
+            assert res is not None, \
+                "Bad target shape specification in {0}".format(spec)
+            parsed_spec['shape'] = res.group(0)
+
+            # Parse target composition
+            res = re.search(r"ramp\+beam1|beam1|mixed_beam", spec)
+            assert res is not None, \
+                "Bad target composition specification in {0}".format(spec)
+            parsed_spec['composition'] = res.group(0)
+
+            if parsed_spec['shape'] == 'ramp':
+                assert parsed_spec['composition'] == 'ramp+beam1',\
+                    "Bad composition specification for {0}".format(
+                        parsed_spec['shape'])
+            elif parsed_spec['shape'] == 'prism':
+                assert parsed_spec['composition'] in ['beam1', 'mixed_beam'],\
+                    "Bad composition specification for {0}".format(
+                        parsed_spec['shape'])
+            elif parsed_spec['shape'] == 'pyramid':
+                assert parsed_spec['composition'] == 'beam1',\
+                    "Bad composition specification for {0}".format(
+                        parsed_spec['shape'])
 
             # Parse target bounding box
             res = re.search('[0-9]+x[0-9]+x[0-9]+', spec)
-            assert res is not None, "Bad target bounding box specification in {0}".format(spec)
+            assert res is not None, \
+                "Bad target bounding box specification in {0}".format(spec)
             parsed_spec['bb'] = tuple(int(x) for x in res.group(0).split('x'))
 
             # Parse target anchor
             res = re.search(r"@[0-9]+,[0-9]+,[0-9]+", spec)
-            assert res is not None, "Bad target anchor specification in {0}".format(spec)
-            parsed_spec['anchor'] = tuple(int(x) for x in res.group(0)[1:].split(','))
+            assert res is not None,\
+                "Bad target anchor specification in {0}".format(spec)
+            parsed_spec['anchor'] = tuple(int(x) for x in
+                                          res.group(0)[1:].split(','))
 
             # Parse target orientation
             res = orientation.OrientationParser()(orient)
@@ -146,9 +196,13 @@ def factory(specs: tp.List[str],
             orientations: tp.List[str],
             exp_input_root: str):
     """
-    Factory to create :class:`ConstructTargetSet` derived classes from the cmdline specification.
+    Factory to create :class:`ConstructTargetSet` derived classes from the
+    cmdline specification.
     """
-    targets = ConstructionTargetSetParser()(specs, orientations)
+    assert len(specs) == len(orientations),\
+        "FATAL: # specs != # orientations: {0} != {1}".format(len(specs),
+                                                              len(orientations))
+    targets = Parser()(specs, orientations)
 
     for target in targets:
         target['orientation'] = orientation.Orientation(target['orientation'])
