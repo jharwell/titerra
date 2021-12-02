@@ -13,9 +13,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
-"""
-Classes for the task allocation policy batch criteria. See :ref:`ln-bc-ta-policy-set` for usage
-documentation.
+"""Classes for the task allocation policy batch criteria. See
+:ref:`ln-bc-ta-policy-set` for usage documentation.
+
 """
 
 
@@ -26,7 +26,7 @@ import typing as tp
 # 3rd party packages
 import implements
 import sierra.core.variables.batch_criteria as bc
-from sierra.core.variables.population_size import PopulationSize
+from sierra.plugins.platform.argos.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
 from sierra.core import types
 
@@ -36,14 +36,16 @@ from sierra.core import types
 @implements.implements(bc.IConcreteBatchCriteria)
 class TAPolicySet(bc.UnivarBatchCriteria):
     """
-    A univariate range specifiying the set of task allocation policies (and possibly swarm size) to
-    use to define the batched experiment. This class is a base class which should (almost) never be
-    used on its own. Instead, the ``factory()`` function should be used to dynamically create
-    derived classes expressing the user's desired policies and swarm size.
+    A univariate range specifiying the set of task allocation policies (and
+    possibly swarm size) to use to define the batched experiment. This class is
+    a base class which should (almost) never be used on its own. Instead, the
+    ``factory()`` function should be used to dynamically create derived classes
+    expressing the user's desired policies and swarm size.
 
     Attributes:
         policies: List of policies to enable for a specific simulation.
         population: Swarm size to use for a specific simulation.
+
     """
     kPolicies = ['random', 'stoch_nbhd1',
                  'strict_greedy', 'epsilon_greedy', 'UCB1']
@@ -61,9 +63,10 @@ class TAPolicySet(bc.UnivarBatchCriteria):
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         if not self.attr_changes:
-            # Swarm size is optional. It can be (1) controlled via this variable, (2) controlled by
-            # another variable in a bivariate batch criteria, (3) not controlled at all. For (2),
-            # (3), the swarm size can be None.
+            # Swarm size is optional. It can be (1) controlled via this
+            # variable, (2) controlled by another variable in a bivariate batch
+            # criteria, (3) not controlled at all. For (2), (3), the swarm size
+            # can be None.
             if self.population is not None:
                 size_chgs = PopulationSize(self.cli_arg,
                                            self.main_config,
@@ -112,8 +115,9 @@ class TAPolicySet(bc.UnivarBatchCriteria):
 
 class Parser():
     """
-    Enforces the cmdline definition of the :class:`TAPolicySet` batch criteria defined in
-    :ref:`ln-bc-ta-policy-set`.
+    Enforces the cmdline definition of the :class:`TAPolicySet` batch criteria
+    defined in :ref:`ln-bc-ta-policy-set`.
+
     """
 
     def __call__(self, cli_arg: str) -> dict:
@@ -127,7 +131,7 @@ class Parser():
 
         # Parse task allocation policy set
         assert cli_arg.split('.')[1] == 'all', \
-            "FATAL: Bad type specification in criteria '{0}'. Only 'all' supported.".format(
+            "Bad type specification in criteria '{0}'. Only 'all' supported.".format(
                 cli_arg)
 
         # Parse swarm size
@@ -135,7 +139,7 @@ class Parser():
             swarm_size = cli_arg.split('.')[2]
             res = re.search(r"Z[0-9]+", swarm_size)
             assert res is not None,\
-                "FATAL: Bad swarm size specification in criteria '{0}'".format(
+                "Bad swarm size specification in criteria '{0}'".format(
                     cli_arg)
             ret['population'] = int(res.group(0)[1:])
 
@@ -146,10 +150,8 @@ def factory(cli_arg: str,
             main_config: tp.Dict[str, str],
             batch_input_root: str,
             **kwargs):
-    """
-    Factory to create :class:`TAPolicySet` derived classes from the command line definition of batch
-    criteria.
-
+    """Factory to create :class:`TAPolicySet` derived classes from the command line
+    definition of batch criteria.
     """
     attr = Parser()(cli_arg)
 

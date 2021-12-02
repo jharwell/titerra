@@ -43,9 +43,9 @@ import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
 from sierra.core.variables import batch_criteria as bc
-from sierra.core.variables import population_size
-from sierra.core.variables import population_constant_density as pcd
-from sierra.core.variables import population_variable_density as pvd
+from sierra.plugins.platform.argos.variables import population_size
+from sierra.plugins.platform.argos.variables import population_constant_density as pcd
+from sierra.plugins.platform.argos.variables import population_variable_density as pvd
 import sierra.core.utils
 import sierra.core.config
 from sierra.core import types
@@ -60,8 +60,7 @@ import titerra.projects.titan.perf_measures.common as pmcommon
 
 
 class BaseSteadyStateFLMarginal():
-    r"""
-    Calculates the self organization due to inter-robot interaction for a swarm
+    r"""Calculates the self organization due to inter-robot interaction for a swarm
     configuration of size :math:`N_2`, given fractional performance losses for
     :math:`N_2` robots and for a smaller swarm of size :math:`N_1` with the same
     configuration.
@@ -81,10 +80,12 @@ class BaseSteadyStateFLMarginal():
 
     depending on normalization configuration.
 
-    Defined for swarms with :math:`N_1` > 1 robots. For :math:`N_1=1`, we obtain a :math:`\theta`
-    value using L'Hospital's rule and taking the derivative with respect to :math:`N_1`.
+    Defined for swarms with :math:`N_1` > 1 robots. For :math:`N_1=1`, we obtain
+    a :math:`\theta` value using L'Hospital's rule and taking the derivative
+    with respect to :math:`N_1`.
 
-    Original equation taken from :xref:`Harwell2019`, modified to have better theoretical limits.
+    Original equation taken from :xref:`Harwell2019`, modified to have better
+    theoretical limits.
 
     """
     kLeaf = "PM-ss-self-org-mfl"
@@ -157,10 +158,10 @@ class BaseSteadyStateFLInteractive():
 
 
 class BaseSteadyStatePGMarginal():
-    r"""
-    Calculates the marginal performance gains achieved by the swarm configuration of size
-    :math:`N_2`, given the performance achieved with :math:`N_2` robots and with a smaller swarm
-    size :math:`N_1` with the same configuration.
+    r"""Calculates the marginal performance gains achieved by the swarm
+    configuration of size :math:`N_2`, given the performance achieved with
+    :math:`N_2` robots and with a smaller swarm size :math:`N_1` with the same
+    configuration.
 
     .. math::
        E_T(N_1,N_2,\kappa) = \sum_{t\in{T}} \theta_{E_T}(t)
@@ -177,9 +178,9 @@ class BaseSteadyStatePGMarginal():
 
     depending on normalization configuration.
 
-    Defined for swarms with :math:`N_1` > 1 robots. For :math:`N_1=1`, we obtain a
-    :math:`\theta` value using L'Hospital's rule and taking the derivative with respect to
-    :math:`N_1`.
+    Defined for swarms with :math:`N_1` > 1 robots. For :math:`N_1=1`, we obtain
+    a :math:`\theta` value using L'Hospital's rule and taking the derivative
+    with respect to :math:`N_1`.
 
     Inspired by :xref:`Rosenfeld2006`.
 
@@ -210,8 +211,9 @@ class BaseSteadyStatePGMarginal():
 
 class BaseSteadyStatePGInteractive():
     r"""
-    Calculates the self organization due to inter-robot interaction for a swarm configuration of
-    size :math:`N`, given the performance achieved with a single robot with the same configuration.
+    Calculates the self organization due to inter-robot interaction for a swarm
+    configuration of size :math:`N`, given the performance achieved with a
+    single robot with the same configuration.
 
     .. math::
        E_T(N,\kappa) = \sum_{t\in{T}} \theta_{E_T}(t)
@@ -255,13 +257,14 @@ class BaseSteadyStatePGInteractive():
 
 
 class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
-    """
-    Calculates the self-organization of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using marginal fractional
-    performance losses due to inter-robot interference (See :class:`BaseSteadyStateFLMarginal`).
+    """Calculates the self-organization of the swarm configuration across a
+    univariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using marginal fractional performance losses due to
+    inter-robot interference (See :class:`BaseSteadyStateFLMarginal`).
 
-    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph` of self
-    organization.
+    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph`
+    of self organization.
+
     """
 
     @staticmethod
@@ -347,14 +350,15 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
 
 
 class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
-    """
-    Calculates the self-organization of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using fractional
-    performance losses due to interative inter-robot interference vs. independent action (See
+    """Calculates the self-organization of the swarm configuration across a
+    univariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using fractional performance losses due to interative
+    inter-robot interference vs. independent action (See
     :class:`BaseSteadyStateFLInteractive`).
 
-    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph` of self
-    organization.
+    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph`
+    of self organization.
+
     """
 
     @staticmethod
@@ -437,14 +441,16 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
 
 
 class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
-    """
-    Calculates the self-organization of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using superlinear increases in
-    performance between adjacent swarm size (e.g. for two swarms of size :math:`N`, :math:`2N`, a
-    linear 2X increase in performance is expected, and more than this indicates emergent behavior).
+    """Calculates the self-organization of the swarm configuration across a
+    univariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using superlinear increases in performance between adjacent
+    swarm size (e.g. for two swarms of size :math:`N`, :math:`2N`, a linear 2X
+    increase in performance is expected, and more than this indicates emergent
+    behavior).
 
-    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph` of self
-    organization.
+    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph`
+    of self organization.
+
     """
 
     @staticmethod
@@ -486,8 +492,9 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Calculate marginal performance gain measure for the given controller for each experiment in
-        a batch.
+        Calculate marginal performance gain measure for the given controller for
+        each experiment in a batch.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -514,14 +521,15 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
 
 
 class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
-    """
-    Calculates the self-organization of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using superlinear increases in
-    performance between a swarm of :math:`N` interactive vs. independent robots.
-    See :class:`BaseSteadyStatePGInteractive`.
+    """Calculates the self-organization of the swarm configuration across a
+    univariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using superlinear increases in performance between a swarm of
+    :math:`N` interactive vs. independent robots.  See
+    :class:`BaseSteadyStatePGInteractive`.
 
-    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph` of self
-    organization.
+    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph`
+    of self organization.
+
     """
 
     @staticmethod
@@ -562,8 +570,9 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Calculate marginal performance gain measure for the given controller for each experiment in
-        a batch.
+        Calculate marginal performance gain measure for the given controller for
+        each experiment in a batch.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -592,8 +601,10 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
 
 class SelfOrgUnivarGenerator:
     """
-    Calculates the self-organization of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated .csv datain various ways.
+    Calculates the self-organization of the swarm configuration across a
+    univariate batched set of experiments within the same scenario from collated
+    .csv datain various ways.
+
     """
 
     def __init__(self) -> None:
@@ -630,17 +641,20 @@ class SelfOrgUnivarGenerator:
 
 
 class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
-    """
-    Calculates the self-organization of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using fractional performance
-    losses due to inter-robot interference (See :class:`BaseSteadyStateFLMarginal`).
+    """Calculates the self-organization of the swarm configuration across a
+    bivariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using fractional performance losses due to inter-robot
+    interference (See :class:`BaseSteadyStateFLMarginal`).
 
-    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self organization.
+    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self
+    organization.
 
     Assumptions:
         - exp0 has 1 robot.
-        - One of the batch criteria was :class:`~sierra.core.variables.population_size.PopulationSize`
-          derived (or a similar batch criteria which changes the swarm size).
+
+        - One of the batch criteria was
+          :class:`~sierra.core.variables.population_size.PopulationSize` derived
+          (or a similar batch criteria which changes the swarm size).
 
     """
 
@@ -751,13 +765,14 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
 
 
 class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
-    """
-    Calculates the self-organization of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using fractional performance
-    losses due to interactive inter-robot interference vs independent action  (See
+    """Calculates the self-organization of the swarm configuration across a
+    bivariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using fractional performance losses due to interactive
+    inter-robot interference vs independent action (See
     :class:`BaseSteadyStateFLInteractive`).
 
-    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self organization.
+    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self
+    organization.
 
     """
     @staticmethod
@@ -829,9 +844,9 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
         fl = pmcommon.SteadyStateFLBivar.df_kernel(
             criteria, self.cmdopts, perf_dfs, plostN)
 
-        # We need to know which of the 2 variables was swarm size, in order to determine
-        # the correct dimension along which to compute the metric, which depends on
-        # performance between adjacent swarm sizes.
+        # We need to know which of the 2 variables was swarm size, in order to
+        # determine the correct dimension along which to compute the metric,
+        # which depends on performance between adjacent swarm sizes.
         axis = sierra.core.utils.get_primary_axis(criteria,
                                                   [population_size.PopulationSize,
                                                    pcd.PopulationConstantDensity,
@@ -860,14 +875,16 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
 
 
 class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
-    """
-    Calculates the self-organization of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using superlinear increases in
-    performance between adjacent swarm size (e.g. for two swarms of size :math:`N`, :math:`2N`, a 2X
-    increase in performance is expected, and more than this indicates emergent behavior).
+    """Calculates the self-organization of the swarm configuration across a
+    bivariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using superlinear increases in performance between adjacent
+    swarm size (e.g. for two swarms of size :math:`N`, :math:`2N`, a 2X increase
+    in performance is expected, and more than this indicates emergent behavior).
     See :class:`BaseSteadyStatePGMarginal`).
 
-    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self organization.
+    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self
+    organization.
+
     """
 
     @staticmethod
@@ -925,8 +942,9 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Calculate marginal performance gain metric for the given controller for each experiment in a
-        batch.
+        Calculate marginal performance gain metric for the given controller for
+        each experiment in a batch.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -963,12 +981,15 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
 
 class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
     """
-    Calculates the self-organization of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using superlinear increases in
-    performance between a swarm of :math:`N` interacting vs. indpendently acting robots.
-    See :class:`BaseSteadyStatePGInteractive`).
+    Calculates the self-organization of the swarm configuration across a
+    bivariate batched set of experiments within the same scenario from collated
+    ``.csv`` data using superlinear increases in performance between a swarm of
+    :math:`N` interacting vs. indpendently acting robots.  See
+    :class:`BaseSteadyStatePGInteractive`).
 
-    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self organization.
+    Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self
+    organization. 
+
     """
 
     @staticmethod
@@ -1016,8 +1037,8 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Calculate marginal performance gain metric for the given controller for each experiment in a
-        batch.
+        Calculate marginal performance gain metric for the given controller for
+        each experiment in a batch.
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -1054,8 +1075,10 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
 
 class SelfOrgBivarGenerator:
     """
-    Calculates the self-organization of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated .csv data in various ways.
+    Calculates the self-organization of the swarm configuration across a
+    bivariate batched set of experiments within the same scenario from collated
+    .csv data in various ways.
+
     """
 
     def __init__(self) -> None:

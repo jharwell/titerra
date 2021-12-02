@@ -27,7 +27,7 @@ import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.graphs.heatmap import Heatmap
-import sierra.core.variables.saa_noise as saan
+import sierra.plugins.platform.argos.variables.saa_noise as saan
 import sierra.core.utils
 from sierra.core.xml import XMLAttrChangeSet
 from sierra.core import types
@@ -47,9 +47,8 @@ class BaseSteadyStateRobustnessSAA:
 
 
 class BaseSteadyStateRobustnessPD:
-    r"""
-    Calculate swarm robustness to fluctuating swarm populations. Equation taken from
-    :xref:`Harwell2020`.
+    r"""Calculate swarm robustness to fluctuating swarm populations. Equation taken
+    from :xref:`Harwell2020`.
 
     .. math::
        B_{sz}(\kappa) = \sum_{t\in{T}}\theta_{B_{sz}}
@@ -95,9 +94,10 @@ class BaseSteadyStateRobustnessPD:
 
 class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
     """
-    Calculates the robustness of the swarm configuration to sensor and actuator noise across a
-    univariate batched set of experiments within the same scenario from collated .csv data using
-    curve similarity measures.
+    Calculates the robustness of the swarm configuration to sensor and actuator
+    noise across a univariate batched set of experiments within the same
+    scenario from collated .csv data using curve similarity measures.
+
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
@@ -134,10 +134,11 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
         self.perf_col = perf_col
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
-        """
-        Generate a robustness graph for a given controller in a given scenario by computing the
-        value of the robustness metric for each experiment within the batch (Y values), and plotting
-        a line graph from it using the X-values from the specified batch criteria.
+        """Generate a robustness graph for a given controller in a given
+        scenario by computing the value of the robustness metric for each
+        experiment within the batch (Y values), and plotting a line graph from
+        it using the X-values from the specified batch criteria.
+
         """
 
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
@@ -169,9 +170,10 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
 
 
 class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
-    """
-    Calculates the robustness of the swarm configuration to population size fluctuations across a
-    univariate batched set of experiments within the same scenario from collated .csv data.
+    """Calculates the robustness of the swarm configuration to population size
+    fluctuations across a univariate batched set of experiments within the same
+    scenario from collated .csv data.
+
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
@@ -223,9 +225,11 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Generate a robustness graph for a given controller in a given scenario by computing the
-        value of the robustness metric for each experiment within the batch (Y values), and plotting
-        a line graph from it using the X-values from the specified batch criteria.
+        Generate a robustness graph for a given controller in a given scenario
+        by computing the value of the robustness metric for each experiment
+        within the batch (Y values), and plotting a line graph from it using the
+        X-values from the specified batch criteria.
+
         """
 
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
@@ -256,12 +260,13 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
 
 
 class RobustnessUnivarGenerator:
-    """
-    Calculates the robustness of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated .csv data in the following ways:
+    """Calculates the robustness of the swarm configuration across a univariate
+    batched set of experiments within the same scenario from collated .csv data
+    in the following ways:
 
     - SAA robustness
     - Population dynamics robustness
+
     """
 
     def __init__(self) -> None:
@@ -294,9 +299,10 @@ class RobustnessUnivarGenerator:
 
 class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
     """
-    Calculates the robustness of the swarm configuration to sensor and actuator noise across a
-    bivariate batched set of experiments within the same scenario from collated .csv data using
-    curve similarity measures.
+    Calculates the robustness of the swarm configuration to sensor and actuator
+    noise across a bivariate batched set of experiments within the same scenario
+    from collated .csv data using curve similarity measures.
+
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
@@ -378,9 +384,10 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
 
 
 class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
-    """
-    Calculates the robustness of the swarm configuration to fluctuating population sies across a
-    bivariate batched set of experiments within the same scenario from collated .csv data.
+    """Calculates the robustness of the swarm configuration to fluctuating
+    population sies across a bivariate batched set of experiments within the
+    same scenario from collated .csv data.
+
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
@@ -477,12 +484,13 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
 
 
 class RobustnessBivarGenerator:
-    """
-    Calculates the robustness of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated .csv data in the following ways:
+    """Calculates the robustness of the swarm configuration across a bivariate
+    batched set of experiments within the same scenario from collated .csv data
+    in the following ways:
 
     - SAA robustness
     - Population dynamics robustness
+
     """
 
     def __init__(self) -> None:

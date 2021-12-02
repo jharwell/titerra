@@ -467,11 +467,11 @@ class Ramp(BaseConstructTarget):
     def _structure_sanity_checks(self):
         if self.spec['orientation'].is_EW():
             assert self.extent.xsize() % self.kRAMP_LENGTH_RATIO == 0,\
-                "FATAL: X size={0} not a multiple for ramp block length ratio={1}".format(self.extent.xsize(),
+                "X size={0} not a multiple for ramp block length ratio={1}".format(self.extent.xsize(),
                                                                                           self.kRAMP_LENGTH_RATIO)
         elif self.spec['orientation'].is_NS():
             assert self.extent.ysize() % self.kRAMP_LENGTH_RATIO == 0,\
-                "FATAL: Y size={0} not a multiple for ramp block length ratio {1}".format(self.extent.ysize(),
+                "Y size={0} not a multiple for ramp block length ratio {1}".format(self.extent.ysize(),
                                                                                           self.kRAMP_LENGTH_RATIO)
 
     def gen_graph(self) -> nx.Graph:

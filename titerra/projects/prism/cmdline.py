@@ -116,10 +116,10 @@ class CmdlineValidator(titan.cmdline.CmdlineValidator):
         super().__call__(args)
 
         assert args.ct_specs is not None,\
-            "FATAL: --ct-specs is required for PRISM"
+            "--ct-specs is required for PRISM"
 
         assert args.ct_orientations is not None,\
-            "FATAL: --ct-orientations is required for PRISM"
+            "--ct-orientations is required for PRISM"
 
 
 def sphinx_cmdline_multistage():

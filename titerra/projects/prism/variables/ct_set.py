@@ -200,7 +200,7 @@ def factory(specs: tp.List[str],
     cmdline specification.
     """
     assert len(specs) == len(orientations),\
-        "FATAL: # specs != # orientations: {0} != {1}".format(len(specs),
+        "# specs != # orientations: {0} != {1}".format(len(specs),
                                                               len(orientations))
     targets = Parser()(specs, orientations)
 

@@ -30,7 +30,7 @@ import implements
 import pandas as pd
 import sierra.core.models.interface
 import sierra.core.utils
-import sierra.core.variables.time_setup as ts
+import sierra.plugins.platform.argos.variables.time_setup as ts
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.experiment_spec import ExperimentSpec

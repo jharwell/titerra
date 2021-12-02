@@ -13,9 +13,9 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # TITAN.  If not, see <http://www.gnu.org/licenses/
-"""
-Classes for the population dynamics batch criteria. See :ref:`ln-bc-population-dynamics` for usage
-documentation.
+"""Classes for the population dynamics batch criteria. See
+:ref:`ln-bc-population-dynamics` for usage documentation.
+
 """
 
 # Core packages
@@ -28,7 +28,7 @@ from sierra.core.variables import batch_criteria as bc
 import sierra.core.utils
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLLuigi
 import sierra.core.config
-import sierra.core.variables.time_setup as ts
+import sierra.plugins.platform.argos.variables.time_setup as ts
 from sierra.core import types
 
 # Project packages
@@ -37,15 +37,17 @@ import titerra.projects.titan.variables.dynamics_parser as dp
 
 @implements.implements(bc.IConcreteBatchCriteria)
 class PopulationDynamics(bc.UnivarBatchCriteria):
-    """
-    A univariate range of population dynamics used to define batched experiments. This class is a
-    base class which should (almost) never be used on its own. Instead, the ``factory()`` function
-    should be used to dynamically create derived classes expressing the user's desired dynamics
+    """A univariate range of population dynamics used to define batched
+    experiments. This class is a base class which should (almost) never be used
+    on its own. Instead, the ``factory()`` function should be used to
+    dynamically create derived classes expressing the user's desired dynamics
     distribution.
 
     Attributes:
         dynamics_type: The type of population dynamics.
-        dynamics: List of tuples specifying XML changes for each variation of population dynamics.
+
+        dynamics: List of tuples specifying XML changes for each variation of
+                  population dynamics.
 
     """
 
@@ -65,8 +67,9 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
         """
         Generate list of sets of changes for population dynamics.
         """
-        # Note the # of decimal places used--these rates can get pretty small, and we do NOT want to
-        # round/truncate unecessarily, because that can change behavior in statistical equilibrium.
+        # Note the # of decimal places used--these rates can get pretty small,
+        # and we do NOT want to round/truncate unecessarily, because that can
+        # change behavior in statistical equilibrium.
         if not self.attr_changes:  # empty
             for d in self.dynamics:
                 self.attr_changes.append(XMLAttrChangeSet(*{XMLAttrChange(".//temporal_variance/population_dynamics",
@@ -81,14 +84,15 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
                      exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
-        # If exp_dirs is passed, then we have been handed a subset of the total # of directories in
-        # the batch exp root, and so n_exp() will return more experiments than we actually
-        # have. This behavior is needed to correctly extract x/y values for bivariate experiments.
+        # If exp_dirs is passed, then we have been handed a subset of the total
+        # # of directories in the batch exp root, and so n_exp() will return
+        # more experiments than we actually have. This behavior is needed to
+        # correctly extract x/y values for bivariate experiments.
         #
-        # We use range() instead of the actual PD values so that this batch criteria works
-        # well with box and whisker plots around each data point. This is OK because we also
-        # the generation of the range of values that become the xticks, and we KNOW they are
-        # linearly spaced.
+        # We use range() instead of the actual PD values so that this batch
+        # criteria works well with box and whisker plots around each data
+        # point. This is OK because we also the generation of the range of
+        # values that become the xticks, and we KNOW they are linearly spaced.
         if exp_dirs is None:
             exp_dirs = self.gen_exp_dirnames(cmdopts)
 
@@ -113,8 +117,9 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
                                                              d,
                                                              sierra.core.config.kPickleLeaf))
 
-            # If we had pure death dynamics, the tasked swarm time is 0 in the steady state, so we
-            # use lambda_d as the ticks instead, which is somewhat more meaningful.
+            # If we had pure death dynamics, the tasked swarm time is 0 in the
+            # steady state, so we use lambda_d as the ticks instead, which is
+            # somewhat more meaningful.
             if self.is_pure_death_dynamics():
                 lambda_d, _, _, _ = PopulationDynamics.extract_rate_params(
                     exp_def)
@@ -177,10 +182,10 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
 
     @staticmethod
     def extract_rate_params(exp_def) -> tp.Tuple[float, float, float, float]:
-        """
-        Extract and return the (death, birth, malfunction, and repair) rate parameters for use in
-        calculating queueing theoretic limits for the specified experiment. If any of them were not
-        used in the batched experiment, they will have value 0.0.
+        """Extract and return the (death, birth, malfunction, and repair) rate
+        parameters for use in calculating queueing theoretic limits for the
+        specified experiment. If any of them were not used in the batched
+        experiment, they will have value 0.0.
 
         """
         # OK to have these not defined for a particular batched experiment
@@ -220,9 +225,8 @@ def factory(cli_arg: str,
             main_config: tp.Dict[str, tp.Any],
             batch_input_root: str,
             **kwargs) -> PopulationDynamics:
-    """
-    Factory to create ``PopulationDynamics`` derived classes from the command line definition.
-
+    """Factory to create ``PopulationDynamics`` derived classes from the command
+    line definition.
     """
     attr = PopulationDynamicsParser()(cli_arg)
 

@@ -47,14 +47,14 @@ class DynamicsParser():
         # Parse cardinality
         res = re.search(r".C[0-9]+", criteria_str)
         assert res is not None, \
-            "FATAL: Bad cardinality for dynamics in criteria '{0}'".format(
+            "Bad cardinality for dynamics in criteria '{0}'".format(
                 criteria_str)
         ret['cardinality'] = int(res.group(0)[2:])
 
         # Parse factor characteristic
         res = re.search(r'F[0-9]+p[0-9]+', criteria_str)
         assert res is not None, \
-            "FATAL: Bad Factor specification in criteria '{0}'".format(
+            "Bad Factor specification in criteria '{0}'".format(
                 criteria_str)
         characteristic = float(res.group(0)[1:].split('p')[0])
         mantissa = float("0." + res.group(0)[1:].split('p')[1])
@@ -70,14 +70,14 @@ class DynamicsParser():
             # Parse characteristic
             res = re.search('[0-9]+p', spec)
             assert res is not None, \
-                "FATAL: Bad characteristic specification in criteria '{0}'".format(
+                "Bad characteristic specification in criteria '{0}'".format(
                     criteria_str)
             characteristic = float(res.group(0)[0:-1])
 
             # Parser mantissa
             res = re.search('p[0-9]+', spec)
             assert res is not None, \
-                "FATAL: Bad mantissa specification in criteria '{0}'".format(
+                "Bad mantissa specification in criteria '{0}'".format(
                     criteria_str)
             mantissa = float("0." + res.group(0)[1:])
 

@@ -14,8 +14,9 @@
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
-"""
-Classes for the oracle batch criteria. See :ref:`ln-bc-oracle` for usage documentation.
+"""Classes for the oracle batch criteria. See :ref:`ln-bc-oracle` for usage
+documentation.
+
 """
 
 # Core packages
@@ -26,7 +27,7 @@ import itertools
 # 3rd party packages
 import implements
 import sierra.core.variables.batch_criteria as bc
-from sierra.core.variables.population_size import PopulationSize
+from sierra.plugins.platform.argos.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
 from sierra.core import types
 

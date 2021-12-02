@@ -71,7 +71,7 @@ class TemporalVarianceParser():
         }
         # Parse variance type
         res = re.search("BC|BM|M", criteria_str)
-        assert res is not None, "FATAL: Bad variance type in criteria '{0}'".format(
+        assert res is not None, "Bad variance type in criteria '{0}'".format(
             criteria_str)
         variance_type = str(res.group(0))
         ret['variance_type'] = variance_type
@@ -80,14 +80,14 @@ class TemporalVarianceParser():
 
         # Parse waveform type
         res = re.search("Sine|Square|Sawtooth|Step[UD]|Constant", criteria_str)
-        assert res is not None, "FATAL: Bad waveform type in criteria '{0}'".format(
+        assert res is not None, "Bad waveform type in criteria '{0}'".format(
             criteria_str)
         waveform_type = str(res.group(0))
 
         if 'Step' in waveform_type:
             res = re.search("Step[UD][0-9]+", criteria_str)
             assert res is not None, \
-                "FATAL: Bad step specification type in criteria '{0}'".format(
+                "Bad step specification type in criteria '{0}'".format(
                     criteria_str)
             ret['waveform_param'] = int(res.group(0)[5:])
         ret['waveform_type'] = waveform_type

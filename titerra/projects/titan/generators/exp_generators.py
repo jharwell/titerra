@@ -21,13 +21,13 @@ Extensions to the :class:`~sierra.core.generators.ExpCreator` and
 # Core packages
 
 # 3rd party packages
-
-# Project packages
-import sierra.core.generators.exp_generators as exp_generators
+from sierra.plugins.platform.argos.generators.platform_generators import PlatformExpRunDefUniqueGenerator
 from sierra.core.xml import XMLLuigi
 
+# Project packages
 
-class SimDefUniqueGenerator(exp_generators.SimDefUniqueGenerator):
+
+class ExpRunDefUniqueGenerator(PlatformExpRunDefUniqueGenerator):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -37,23 +37,24 @@ class SimDefUniqueGenerator(exp_generators.SimDefUniqueGenerator):
 
     def _generate_output(self, exp_def: XMLLuigi):
         """
-        Generates XML changes to setup unique output directories for TITAN simulations.
+        Generates XML changes to setup unique output directories for TITAN
+        simulations.
         """
         exp_def.attr_change(".//controllers/*/params/output",
                             "output_leaf",
-                            self.sim_output_dir)
+                            self.run_output_dir)
 
         exp_def.attr_change(".//controllers/*/params/output",
                             "output_parent",
                             self.exp_output_root)
         exp_def.attr_change(".//loop_functions/output",
                             "output_leaf",
-                            self.sim_output_dir)
+                            self.run_output_dir)
         exp_def.attr_change(".//loop_functions/output",
                             "output_parent",
                             self.exp_output_root)
 
 
 __api__ = [
-    'SimDefUniqueGenerator',
+    'ExpRunDefUniqueGenerator',
 ]

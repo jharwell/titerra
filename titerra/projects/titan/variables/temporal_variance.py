@@ -26,7 +26,7 @@ import logging
 # 3rd party packages
 import implements
 import sierra.core.variables.batch_criteria as bc
-from sierra.core.variables.population_size import PopulationSize
+from sierra.plugins.platform.argos.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 from sierra.core import types
 

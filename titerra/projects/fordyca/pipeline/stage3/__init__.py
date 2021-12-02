@@ -21,7 +21,7 @@ import sys
 
 # TITAN packages to lift into 'fordyca.pipeline.stage3' namespace for use in the
 # SIERRA project for FORDYCA.
-from titerra.projects.titan.pipeline.stage3 import sim_collator
+from titerra.projects.titan.pipeline.stage3 import run_collator
 
 # Do the lifts
-sys.modules['fordyca.pipeline.stage3.sim_collator'] = sim_collator
+sys.modules['fordyca.pipeline.stage3.run_collator'] = run_collator

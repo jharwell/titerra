@@ -38,9 +38,9 @@ import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
 from sierra.core.variables import batch_criteria as bc
-from sierra.core.variables import population_size
-from sierra.core.variables import population_constant_density as pcd
-from sierra.core.variables import population_variable_density as pvd
+from sierra.plugins.platform.argos.variables import population_size
+from sierra.plugins.platform.argos.variables import population_constant_density as pcd
+from sierra.plugins.platform.argos.variables import population_variable_density as pvd
 import sierra.core.utils
 import sierra.core.config
 from sierra.core import types
@@ -55,11 +55,11 @@ import titerra.projects.titan.perf_measures.common as pmcommon
 
 
 class BaseSteadyStateParallelFraction():
-    r"""
-    Given a swarm exhibiting speedup :math:`X` with :math:`m_i>1` robots relative to a swarm with
-    fewer (:math:`N_1`) robots, compute the serial fraction :math:`e` of the swarm's
-    performance. The lower the value of :math:`e`, the better the parallelization/scalability,
-    suggesting that the addition of more robots will bring additional performance improvements:
+    r"""Given a swarm exhibiting speedup :math:`X` with :math:`m_i>1` robots
+    relative to a swarm with fewer (:math:`N_1`) robots, compute the serial
+    fraction :math:`e` of the swarm's performance. The lower the value of
+    :math:`e`, the better the parallelization/scalability, suggesting that the
+    addition of more robots will bring additional performance improvements:
 
     .. math::
        C(N_2,\kappa) = \sum_{t\in{T}}\theta_C(N_2,\kappa,t)
@@ -81,10 +81,12 @@ class BaseSteadyStateParallelFraction():
 
     depending on normalization configuration.
 
-    Defined for swarms with :math:`N>1` robots. For :math:`N=1`, we obtain a Karp-Flatt value of 1.0
-    using L'Hospital's rule and taking the derivative with respect to :math:`N`.
+    Defined for swarms with :math:`N>1` robots. For :math:`N=1`, we obtain a
+    Karp-Flatt value of 1.0 using L'Hospital's rule and taking the derivative
+    with respect to :math:`N`.
 
     Inspired by :xref:`Harwell2019`.
+
     """
     kLeaf = 'PM-ss-scalability-parallel-frac'
 
@@ -122,16 +124,16 @@ class BaseSteadyStateParallelFraction():
 
 
 class BaseSteadyStateNormalizedEfficiency():
-    r"""
-    Calculate for per-robot efficiency.
+    r"""Calculate for per-robot efficiency.
 
     .. math::
        E = \frac{P(N)}{N}
 
-    Where :math:`P(N)` is an arbitrary performance measure, evaluated on a swarm of size
-    :math:`N`.
+    Where :math:`P(N)` is an arbitrary performance measure, evaluated on a swarm
+    of size :math:`N`.
 
     From :xref:`Hecker2015`.
+
     """
     kLeaf = 'PM-ss-scalability-efficiency'
 
@@ -145,10 +147,11 @@ class BaseSteadyStateNormalizedEfficiency():
 
 
 class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency):
-    r"""
-    Univariate calculator for per-robot efficiency for each experiment in a batch
-    (intra-experiment measure; no comparison across experiments in a batch is performed). See
-    :class:`BaseSteadyStateNormalizedEfficiency` for calculations.
+    r"""Univariate calculator for per-robot efficiency for each experiment in a
+    batch (intra-experiment measure; no comparison across experiments in a batch
+    is performed). See :class:`BaseSteadyStateNormalizedEfficiency` for
+    calculations.
+
     """
 
     @staticmethod
@@ -179,9 +182,10 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Calculate efficiency metric for the given controller for each experiment in a
-        batch. Calculated stats and/or metric model results are plotted along with the calculated
-        metric, if they exist.
+        Calculate efficiency metric for the given controller for each experiment
+        in a batch. Calculated stats and/or metric model results are plotted
+        along with the calculated metric, if they exist.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -210,9 +214,11 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
 
 class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
     r"""
-    Calculates the scalability of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using the Karp-Flatt metric
-    (See :class:`BaseSteadyStateParallelFraction`).
+    Calculates the scalability of the swarm configuration across a univariate
+    batched set of experiments within the same scenario from collated ``.csv``
+    data using the Karp-Flatt metric (See
+    :class:`BaseSteadyStateParallelFraction`).
+
     """
 
     def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
@@ -280,9 +286,10 @@ class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
 
 
 class ScalabilityUnivarGenerator:
-    """
-    Calculates the scalability of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated .csv datain various ways.
+    """Calculates the scalability of the swarm configuration across a univariate
+    batched set of experiments within the same scenario from collated .csv
+    datain various ways.
+
     """
 
     def __init__(self) -> None:
@@ -341,8 +348,9 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Calculate efficiency metric for the given controller for each experiment in a
-        batch.
+        Calculate efficiency metric for the given controller for each experiment
+        in a batch.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -370,9 +378,11 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
 
 class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
     """
-    Calculates the scalability of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated ``.csv`` data using the Karp-Flatt metric
-    (See :class:`BaseSteadyStateParallelFraction`).
+    Calculates the scalability of the swarm configuration across a bivariate
+    batched set of experiments within the same scenario from collated ``.csv``
+    data using the Karp-Flatt metric (See
+    :class:`BaseSteadyStateParallelFraction`).
+
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
@@ -430,9 +440,10 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
         """
-        Calculate efficiency metric for the given controller for each experiment in a
-        batch. Calculated stats and/or metric model results are plotted along with the calculated
-        metric, if they exist.
+        Calculate efficiency metric for the given controller for each experiment
+        in a batch. Calculated stats and/or metric model results are plotted
+        along with the calculated metric, if they exist.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -469,9 +480,10 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
 
 
 class ScalabilityBivarGenerator:
-    """
-    Calculates the scalability of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated .csv data in various ways.
+    """Calculates the scalability of the swarm configuration across a bivariate
+    batched set of experiments within the same scenario from collated .csv data
+    in various ways.
+
     """
 
     def __init__(self) -> None:

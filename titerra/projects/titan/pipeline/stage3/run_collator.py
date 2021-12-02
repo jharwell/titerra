@@ -22,26 +22,27 @@ import typing as tp
 import pandas as pd
 
 # Project packages
-import sierra.core.pipeline.stage3.sim_collator as sim_collator
+from sierra.core.pipeline.stage3 import run_collator
 import sierra.core.storage as storage
 
 
-class SimulationCSVGatherer(sim_collator.SimulationCSVGatherer):
-    def gather_csvs_from_sim(self, sim: str) -> tp.Dict[tp.Tuple[str, str], pd.DataFrame]:
-        ret = super().gather_csvs_from_sim(sim)
+class ExperimentalRunCSVGatherer(run_collator.ExperimentalRunCSVGatherer):
+    def gather_csvs_from_run(self, run: str) -> tp.Dict[tp.Tuple[str, str], pd.DataFrame]:
+        ret = super().gather_csvs_from_run(run)
 
-        intra_interference_leaf = self.main_config['perf']['intra_interference_csv'].split('.')[0]
+        intra_interference_leaf = self.main_config['perf']['intra_interference_csv'].split('.')[
+            0]
         intra_interference_col = self.main_config['perf']['intra_interference_col']
 
-        sim_output_root = os.path.join(self.exp_output_root,
-                                       sim,
-                                       self.sim_metrics_leaf)
+        run_output_root = os.path.join(self.exp_output_root,
+                                       run,
+                                       self.run_metrics_leaf)
 
         reader = storage.DataFrameReader(self.storage_medium)
-        sim_output_root = os.path.join(self.exp_output_root,
-                                       sim,
-                                       self.sim_metrics_leaf)
-        interference_df = reader(os.path.join(sim_output_root,
+        run_output_root = os.path.join(self.exp_output_root,
+                                       run,
+                                       self.run_metrics_leaf)
+        interference_df = reader(os.path.join(run_output_root,
                                               intra_interference_leaf + '.csv'),
                                  index_col=False)
         key = (intra_interference_leaf, intra_interference_col)

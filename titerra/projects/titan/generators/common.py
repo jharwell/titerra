@@ -15,26 +15,26 @@
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
 """
-Extensions to :class:`sierra.core.generators.ARGoSScenarioGenerator` common to all TITAN scenarios.
+Extensions to :class:`sierra.core.generators.ARGoSScenarioGenerator` common to
+all TITAN scenarios.
 """
 # Core packages
 import re
 
 # 3rd party packages
-
-# Project packages
 from sierra.core.utils import ArenaExtent
 from sierra.core.xml import XMLLuigi
-from sierra.core.generators.scenario_generator import ARGoSScenarioGenerator
+from sierra.plugins.platform.argos.generators.platform_generators import PlatformExpDefGenerator
 import sierra.core.utils as scutils
 
+# Project packages
 from titerra.projects.titan.variables import block_distribution, arena, block_quantity, time_setup
 from titerra.projects.titan.variables.nest import Nest
 
 
-class BaseScenarioGenerator(ARGoSScenarioGenerator):
+class BaseScenarioGenerator(PlatformExpDefGenerator):
     def __init__(self, *args, **kwargs) -> None:
-        ARGoSScenarioGenerator.__init__(self, *args, **kwargs)
+        PlatformExpDefGenerator.__init__(self, *args, **kwargs)
 
     def generate_time(self, exp_def: XMLLuigi):
         """
@@ -51,7 +51,8 @@ class BaseScenarioGenerator(ARGoSScenarioGenerator):
         """
         Generate XML changes for calculating swarm convergence.
 
-        Does not write generated changes to the simulation definition pickle file.
+        Does not write generated changes to the simulation definition pickle
+        file.
         """
         # This whole tree can be missing and that's fine
         if exp_def.has_tag(".//loop_functions/convergence"):
@@ -76,16 +77,19 @@ class BaseScenarioGenerator(ARGoSScenarioGenerator):
         """
         Generate XML changes for the specified block distribution.
 
-        Does not write generated changes to the simulation definition pickle file.
+        Does not write generated changes to the simulation definition pickle
+        file. 
         """
         scutils.apply_to_expdef(block_dist, exp_def)
 
     def generate_block_count(self, exp_def: XMLLuigi) -> None:
         """
-        Generates XML changes for # blocks in the simulation. If specified on the cmdline, that
-        quantity is used (split evenly between ramp and cube blocks).
+        Generates XML changes for # blocks in the simulation. If specified on
+        the cmdline, that quantity is used (split evenly between ramp and cube
+        blocks).
 
         Writes generated changes to the simulation definition pickle file.
+
         """
         if self.cmdopts['n_blocks'] is not None:
             n_blocks = self.cmdopts['n_blocks']
@@ -94,9 +98,9 @@ class BaseScenarioGenerator(ARGoSScenarioGenerator):
             chgs2 = block_quantity.BlockQuantity.gen_attr_changelist_from_list([n_blocks / 2],
                                                                                'ramp')[0]
         else:
-            # This may have already been set by the batch criteria, but we can't know for sure, and
-            # we need block quantity definitions to always be written to the pickle file for later
-            # retrieval.
+            # This may have already been set by the batch criteria, but we can't
+            # know for sure, and we need block quantity definitions to always be
+            # written to the pickle file for later retrieval.
             n_blocks1 = int(exp_def.attr_get('.//manifest', 'n_cube'))
             n_blocks2 = int(exp_def.attr_get('.//manifest', 'n_ramp'))
 
@@ -121,9 +125,6 @@ class ForagingScenarioGenerator(BaseScenarioGenerator):
 
         # Generate time definitions for TITAN
         self.generate_time(exp_def)
-
-        # Generate and apply robot count definitions
-        self.generate_n_robots(exp_def)
 
         # Generate and apply convergence definitions
         self.generate_convergence(exp_def)
@@ -153,8 +154,8 @@ class ForagingSSGenerator(ForagingScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
-            "FATAL: SS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                    self.spec.arena_dim.ysize())
+            "SS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                             self.spec.arena_dim.ysize())
 
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
                                                    y_range=[
@@ -165,7 +166,8 @@ class ForagingSSGenerator(ForagingScenarioGenerator):
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        self.generate_block_dist(exp_def, block_distribution.SingleSourceDistribution())
+        self.generate_block_dist(
+            exp_def, block_distribution.SingleSourceDistribution())
 
         return exp_def
 
@@ -189,18 +191,20 @@ class ForagingDSGenerator(ForagingScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
-            "FATAL: DS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                    self.spec.arena_dim.ysize())
+            "DS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                             self.spec.arena_dim.ysize())
 
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
-                                                   y_range=[self.spec.arena_dim.ysize()],
+                                                   y_range=[
+                                                       self.spec.arena_dim.ysize()],
                                                    z=self.spec.arena_dim.zsize(),
                                                    dist_type='DS',
                                                    gen_nests=True)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        self.generate_block_dist(exp_def, block_distribution.DualSourceDistribution())
+        self.generate_block_dist(
+            exp_def, block_distribution.DualSourceDistribution())
 
         return exp_def
 
@@ -224,8 +228,8 @@ class ForagingQSGenerator(ForagingScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
-            "FATAL: QS distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                       self.spec.arena_dim.ysize())
+            "QS distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
@@ -259,8 +263,8 @@ class ForagingRNGenerator(ForagingScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
-            "FATAL: RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                       self.spec.arena_dim.ysize())
+            "RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                self.spec.arena_dim.ysize())
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
                                       dist_type='RN',
@@ -292,8 +296,8 @@ class ForagingPLGenerator(ForagingScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
-            "FATAL: PL distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                       self.spec.arena_dim.ysize())
+            "PL distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),

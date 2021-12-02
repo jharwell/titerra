@@ -24,15 +24,14 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-from sierra.core.variables.population_size import PopulationSize
+from sierra.plugins.platform.argos.variables import population_size
 from sierra.core.variables import batch_criteria as bc
 import sierra.core.config
 from sierra.core.xml import XMLAttrChangeSet
-from sierra.core.variables import population_size
-from sierra.core.variables import population_constant_density as pcd
-from sierra.core.variables import population_variable_density as pvd
+from sierra.plugins.platform.argos.variables import population_constant_density as pcd
+from sierra.plugins.platform.argos.variables import population_variable_density as pvd
 import sierra.core.stat_kernels
-import sierra.core.utils
+from sierra.core import utils as scutils
 from sierra.core import types
 
 # Project packages
@@ -43,9 +42,8 @@ from sierra.core import types
 
 
 class BaseSteadyStatePerfLostInteractiveSwarm():
-    r"""
-    Calculate the performance lost due to inter-robot interference in an interactive swarm of
-    :math:`\mathcal{N}` robots.
+    r"""Calculate the performance lost due to inter-robot interference in an
+    interactive swarm of :math:`\mathcal{N}` robots.
 
     .. math::
        P_{lost}(N,\kappa,T) =
@@ -57,16 +55,18 @@ class BaseSteadyStatePerfLostInteractiveSwarm():
     Args:
         perf1: The performance achieved by a single robot, :math:`P(1,\kappa,T)`.
 
-        tlost1: The amount of time lost due to wall collision avoidance by a single robot,
-                :math:`t_{lost}^1`.
+        tlost1: The amount of time lost due to wall collision avoidance by a
+                single robot, :math:`t_{lost}^1`.
 
         perfN: The performance achieved by :math:`\mathcal{N}` robots,
                :math:`P(\mathcal{N},\kappa,T)`.
 
-        tlostN: The amount of time lost due to wall collision avoidance `and` inter-robot
-                interference in a swarm of :math:`\mathcal{N}` robots, :math:`t_{lost}^{N}`
+        tlostN: The amount of time lost due to wall collision avoidance `and`
+                inter-robot interference in a swarm of :math:`\mathcal{N}`
+                robots, :math:`t_{lost}^{N}`
 
         n_robots: The number of robots in the swarm, :math:`\mathcal{N}`.
+
     """
 
     @staticmethod
@@ -141,21 +141,22 @@ class BaseSteadyStateFL:
 
 
 class SteadyStatePerfLostInteractiveSwarmUnivar(BaseSteadyStatePerfLostInteractiveSwarm):
-    """
-    Calculated as follows for all swarm sizes N in the batch:
+    """Calculated as follows for all swarm sizes N in the batch:
 
     plost 1 robot = 0 # By definition
 
     plost N robots = :class:`~BaseSteadyStatePerfLostInteractiveSwarm`.kernel().
 
-    This gives how much MORE performance was lost in the entire simulation as a result of a swarm of
-    size N, as opposed to a group of N robots that do not interact with each other, only the arena
-    walls. Swarms exhibiting high levels of emergent behavior should have `positive` values of
-    performance loss (i.e. they performed `better` than a swarm of N independent robots).
+    This gives how much MORE performance was lost in the entire simulation as a
+    result of a swarm of size N, as opposed to a group of N robots that do not
+    interact with each other, only the arena walls. Swarms exhibiting high
+    levels of emergent behavior should have `positive` values of performance
+    loss (i.e. they performed `better` than a swarm of N independent robots).
 
     Does not require the batch criteria to be
-    :class:`~sierra.core.variables.population_size.PopulationSize` derived, but if all experiments in a
-    batch have the same swarm size, then this calculation will be of limited use.
+    :class:`~sierra.core.variables.population_size.PopulationSize` derived, but
+    if all experiments in a batch have the same swarm size, then this
+    calculation will be of limited use.
 
     """
 
@@ -164,16 +165,16 @@ class SteadyStatePerfLostInteractiveSwarmUnivar(BaseSteadyStatePerfLostInteracti
                   cmdopts: types.Cmdopts,
                   collated_interference: tp.Dict[str, pd.DataFrame],
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
-        """
-        Calculated as follows for all swarm sizes N in the batch:
+        """Calculated as follows for all swarm sizes N in the batch:
 
         performance exp0 * tlost_1 (for exp0)
 
         performance exp0 * (tlost_N - N * tlost_1) / N (else)
 
-        This gives how much MORE performance was lost in the entire simulation as a result of a
-        swarm of size N, as opposed to a group of N robots that do not interact with each other,
-        only the arena walls.
+        This gives how much MORE performance was lost in the entire simulation
+        as a result of a swarm of size N, as opposed to a group of N robots that
+        do not interact with each other, only the arena walls.
+
         """
         n_exp = criteria.n_exp()
         populations = criteria.populations(cmdopts)
@@ -228,12 +229,12 @@ class SteadyStatePerfLostInteractiveSwarmUnivar(BaseSteadyStatePerfLostInteracti
 
 
 class SteadyStateFLUnivar(BaseSteadyStateFL):
-    """
-    Fractional losses calculation for univariate batch criteria.
+    """Fractional losses calculation for univariate batch criteria.
 
     Does not require the batch criteria to be
-    :class:`~sierra.core.variables.population_size.PopulationSize` derived, but if all experiments in a
-    batch have the same swarm size, then this calculation will be of limited use.
+    :class:`~sierra.core.variables.population_size.PopulationSize` derived, but
+    if all experiments in a batch have the same swarm size, then this
+    calculation will be of limited use.
 
     """
     @staticmethod
@@ -274,10 +275,12 @@ class SteadyStateFLUnivar(BaseSteadyStateFL):
 
 class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiveSwarm):
     """
-    Bivariate calculator for the perforance lost per-robot for a swarm of size N of `interacting`
-    robots, as oppopsed to a  swarm of size N of `non-interacting` robots. See
-    :class:`~sierra.core.perf_measures.common.BaseSteadyStatePerfLostInteractiveSwarm` for a
-    description of the mathematical calculations performed by this class.
+    Bivariate calculator for the perforance lost per-robot for a swarm of size N
+    of `interacting` robots, as oppopsed to a swarm of size N of
+    `non-interacting` robots. See
+    :class:`~sierra.core.perf_measures.common.BaseSteadyStatePerfLostInteractiveSwarm`
+    for a description of the mathematical calculations performed by this class.
+
     """
     @staticmethod
     def df_kernel(criteria: bc.BivarBatchCriteria,
@@ -289,14 +292,14 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
         populations = criteria.populations(cmdopts)
         plost_dfs = {}
 
-        # We need to know which of the 2 variables was swarm size, in order to determine
-        # the correct dimension along which to compute the metric, which depends on
-        # performance between adjacent swarm sizes.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [population_size.PopulationSize,
-                                                   pcd.PopulationConstantDensity,
-                                                   pvd.PopulationVariableDensity],
-                                                  cmdopts)
+        # We need to know which of the 2 variables was swarm size, in order to
+        # determine the correct dimension along which to compute the metric,
+        # which depends on performance between adjacent swarm sizes.
+        axis = scutils.get_primary_axis(criteria,
+                                        [population_size.PopulationSize,
+                                         pcd.PopulationConstantDensity,
+                                         pvd.PopulationVariableDensity],
+                                        cmdopts)
 
         for i in range(0, xsize):
             for j in range(0, ysize):
@@ -341,10 +344,9 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
 
 
 class SteadyStateFLBivar(BaseSteadyStateFL):
-    """
-    Fractional losses calculation for bivariate batch criteria. See
-    :class:`~sierra.core.perf_measures.common.BaseSteadyStateFL` for a description of the mathematical
-    calculations performed by this class.
+    """Fractional losses calculation for bivariate batch criteria. See
+    :class:`~sierra.core.perf_measures.common.BaseSteadyStateFL` for a
+    description of the mathematical calculations performed by this class.
 
     """
     @staticmethod
@@ -357,14 +359,14 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
         ysize = len(criteria.criteria2.gen_attr_changelist())
         fl_dfs = {}
 
-        # We need to know which of the 2 variables was swarm size, in order to determine
-        # the correct dimension along which to compute the metric, which depends on
-        # performance between adjacent swarm sizes.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [population_size.PopulationSize,
-                                                   pcd.PopulationConstantDensity,
-                                                   pvd.PopulationVariableDensity],
-                                                  cmdopts)
+        # We need to know which of the 2 variables was swarm size, in order to
+        # determine the correct dimension along which to compute the metric,
+        # which depends on performance between adjacent swarm sizes.
+        axis = scutils.get_primary_axis(criteria,
+                                        [population_size.PopulationSize,
+                                         pcd.PopulationConstantDensity,
+                                         pvd.PopulationVariableDensity],
+                                        cmdopts)
         for i in range(0, xsize):
             for j in range(0, ysize):
                 expx = list(collated_perf.keys())[i * ysize + j]
@@ -397,12 +399,12 @@ def gather_collated_sim_dfs(cmdopts: types.Cmdopts,
                             csv_leaf: str,
                             csv_col: str) -> tp.Dict[str, pd.DataFrame]:
     # exp_dirs = criteria.gen_exp_dirnames(cmdopts)
-    exp_dirs = sierra.core.utils.exp_range_calc(cmdopts, '', criteria)
+    exp_dirs = scutils.exp_range_calc(cmdopts, '', criteria)
     dfs = {}
     for d in exp_dirs:
         csv_ipath = os.path.join(cmdopts["batch_stat_collate_root"],
                                  d + '-' + csv_leaf + '-' + csv_col + '.csv')
-        dfs[d] = sierra.core.utils.pd_csv_read(csv_ipath)
+        dfs[d] = scutils.pd_csv_read(csv_ipath)
     return dfs
 
 
@@ -457,7 +459,7 @@ def _univar_distribution_do_prepare(cmdopts: types.Cmdopts,
     for stat in dist_dfs[list(dist_dfs.keys())[0]]:
         stat_opath = os.path.join(cmdopts["batch_stat_collate_root"],
                                   oleaf + stat)
-        sierra.core.utils.pd_csv_write(joined[stat], stat_opath, index=False)
+        scutils.pd_csv_write(joined[stat], stat_opath, index=False)
 
 
 def univar_distribution_prepare_join(cmdopts: types.Cmdopts,
@@ -465,7 +467,7 @@ def univar_distribution_prepare_join(cmdopts: types.Cmdopts,
                                      dist_dfs: tp.Dict[str, pd.DataFrame],
                                      exclude_exp0: bool) -> tp.Dict[str, pd.DataFrame]:
     # exp_dirs = criteria.gen_exp_dirnames(cmdopts)
-    exp_dirs = sierra.core.utils.exp_range_calc(cmdopts, '', criteria)
+    exp_dirs = scutils.exp_range_calc(cmdopts, '', criteria)
 
     # For batch criteria only defined for exp > 0 for some graphs
     if exclude_exp0:
@@ -491,7 +493,7 @@ def _bivar_distribution_do_prepare(cmdopts: types.Cmdopts,
 
     exp_dirs = criteria.gen_exp_dirnames(cmdopts)
 
-    xlabels, ylabels = sierra.core.utils.bivar_exp_labels_calc(exp_dirs)
+    xlabels, ylabels = scutils.bivar_exp_labels_calc(exp_dirs)
     if exclude_exp0:
         xlabels = xlabels[axis == 0:]
         ylabels = ylabels[axis == 1:]
@@ -507,7 +509,7 @@ def _bivar_distribution_do_prepare(cmdopts: types.Cmdopts,
                 df.iloc[xlabels.index(xlabel), ylabels.index(
                     ylabel)] = dist_dfs[exp][stat]
 
-        sierra.core.utils.pd_csv_write(df, stat_opath, index=False)
+        scutils.pd_csv_write(df, stat_opath, index=False)
 
 
 __api__ = [

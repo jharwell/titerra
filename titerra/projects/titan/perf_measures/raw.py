@@ -14,9 +14,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
-"""
-Measures for raw swarm performance in foraging tasks, according to whatever their configured
-measure in univariate and bivariate batched experiments.
+"""Measures for raw swarm performance in foraging tasks, according to whatever
+their configured measure in univariate and bivariate batched experiments.
 
 """
 # Core packages
@@ -57,9 +56,10 @@ class BaseSteadyStateRaw:
 
 class SteadyStateRawUnivar(BaseSteadyStateRaw):
     """
-    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph` from the raw
-    performance count of the swarm configuration across a univariate batched set of experiments
-    within the same scenario from collated ``.csv`` data.
+    Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph`
+    from the raw performance count of the swarm configuration across a
+    univariate batched set of experiments within the same scenario from collated
+    ``.csv`` data.
 
     """
 
@@ -99,10 +99,9 @@ class SteadyStateRawUnivar(BaseSteadyStateRaw):
 
 
 class SteadyStateRawBivar(BaseSteadyStateRaw):
-    """
-    Generates a :class:`sierra.core.graphs.heatmap.Heatmap` from the raw performance count of the swarm
-    configuration across a bivariate batched set of experiments within the same scenario from
-    collated ``.csv`` data.
+    """Generates a :class:`sierra.core.graphs.heatmap.Heatmap` from the raw
+    performance count of the swarm configuration across a bivariate batched set
+    of experiments within the same scenario from collated ``.csv`` data.
 
     """
 

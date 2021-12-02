@@ -46,7 +46,7 @@ class SSGenerator(sicom.ConstructionScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
-            "FATAL: SS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+            "SS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                     self.spec.arena_dim.ysize())
 
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
@@ -88,7 +88,7 @@ class DSGenerator(sicom.ConstructionScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
-            "FATAL: DS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+            "DS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                     self.spec.arena_dim.ysize())
 
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
@@ -130,7 +130,7 @@ class QSGenerator(sicom.ConstructionScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
-            "FATAL: QS distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+            "QS distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                        self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
@@ -170,7 +170,7 @@ class RNGenerator(sicom.ConstructionScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
-            "FATAL: RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+            "RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                        self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
@@ -210,7 +210,7 @@ class PLGenerator(sicom.ConstructionScenarioGenerator):
 
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
-            "FATAL: PL distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+            "PL distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                        self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],

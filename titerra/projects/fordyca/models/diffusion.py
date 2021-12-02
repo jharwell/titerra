@@ -20,7 +20,7 @@ import math
 # 3rd party packages
 
 # Project packages
-import sierra.core.variables.time_setup as ts
+import sierra.plugins.platform.argos.variables.time_setup as ts
 
 
 def crwD_for_searching(N: float,
@@ -35,8 +35,8 @@ def crwD_for_searching(N: float,
     """
     tick_len = 1.0 / ticks_per_sec
 
-    # 0.055 is what you get if you solve the Codling2010 integral with a range of [-5,5]
-    # degrees rather than [-pi,pi].
+    # 0.055 is what you get if you solve the Codling2010 integral with a range
+    # of [-5,5] degrees rather than [-pi,pi].
     drift_xy = wander_speed ** 2 / (4 * tick_len) * 1.0 / 0.055
 
     if 'RN' in scenario:

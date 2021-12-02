@@ -2,9 +2,10 @@
 #
 #  This file is part of SIERRA.
 #
-#  SIERRA is free software: you can redistribute it and/or modify it under the terms of the GNU
-#  General Public License as published by the Free Software Foundation, either version 3 of the
-#  License, or (at your option) any later version.
+#  SIERRA is free software: you can redistribute it and/or modify it under the
+#  terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later
+#  version.
 #
 #  SIERRA is distributed in the hope that it will be useful, but WITHOUT ANY
 #  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
@@ -19,6 +20,7 @@ Command line parsing and validation for the :xref:`FORDYCA` project.
 
 # Core packages
 import typing as tp
+import argparse
 
 # 3rd party packages
 
@@ -32,20 +34,14 @@ class Cmdline(titan.cmdline.Cmdline):
     :class:`~sierra.core.cmdline.CoreCmdline`.
     """
 
-    def __init__(self, bootstrap, stages: tp.List[int], for_sphinx: bool) -> None:
-        super().scaffold_cli(bootstrap)
+    def __init__(self, parents: tp.List[argparse.ArgumentParser],
+                 stages: tp.List[int]) -> None:
+        super().scaffold_cli(parents)
 
-        if not for_sphinx:
-            super().init_cli(stages, for_sphinx)
+        super().init_cli(stages, )
 
-        if -1 in stages and for_sphinx:
-            self.init_multistage(for_sphinx)
-
-        if 1 in stages and for_sphinx:
-            self.init_stage1(for_sphinx)
-
-    def init_multistage(self, for_sphinx: bool):
-        super().init_multistage(for_sphinx)
+    def init_multistage(self):
+        super().init_multistage()
 
         self.multistage.add_argument("--controller",
                                      metavar="{d0, d1, d2}.<controller>",
@@ -62,31 +58,34 @@ class Cmdline(titan.cmdline.Cmdline):
                                               'd2.BIRTD_OMDPO'],
                                      help="""
 
-                                 Which controller robots will use in the foraging experiment. All robots use the
-                                 same controller (homogeneous swarms).
+                                 Which controller robots will use in the
+                                 foraging experiment. All robots use the same
+                                 controller (homogeneous swarms).
 
-                                 Head over to the :xref:`FORDYCA` docs for the descriptions of these controllers.
+                                 Head over to the :xref:`FORDYCA` docs for the
+                                 descriptions of these controllers.
 
 
-                                 """ + self.stage_usage_doc([1, 2, 3, 4, 5],
-                                                            "Only required for stage 5 if ``--scenario-comp`` is passed."))
+                                     """ + self.stage_usage_doc([1, 2, 3, 4, 5],
+                                                                "Only required for stage 5 if ``--scenario-comp`` is passed."))
 
-    def init_stage1(self, for_sphinx: bool):
-        super().init_stage1(for_sphinx)
+    def init_stage1(self):
+        super().init_stage1()
 
         self.stage1.add_argument("--static-cache-blocks",
                                  help="""
 
-                                 # of blocks used when the static cache is respawned (d1 controllers only).
-
+                                 # of blocks used when the static cache is
+                                 # respawned (d1 controllers only).
 
                                  """ + self.stage_usage_doc([1]),
                                  default=None)
 
     @staticmethod
     def cmdopts_update(cli_args, cmdopts: tp.Dict[str, str]):
-        """
-        Updates the core cmdopts dictionary with (key,value) pairs from the FORDYCA-specific cmdline options.
+        """Updates the core cmdopts dictionary with (key,value) pairs from the
+        FORDYCA-specific cmdline options.
+
         """
         titan.cmdline.Cmdline.cmdopts_update(cli_args, cmdopts)
 
@@ -103,8 +102,8 @@ class CmdlineValidator(titan.cmdline.CmdlineValidator):
 
 
 def sphinx_cmdline_multistage():
-    return Cmdline(None, [-1], True).parser
+    return Cmdline(None, [-1]).parser
 
 
 def sphinx_cmdline_stage1():
-    return Cmdline(None, [1], True).parser
+    return Cmdline(None, [1]).parser

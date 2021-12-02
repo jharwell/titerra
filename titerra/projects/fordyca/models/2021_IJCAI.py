@@ -31,13 +31,12 @@ import implements
 import pandas as pd
 from sierra.core import types
 import sierra.core.models.interface
-import sierra.core.utils
+from sierra.core import utils as scutils
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment_spec import ExperimentSpec
-import sierra.core.variables.time_setup as ts
 from sierra.core.xml import XMLAttrChangeSet
 import sierra.core.config
-import sierra.core.variables.time_setup as ts
+import sierra.plugins.platform.argos.variables.time_setup as ts
 
 
 # Project packages
@@ -65,8 +64,9 @@ def available_models(category: str):
 @implements.implements(sierra.core.models.interface.IConcreteIntraExpModel1D)
 class IntraExp_ODE_1Robot():
     r"""
-    Calculates the following steady state quantities of a swarm of :math:`\mathcal{1}` foraging CRW
-    robots operating under SS,DS,RN,PL block distributions in the arena:
+    Calculates the following steady state quantities of a swarm of
+    :math:`\mathcal{1}` foraging CRW robots operating under SS,DS,RN,PL block
+    distributions in the arena:
 
     - :math:`\mathcal{N}_s` - Number of searching robots
     - :math:`\mathcal{N}_{av}` - Number of robots avoiding collision
@@ -125,8 +125,8 @@ class IntraExp_ODE_1Robot():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
-                                                                   'fsm-interference-counts.csv'))
+        fsm_counts_df = utils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
+                                                       'fsm-interference-counts.csv'))
 
         # T,n_datapoints are directly from simulation inputs
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
@@ -173,8 +173,9 @@ class IntraExp_ODE_1Robot():
 @implements.implements(sierra.core.models.interface.IConcreteIntraExpModel1D)
 class IntraExp_ODE_NRobots():
     r"""
-    Calculates the following steady state quantities of a swarm of :math:`\mathcal{N}` foraging CRW
-    robots operating under SS,DS,RN,PL block distributions in the arena:
+    Calculates the following steady state quantities of a swarm of
+    :math:`\mathcal{N}` foraging CRW robots operating under SS,DS,RN,PL block
+    distributions in the arena:
 
     - :math:`\mathcal{N}_s` - Number of searching robots
     - :math:`\mathcal{N}_{av}` - Number of robots avoiding collision
@@ -241,8 +242,8 @@ class IntraExp_ODE_NRobots():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
-                                                                   'fsm-interference-counts.csv'))
+        fsm_counts_df = scutils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
+                                                         'fsm-interference-counts.csv'))
 
         # N,T,n_datapoints are directly from simulation inputs
         N = criteria.populations(cmdopts)[exp_num]
@@ -256,18 +257,18 @@ class IntraExp_ODE_NRobots():
         # This is OK to read from experimental data, per the paper.
         tau_avN = fsm_counts_df['int_avg_interference_duration'].iloc[-1]
 
-        # tau_h, alpha_b are computed directly from simulation inputs/configuration, so we can run()
-        # them here.
+        # tau_h, alpha_b are computed directly from simulation
+        # inputs/configuration, so we can run() them here.
         tau_hN = IntraExp_HomingTime_NRobots(self.main_config, self.config).run(criteria,
                                                                                 exp_num,
                                                                                 cmdopts)[0]
 
         # FIXME: N_av1 COULD be computed a priori, but I don't have time to do it right now, so I
         # just read it from simulation results.
-        fsm_counts1_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
-                                                                    'fsm-interference-counts.csv'))
-        fsm_countsN_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
-                                                                    'fsm-interference-counts.csv'))
+        fsm_counts1_df = scutils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
+                                                          'fsm-interference-counts.csv'))
+        fsm_countsN_df = scutils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
+                                                          'fsm-interference-counts.csv'))
 
         N_av1 = fsm_counts1_df['int_avg_exp_interference'].iloc[-1]
         N_avN = fsm_countsN_df['cum_avg_exp_interference'].iloc[-1]
@@ -312,8 +313,9 @@ class InterExp_ODE_NRobots():
     :class:`IntraExp_ODE_NRobots` across all experiments in the batch.
 
     .. IMPORTANT::
-       This model does not have a kernel() function which computes the calculation, because
-       it is a summary model, built on simpler intra-experiment models.
+       This model does not have a kernel() function which computes the
+       calculation, because it is a summary model, built on simpler
+       intra-experiment models.
 
     From :xref:`Harwell2021b`.
     """
@@ -340,15 +342,17 @@ class InterExp_ODE_NRobots():
 
     def run(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
-        # We always run the models for all experiments, regardless of --exp-range, because we depend
-        # on the experiment at the 0-th position being exp0.
+        # We always run the models for all experiments, regardless of
+        # --exp-range, because we depend on the experiment at the 0-th position
+        # being exp0.
         dirs = criteria.gen_exp_dirnames(cmdopts)
 
         res_df_avoiding = pd.DataFrame(columns=dirs, index=[0])
         res_df_searching = pd.DataFrame(columns=dirs, index=[0])
         res_df_homing = pd.DataFrame(columns=dirs, index=[0])
 
-        # attempting to get one model datapoint from batch to be representative of ODE solution
+        # attempting to get one model datapoint from batch to be representative
+        # of ODE solution
         for i, exp in enumerate(dirs):
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
@@ -368,8 +372,8 @@ class InterExp_ODE_NRobots():
             cmdopts2["exp0_stat_root"] = os.path.join(
                 cmdopts["batch_stat_root"], dirs[0])
 
-            sierra.core.utils.dir_create_checked(
-                cmdopts2['exp_model_root'], exist_ok=True)
+            scutils.dir_create_checked(cmdopts2['exp_model_root'],
+                                       exist_ok=True)
 
             intra_dfs = IntraExp_ODE_NRobots(self.main_config,
                                              self.config).run(criteria,
@@ -387,16 +391,18 @@ class InterExp_ODE_NRobots():
 @implements.implements(sierra.core.models.interface.IConcreteInterExpModel1D)
 class InterExp_ODEWrapper_NRobots():
     r"""
-    Thin wrapper class around :class:`InterExp_ODE_NRobots` which runs the ODE model across all
-    experiments in a batch, and then uses the results to predict performance:
+    Thin wrapper class around :class:`InterExp_ODE_NRobots` which runs the ODE
+    model across all experiments in a batch, and then uses the results to
+    predict performance:
 
     - Raw performance
     - Scalability
     - Emergent self-organization
 
     .. IMPORTANT::
-        This model does not have a kernel() function which computes the calculation, because
-        it is a summary model, built on simpler inter-experiment models.
+        This model does not have a kernel() function which computes the
+        calculation, because it is a summary model, built on simpler
+        inter-experiment models. 
 
     From :xref:`Harwell2021b`.
 

@@ -35,8 +35,9 @@ import titerra.projects.fordyca.models.representation as rep
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChangeSet
-import sierra.core.variables.time_setup as ts
 from sierra.core import types
+import sierra.plugins.platform.argos.variables.time_setup as ts
+
 from titerra.projects.fordyca.models.density import BlockAcqDensity
 from titerra.projects.fordyca.models.dist_measure import DistanceMeasure2D
 import titerra.projects.fordyca.models.diffusion as diffusion

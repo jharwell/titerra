@@ -14,9 +14,9 @@
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 #
-"""
-Classes for the block density batch criteria. See :ref:`ln-bc-block-density` for usage
-documentation.
+"""Classes for the block density batch criteria. See :ref:`ln-bc-block-density`
+for usage documentation.
+
 """
 
 # Core packages
@@ -25,7 +25,7 @@ import os
 
 # 3rd party packages
 import implements
-from sierra.core.variables import constant_density as cd
+from sierra.plugins.platform.argos.variables import constant_density as cd
 import sierra.core.utils
 from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet

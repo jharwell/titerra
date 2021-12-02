@@ -13,8 +13,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
-"""
-Classes and functions for computing the similarity between various temporal curves.
+"""Classes and functions for computing the similarity between various temporal
+curves.
+
 """
 
 # Core packages
@@ -73,14 +74,14 @@ def method_ylabel(method: str, arg: tp.Any) -> str:
 
 
 class EnvironmentalCS():
-    """
-    Compute the Variance Curve Similarity (VCS) measure between the ideal conditions of exp0 and the
-    specified experiment.
+    """Compute the Variance Curve Similarity (VCS) measure between the ideal
+    conditions of exp0 and the specified experiment.
 
     Attributes:
         main_config: Parsed dictionary of main YAML configuration.
         cmdopts: Dictionary of parsed commandline options.
         exp_num: Current experiment number to compute VCS for.
+
     """
 
     def __init__(self,
@@ -122,13 +123,14 @@ class EnvironmentalCS():
 
 class RawPerfCS():
     """
-    Compute the Curve Similarity (CS) measure between the performance in ideal conditions of exp0
-    and the performance in the specified experiment.
+    Compute the Curve Similarity (CS) measure between the performance in ideal
+    conditions of exp0 and the performance in the specified experiment.
 
     Attributes:
         main_config: Parsed dictionary of main YAML configuration.
         cmdopts: Dictionary of parsed commandline options.
         exp_num: Current experiment number to compute VCS for.
+
     """
 
     def __init__(self,
@@ -157,13 +159,14 @@ class RawPerfCS():
 
 class AdaptabilityCS():
     """
-    Compute the adaptability of a controller/algorithm by comparing the observed performance curve
-    for the current experiment, the performance curve for exp0, and the applied variance curve for
-    the experiment.
+    Compute the adaptability of a controller/algorithm by comparing the observed
+    performance curve for the current experiment, the performance curve for
+    exp0, and the applied variance curve for the experiment.
 
-    An algorithm that is maximally adaptive will have a performance curve that remains unchanged
-    from the value at time t from the value in exp0 for all t. This corresponds to resisting the
-    adverse AND beneficial conditions present in the current experiment.
+    An algorithm that is maximally adaptive will have a performance curve that
+    remains unchanged from the value at time t from the value in exp0 for all
+    t. This corresponds to resisting the adverse AND beneficial conditions
+    present in the current experiment.
 
     Attributes:
         main_config: Parsed dictionary of main YAML configuration.
@@ -246,8 +249,8 @@ class AdaptabilityCS():
         similarity measure calculator needs as input.
         """
 
-        # Variance can always be read from the averaged outputs, because the same variance was
-        # applied to all simulations.
+        # Variance can always be read from the averaged outputs, because the
+        # same variance was applied to all simulations.
         ideal_var_df = DataFrames.expx_var_df(self.cmdopts,
                                               self.criteria,
                                               exp_dirs,
@@ -258,8 +261,8 @@ class AdaptabilityCS():
         ideal_df = pd.DataFrame(index=ideal_var_df.index,
                                 columns=[self.perf_csv_col])
 
-        # The performance curve of an adaptable system should resist all changes in the
-        # environment, and be the same as exp0
+        # The performance curve of an adaptable system should resist all changes
+        # in the environment, and be the same as exp0
         ideal_df = ideal_perf_df
 
         xlen = len(ideal_var_df[self.var_csv_col].values)
@@ -276,19 +279,20 @@ class AdaptabilityCS():
 
 class ReactivityCS():
 
-    """
-    Compute the Variance Curve Similarity (VCS) measure between the observed performance curve and
-    the applied variance for the experiment. An algorithm that is maximally reactive will have
-    a performance curve that:
+    """Compute the Variance Curve Similarity (VCS) measure between the observed
+    performance curve and the applied variance for the experiment. An algorithm
+    that is maximally reactive will have a performance curve that:
 
-    - Tracks the inverse of the applied variance very closely. If the value of the applied variance
-      at a time t is BELOW the value at time t for exp0, then we should see a proportional
-      INCREASE in observed performance for the current experiment, and vice versa.
+    - Tracks the inverse of the applied variance very closely. If the value of
+      the applied variance at a time t is BELOW the value at time t for exp0,
+      then we should see a proportional INCREASE in observed performance for the
+      current experiment, and vice versa.
 
     Attributes:
         main_config: Parsed dictionary of main YAML configuration.
         cmdopts: Dictionary of parsed commandline options.
         exp_num: Current experiment number to compute VCS for.
+
     """
 
     def __init__(self,
@@ -358,10 +362,11 @@ class ReactivityCS():
                         ideal_perf_df: pd.DataFrame,
                         expx_perf_df: pd.DataFrame,
                         exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
-        """
-        Calculates the (ideal performance, experimental performance) comparable waveforms for the
-        experiment. Returns NP arrays rather than dataframes, because that is what the curve
-        similarity measure calculator needs as input.
+        """Calculates the (ideal performance, experimental performance) comparable
+        waveforms for the experiment. Returns NP arrays rather than dataframes,
+        because that is what the curve similarity measure calculator needs as
+        input.
+
         """
 
         # Variance can always be read from the averaged outputs, because the same variance was
@@ -413,9 +418,9 @@ class ReactivityCS():
 
 
 class CSRaw():
-    """
-    Given two array-like objects representing ideal and non-ideal (experimental) conditions and a
-    method for comparison, perform the comparison.
+    """Given two array-like objects representing ideal and non-ideal (experimental)
+    conditions and a method for comparison, perform the comparison.
+
     """
 
     def __call__(self,
@@ -424,7 +429,7 @@ class CSRaw():
                  method: str,
                  normalize: tp.Optional[bool] = False,
                  normalize_method: tp.Optional[str] = None) -> float:
-        assert method is not None, "FATAL: Cannot compare curves without method"
+        assert method is not None, "Cannot compare curves without method"
 
         if method == "pcm":
             return sm.pcm(exp_data, ideal_data)  # type: ignore

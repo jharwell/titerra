@@ -23,17 +23,18 @@ import typing as tp
 
 # 3rd party packages
 import implements
-
-# Project packages
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange, XMLTagRmList, XMLTagAddList
-import sierra.core.variables.time_setup as ts
+from sierra.plugins.platform.argos.variables import time_setup as ts
+
+# Project packages
 
 
 kND_DATA_DIVISOR_DEFAULT = 10
 """
-Default divisor for the output interval for  each .csv of two- or three-dimensional data, as
-compared to the output interval for 1D data.
+Default divisor for the output interval for each .csv of two- or
+three-dimensional data, as compared to the output interval for 1D data.
+
 """
 
 

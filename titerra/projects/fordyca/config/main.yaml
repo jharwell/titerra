@@ -1,5 +1,4 @@
-sim:
-  sim_metrics_leaf: 'metrics'
-  argos_frames_leaf: 'frames'
+run:
+  run_metrics_leaf: 'metrics'
 
 perf: '2021-tro-sc1-perf.yaml'

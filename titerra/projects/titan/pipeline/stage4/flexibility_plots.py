@@ -14,9 +14,10 @@
 #  You should have received a copy of the GNU General Public License along with
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 #
-"""
-Utility classes for generating definitions and ``.csv`` files for per-experiment flexibility plots
-by hooking into the intra-experiment graph generation.
+"""Utility classes for generating definitions and ``.csv`` files for
+per-experiment flexibility plots by hooking into the intra-experiment graph
+generation.
+
 """
 
 # Core packages
@@ -71,7 +72,7 @@ class FlexibilityPlotsCSVGenerator:
         tv_attr = tv.TemporalVarianceParser()(criteria.def_str)
 
         res = re.search("exp[0-9]+", self.cmdopts['exp_output_root'])
-        assert res is not None, "FATAL: Unexpected experiment output dir name '{0}'".format(
+        assert res is not None, "Unexpected experiment output dir name '{0}'".format(
             self.cmdopts['exp_output_root'])
 
         stat_root = self.cmdopts['exp_stat_root']

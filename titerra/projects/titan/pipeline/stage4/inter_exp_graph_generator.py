@@ -37,9 +37,10 @@ import titerra.projects.titan.perf_measures.scalability as pms
 
 
 class InterExpGraphGenerator(stage4.inter_exp_graph_generator.InterExpGraphGenerator):
-    """
-    Extends :class:`~sierra.core.pipeline.stage4.inter_exp_graph_generator.InterExpGraphGenerator`
+    """Extends
+    :class:`~sierra.core.pipeline.stage4.inter_exp_graph_generator.InterExpGraphGenerator`
     with additional graphs for the TITAN project.
+
     """
 
     def __call__(self, criteria: bc.IConcreteBatchCriteria) -> None:

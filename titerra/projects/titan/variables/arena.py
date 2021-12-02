@@ -19,34 +19,41 @@ import typing as tp
 
 # 3rd party packages
 import implements
-
-# Project packages
 from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
-from sierra.core.variables.arena_shape import ArenaShape
+from sierra.plugins.platform.argos.variables.arena_shape import ArenaShape
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLTagRmList, XMLTagAddList
+
+# Project packages
 from titerra.projects.titan.variables.nest import Nest
 
 
 @implements.implements(IBaseVariable)
 class RectangularArena():
-    """
-    Maps a list of desired arena dimensions to a list of sets of XML changes to set up the arena for
-    the TITARRA project. This includes setup for the following C++ TITARRA components:
+    """Maps a list of desired arena dimensions to a list of sets of XML changes to
+    set up the arena for the TITARRA project. This includes setup for the
+    following C++ TITARRA components:
 
     - cpp:class:`~cosm::arena::base_arena_map` class and its derived classes.
+
     - cpp:class:`~cosm::repr::nest`.
-    - cpp:class:`~cosm::subsystem::perception::base_perception_subsystems` and its derived classes.
+
+    - cpp:class:`~cosm::subsystem::perception::base_perception_subsystems` and
+      its derived classes.
+
     - cpp:class:`~cosm::convergence::convergence_calculator`.
 
-    This class is a base class which should (almost) never be used on its own. Instead, derived
-    classes defined in this file should be used instead.
+    This class is a base class which should (almost) never be used on its
+    own. Instead, derived classes defined in this file should be used instead.
 
     Attributes:
-        extent_spec: Dictionary mapping arena extents to a list of nests which should appear in the
-                     arena.
-        attr_changes: List of sets of XML changes to apply to a template input file.
+        extent_spec: Dictionary mapping arena extents to a list of nests which
+                     should appear in the arena.
+
+        attr_changes: List of sets of XML changes to apply to a template input
+                      file. 
+
     """
 
     def __init__(self,
@@ -71,8 +78,8 @@ class RectangularArena():
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         """
-        Generate list of sets of changes necessary to make to the input file to correctly set up the
-        simulation with the specified area size/shape.
+        Generate list of sets of changes necessary to make to the input file to
+        correctly set up the simulation with the specified area size/shape.
         """
         if not self.attr_changes:
             grid_changes = [XMLAttrChangeSet(XMLAttrChange(".//arena_map/grid2D",
@@ -117,9 +124,10 @@ class RectangularArena():
 
 
 class RectangularArenaTwoByOne(RectangularArena):
-    """
-    Define arenas that vary in size for each combination of extents in the specified X range and
-    Y range, where the X dimension is always twices as large as the Y dimension.
+    """Define arenas that vary in size for each combination of extents in the
+    specified X range and Y range, where the X dimension is always twices as
+    large as the Y dimension.
+
     """
 
     def __init__(self,
@@ -134,9 +142,9 @@ class RectangularArenaTwoByOne(RectangularArena):
 
 
 class SquareArena(RectangularArena):
-    """
-    Define arenas that vary in size for each combination of extents in the specified X range and
-    Y range, where the X and y extents are always equal.
+    """Define arenas that vary in size for each combination of extents in the
+    specified X range and Y range, where the X and y extents are always equal.
+
     """
 
     def __init__(self,

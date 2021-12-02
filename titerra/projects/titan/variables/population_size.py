@@ -24,20 +24,21 @@ import typing as tp
 
 # 3rd party packages
 import implements
-
-# Project packages
-import sierra.core.variables.population_size
+from sierra.plugins.platform.argos.variables import population_size
 from sierra.core.variables import batch_criteria as bc
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 
+# Project packages
+
 
 @implements.implements(bc.IConcreteBatchCriteria)
-class PopulationSizeWithDynamics(sierra.core.variables.population_size.PopulationSize):
-    """A
-    univariate range of swarm sizes used to define batched experiments. This
+class PopulationSizeWithDynamics(population_size.PopulationSize):
+    """
+    A univariate range of swarm sizes used to define batched experiments. This
     class is a base class which should (almost) never be used on its
     own. Instead, the ``factory()`` function should be used to dynamically
     create derived classes expressing the user's desired size distribution.
+
     """
 
     @staticmethod
@@ -49,7 +50,7 @@ class PopulationSizeWithDynamics(sierra.core.variables.population_size.Populatio
         long-run population size are accurate.
 
         """
-        chgsets = sierra.core.variables.population_size.PopulationSize.gen_attr_changelist_from_list(
+        chgsets = population_size.PopulationSize.gen_attr_changelist_from_list(
             sizes)
         for i, chgset in enumerate(chgsets):
             chgset |= XMLAttrChangeSet(XMLAttrChange(".//population_dynamics",
@@ -78,7 +79,7 @@ def factory(cli_arg: str,
     line definition.
 
     """
-    parser = sierra.core.variables.population_size.Parser()
+    parser = population_size.Parser()
     max_sizes = parser.to_sizes(parser(cli_arg))
 
     def __init__(self) -> None:

@@ -64,20 +64,21 @@ class ScenarioGeneratorParser:
 
         res1 = re.search('[SDQPR][SSSLN]', args.scenario)
         assert res1 is not None,\
-            "FATAL: Bad block distribution specification in '{0}'".format(
+            "Bad block distribution specification in '{0}'".format(
                 args.scenario)
         res2 = re.search('[0-9]+x[0-9]+x[0-9]+', args.scenario)
 
         assert res2 is not None,\
-            "FATAL: Bad arena_dim specification in '{0}'".format(args.scenario)
+            "Bad arena_dim specification in '{0}'".format(args.scenario)
 
         self.scenario = res1.group(0) + "." + res2.group(0)
         return self.scenario
 
     def to_dict(self, scenario: str) -> types.CLIArgSpec:
         """
-        Given a string (presumably a result of an earlier cmdline parse), parse
-        it into a dictionary of components: arena_x, arena_y, arena_z, scenario_tag
+        Given a string (presumably a result of an earlier cmdline parse), parse it
+        into a dictionary of components: arena_x, arena_y, arena_z, scenario_tag
+
         """
         x, y, z = scenario.split('+')[0].split('.')[1].split('x')
         dist_type = scenario.split('.')[0]

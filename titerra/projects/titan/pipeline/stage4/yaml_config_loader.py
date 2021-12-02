@@ -40,15 +40,15 @@ class YAMLConfigLoader(ycl.YAMLConfigLoader):
         intra_LN_config = {}
         intra_HM_config = {}
 
-        titan_intra_LN = os.path.join(cmdopts['projects_root'],
+        titan_intra_LN = os.path.join(cmdopts['project_root'],
                                       'titan',
                                       'config',
                                       'intra-graphs-line.yaml')
-        titan_intra_HM = os.path.join(cmdopts['projects_root'],
+        titan_intra_HM = os.path.join(cmdopts['project_root'],
                                       'titan',
                                       'config',
                                       'intra-graphs-hm.yaml')
-        titan_inter_LN = os.path.join(cmdopts['projects_root'],
+        titan_inter_LN = os.path.join(cmdopts['project_root'],
                                       'titan',
                                       'config',
                                       'inter-graphs-line.yaml')

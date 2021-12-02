@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License along with
 # TITERRA.  If not, see <http://www.gnu.org/licenses/
 """
-Classes for the block quantity batch criteria. See :ref:`ln-bc-block-quantity` for usage
-documentation.
+Classes for the block quantity batch criteria. See
+:ref:`ln-bc-block-quantity` for usage documentation.
+
 """
 
 # Core packages
@@ -38,14 +39,14 @@ import sierra.core.config
 @implements.implements(bc.IConcreteBatchCriteria)
 class BlockQuantity(bc.UnivarBatchCriteria):
     """
-    A univariate range of block counts used to define batched
-    experiments. This class is a base class which should (almost) never be used on its own. Instead,
-    the ``factory()`` function should be used to dynamically create derived classes expressing the
-    user's desired size distribution.
+    A univariate range of block counts used to define batched experiments. This
+    class is a base class which should (almost) never be used on its
+    own. Instead, the ``factory()`` function should be used to dynamically
+    create derived classes expressing the user's desired size distribution.
 
     Attributes:
-        quantities: List of integer block quantities defining the range of the variable for the
-                    batched experiment.
+        quantities: List of integer block quantities defining the range of the
+                    variable for the batched experiment.
 
     """
 
@@ -133,21 +134,21 @@ class Parser():
         # Parse block type
         res = re.search("cube|ramp", criteria_str.split('.')[1])
         assert res is not None, \
-            "FATAL: Bad block type specification in criteria '{0}'".format(
+            "Bad block type specification in criteria '{0}'".format(
                 criteria_str)
         ret['block_type'] = res.group(0)
 
         # Parse increment type
         res = re.search("Log|Linear", criteria_str.split('.')[2])
         assert res is not None, \
-            "FATAL: Bad quantity increment specification in criteria '{0}'".format(
+            "Bad quantity increment specification in criteria '{0}'".format(
                 criteria_str)
         ret['increment_type'] = res.group(0)
 
         # Parse max size
         res = re.search("[0-9]+", criteria_str.split('.')[2])
         assert res is not None, \
-            "FATAL: Bad max quantity in criteria '{0}'".format(criteria_str)
+            "Bad max quantity in criteria '{0}'".format(criteria_str)
         ret['max_quantity'] = int(res.group(0))
 
         # Set linear_increment if needed
@@ -163,8 +164,8 @@ def factory(cli_arg: str,
             batch_input_root: str,
             **kwargs) -> BlockQuantity:
     """
-    Factory to create :class:`BlockQuantity` derived classes from the command line definition.
-
+    Factory to create :class:`BlockQuantity` derived classes from the command
+    line definition.
     """
     attr = Parser()(cli_arg)
 

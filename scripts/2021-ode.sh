@@ -25,7 +25,7 @@ if [ -n "$MSIARCH" ]; then # Running on MSI
 else
     export TITERRA_ROOT=$HOME/git/titerra
     export FORDYCA_ROOT=$HOME/git/fordyca
-    export SIERRA_PROJECT_PATH=$HOME/git/titerra
+    export SIERRA_PROJECT_PATH=$HOME/git/titerra/titerra/projects
 fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
@@ -79,12 +79,12 @@ CD_SIZEINC_LARGE=I72
 CD_CRITERIA_LARGE=population_constant_density.${CD_LARGE}.${CD_SIZEINC_LARGE}.${CD_CARDINALITY_LARGE}
 VD_CRITERIA_LARGE=population_variable_density.${VD_MIN_LARGE}.${VD_MAX_LARGE}.${VD_CARDINALITY_LARGE}
 
-# SCENARIOS_LIST_CD=(RN.8x8x2 PL.8x8x2)
+SCENARIOS_LIST_CD=(RN.8x8x2)
 # SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
 # SCENARIOS_LIST_VD_LARGE=(RN.256x256x2)
 # SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
-SCENARIOS_LIST_VD_SMALL=(PL.16x16x2)
+# SCENARIOS_LIST_VD_SMALL=(PL.16x16x2)
 
 NSIMS=32
 
@@ -94,7 +94,7 @@ SIERRA_BASE_CMD="sierra-cli \
                   --n-sims=$NSIMS\
                   --controller=d0.CRW\
                   --project=fordyca\
-                  --pipeline 4\
+                  --pipeline 1 4\
                   --project-no-yaml-LN --exec-sims-per-node=12 --exec-resume\
                   --dist-stats=conf95 \
                   --with-robot-leds\
@@ -185,17 +185,17 @@ if [ "$TASK" == "comp" ]; then
     #             --scenarios-list=SS.16x8x2,DS.16x8x2
     #             --scenarios-legend="SS","DS"
 
-    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-    #             --scenarios-list=RN.8x8x2,PL.8x8x2\
-    #             --scenarios-legend="RN","PL"
+    $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
+                --scenarios-list=RN.8x8x2\
+                --scenarios-legend="RN"
 
     # $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
     #             --scenarios-list=SS.32x16x2,DS.32x16x2\
     #             --scenarios-legend="SS","DS"
 
-    $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
-                --scenarios-list=RN.16x16x2,PL.16x16x2\
-                --scenarios-legend="RN","PL"
+    # $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
+    #             --scenarios-list=RN.16x16x2,PL.16x16x2\
+    #             --scenarios-legend="RN","PL"
 
     # $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
     #             --scenarios-list=SS.16x8x2,DS.16x8x2\
