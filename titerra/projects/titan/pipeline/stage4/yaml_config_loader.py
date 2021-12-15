@@ -21,8 +21,7 @@ import typing as tp
 # 3rd party packages
 import yaml
 import sierra.core.pipeline.stage4.yaml_config_loader as ycl
-import sierra.core.utils
-from sierra.core import types
+from sierra.core import types, utils
 
 # Project packages
 
@@ -40,31 +39,29 @@ class YAMLConfigLoader(ycl.YAMLConfigLoader):
         intra_LN_config = {}
         intra_HM_config = {}
 
-        titan_intra_LN = os.path.join(cmdopts['project_root'],
-                                      'titan',
-                                      'config',
+        titan_config_root = os.path.abspath(os.path.join(cmdopts['project_root'],
+                                                         '..',
+                                                         'titan',
+                                                         'config'))
+        titan_intra_LN = os.path.join(titan_config_root,
                                       'intra-graphs-line.yaml')
-        titan_intra_HM = os.path.join(cmdopts['project_root'],
-                                      'titan',
-                                      'config',
+        titan_intra_HM = os.path.join(titan_config_root,
                                       'intra-graphs-hm.yaml')
-        titan_inter_LN = os.path.join(cmdopts['project_root'],
-                                      'titan',
-                                      'config',
+        titan_inter_LN = os.path.join(titan_config_root,
                                       'inter-graphs-line.yaml')
 
         # Load TITAN base/common config
-        if sierra.core.utils.path_exists(titan_intra_LN):
+        if utils.path_exists(titan_intra_LN):
             self.logger.info(
                 "Loading intra-experiment linegraph config for TITAN")
             intra_LN_config = yaml.load(open(titan_intra_LN), yaml.FullLoader)
 
-        if sierra.core.utils.path_exists(titan_intra_HM):
+        if utils.path_exists(titan_intra_HM):
             self.logger.info(
                 "Loading intra-experiment heatmap config for TITAN")
             intra_HM_config = yaml.load(open(titan_intra_HM), yaml.FullLoader)
 
-        if sierra.core.utils.path_exists(titan_inter_LN):
+        if utils.path_exists(titan_inter_LN):
             self.logger.info(
                 "Loading inter-experiment linegraph config for TITAN")
             inter_LN_config = yaml.load(open(titan_inter_LN), yaml.FullLoader)

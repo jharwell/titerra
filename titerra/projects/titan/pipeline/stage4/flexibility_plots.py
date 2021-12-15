@@ -60,11 +60,11 @@ class FlexibilityPlotsCSVGenerator:
     """
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts) -> None:
         self.cmdopts = copy.deepcopy(cmdopts)
         self.main_config = main_config
-        self.perf_csv_col = main_config['perf']['intra_perf_col']
+        self.perf_csv_col = main_config['sierra']['perf']['intra_perf_col']
 
     def __call__(self, criteria) -> None:
         tv = pm.module_load_tiered(self.cmdopts['project'],
@@ -90,31 +90,31 @@ class FlexibilityPlotsCSVGenerator:
         expx_perf = vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                 criteria,
                                                 None,
-                                                self.main_config['perf']['intra_perf_csv'],
+                                                self.main_config['sierra']['perf']['intra_perf_csv'],
                                                 exp_num)[self.perf_csv_col].values
 
         exp0_var = vcs.DataFrames.expx_var_df(self.cmdopts,
                                               criteria,
                                               None,
-                                              self.main_config['perf']['intra_tv_environment_csv'],
+                                              self.main_config['sierra']['perf']['intra_tv_environment_csv'],
                                               0)[tv_attr['variance_csv_col']]
 
         expx_var = vcs.DataFrames.expx_var_df(self.cmdopts,
                                               criteria,
                                               None,
-                                              self.main_config['perf']['intra_tv_environment_csv'],
+                                              self.main_config['sierra']['perf']['intra_tv_environment_csv'],
                                               exp_num)[tv_attr['variance_csv_col']]
 
         expx_perf = vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                 criteria,
                                                 None,
-                                                self.main_config['perf']['intra_perf_csv'],
+                                                self.main_config['sierra']['perf']['intra_perf_csv'],
                                                 exp_num)[self.perf_csv_col]
 
         exp0_perf = vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                 criteria,
                                                 None,
-                                                self.main_config['perf']['intra_perf_csv'],
+                                                self.main_config['sierra']['perf']['intra_perf_csv'],
                                                 0)[self.perf_csv_col]
 
         df = pd.DataFrame(
@@ -122,7 +122,7 @@ class FlexibilityPlotsCSVGenerator:
                 'clock': vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                      criteria,
                                                      None,
-                                                     self.main_config['perf']['intra_perf_csv'],
+                                                     self.main_config['sierra']['perf']['intra_perf_csv'],
                                                      exp_num)['clock'].values,
                 'expx_perf': expx_perf.values,
                 'expx_var': expx_var.values,
@@ -142,7 +142,7 @@ class FlexibilityPlotsDefinitionsGenerator():
     from a YAML file.
     """
 
-    def __call__(self) -> tp.List[tp.Dict[str, tp.Any]]:
+    def __call__(self) -> tp.List[types.YAMLDict]:
         return [
             {'src_stem': 'flexibility-plots',
              'dest_stem': 'flexibility-plots-perf-curves',

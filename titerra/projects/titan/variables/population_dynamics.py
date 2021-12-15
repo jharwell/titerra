@@ -150,13 +150,14 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
     @staticmethod
     def calc_untasked_swarm_system_time(exp_def: XMLAttrChangeSet) -> float:
         params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
-        T = params['T_in_secs'] * params['ticks_per_sec']
+        T = params['T_in_secs'] * params['controller_ticks_per_sec']
         lambda_d, mu_b, lambda_m, mu_r = PopulationDynamics.extract_rate_params(
             exp_def)
 
-        # Pure death dynamics with a service rate of infinity. The "how long is a robot part of a
-        # tasked swarm" calculation is only valid for stable queueing systems, with well defined
-        # arrival and service rates (i.e. not 0 and not infinite).
+        # Pure death dynamics with a service rate of infinity. The "how long is
+        # a robot part of a tasked swarm" calculation is only valid for stable
+        # queueing systems, with well defined arrival and service rates
+        # (i.e. not 0 and not infinite).
         if lambda_d > 0.0 and mu_b == 0.0:
             return T
 
@@ -222,7 +223,7 @@ class PopulationDynamicsParser(dp.DynamicsParser):
 
 
 def factory(cli_arg: str,
-            main_config: tp.Dict[str, tp.Any],
+            main_config: types.YAMLDict,
             batch_input_root: str,
             **kwargs) -> PopulationDynamics:
     """Factory to create ``PopulationDynamics`` derived classes from the command

@@ -166,7 +166,7 @@ class TemporalVariance(bc.UnivarBatchCriteria):
 
 
 class VariancesGenerator():
-    def __init__(self, main_config: tp.Dict[str, tp.Any], attr: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, attr: types.CLIArgSpec):
         self.main_config = main_config
         self.attr = attr
 
@@ -179,8 +179,8 @@ class VariancesGenerator():
 
         amps_key = self.attr['variance_type'] + '_amp'
         try:
-            amps = self.main_config['perf']['flexibility'][amps_key]
-            hzs = self.main_config['perf']['flexibility']['hz']
+            amps = self.main_config['sierra']['perf']['flexibility'][amps_key]
+            hzs = self.main_config['sierra']['perf']['flexibility']['hz']
         except KeyError:
             msg = "'hz' or '{0}' not found in 'flexibility' section of main config file for project".format(
                 amps_key)
@@ -221,7 +221,7 @@ class VariancesGenerator():
 
 
 def factory(cli_arg: str,
-            main_config: tp.Dict[str, tp.Any],
+            main_config: types.YAMLDict,
             batch_input_root: str,
             **kwargs) -> TemporalVariance:
     """

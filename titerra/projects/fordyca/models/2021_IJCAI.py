@@ -73,7 +73,7 @@ class IntraExp_ODE_1Robot():
     - :math:`\mathcal{N}_h` - Number of homing robots
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -182,7 +182,7 @@ class IntraExp_ODE_NRobots():
     - :math:`\mathcal{N}_h` - Number of homing robots
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -320,7 +320,7 @@ class InterExp_ODE_NRobots():
     From :xref:`Harwell2021b`.
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]) -> None:
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict) -> None:
         self.main_config = main_config
         self.config = config
 
@@ -408,7 +408,7 @@ class InterExp_ODEWrapper_NRobots():
 
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]) -> None:
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict) -> None:
         self.main_config = main_config
         self.config = config
 

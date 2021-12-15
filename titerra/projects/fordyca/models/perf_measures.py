@@ -71,7 +71,7 @@ class InterExp_RawPerf_NRobots():
     Models the raw performances achieved by a swarm of :math:`\mathcal{N}` CRW robots.
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -141,7 +141,7 @@ class InterExp_Scalability_NRobots():
                perf_df: pd.DataFrame) -> pd.DataFrame:
         return SteadyStateParallelFractionUnivar.df_kernel(criteria, cmdopts, perf_df)
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -197,7 +197,7 @@ class InterExp_SelfOrg_NRobots():
         fl = pmcommon.SteadyStateFLUnivar.df_kernel(criteria, perf_dfs, plostN)
         return SteadyStateFLMarginalUnivar.df_kernel(criteria, cmdopts, fl)
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -224,9 +224,9 @@ class InterExp_SelfOrg_NRobots():
             criteria, self.main_config, cmdopts, perf_df)
 
         # Just needed to extract simulation names/n_sims
-        interference_leaf = self.main_config['perf']['intra_interference_csv'].split('.')[
+        interference_leaf = self.main_config['sierra']['perf']['intra_interference_csv'].split('.')[
             0]
-        interference_col = self.main_config['perf']['intra_interference_col']
+        interference_col = self.main_config['sierra']['perf']['intra_interference_col']
 
         interference_dfs = pmcommon.gather_collated_sim_dfs(cmdopts,
                                                             criteria,
@@ -245,22 +245,24 @@ class InterExp_SelfOrg_NRobots():
 
 
 def _mock_distribution_gen(criteria: bc.IConcreteBatchCriteria,
-                           main_config: tp.Dict[str, tp.Any],
+                           main_config: types.YAMLDict,
                            cmdopts: types.Cmdopts,
                            prediction: pd.DataFrame) -> tp.Dict[str, pd.DataFrame]:
     """
-    The TITAN performance measures expect a distribution of simulation data as input, in the form of
-    a dictionary of (experiment name, dataframe) pairs. The dataframe must have temporal columns for
-    each simulation (i.e., no truncating to steady state yet). To generate predictions of
-    *steady state* performance measures, we generate a mock distribution of the necessary shape
-    here.
+    The TITAN performance measures expect a distribution of simulation data as
+    input, in the form of a dictionary of (experiment name, dataframe)
+    pairs. The dataframe must have temporal columns for each simulation (i.e.,
+    no truncating to steady state yet). To generate predictions of *steady
+    state* performance measures, we generate a mock distribution of the
+    necessary shape here.
+
     """
     exp_dirs = sierra.core.utils.exp_range_calc(cmdopts, '', criteria)
 
     # Just needed to extract simulation names/n_sims
-    interference_leaf = main_config['perf']['intra_interference_csv'].split('.')[
+    interference_leaf = main_config['sierra']['perf']['intra_interference_csv'].split('.')[
         0]
-    interference_col = main_config['perf']['intra_interference_col']
+    interference_col = main_config['sierra']['perf']['intra_interference_col']
 
     interference_dfs = pmcommon.gather_collated_sim_dfs(cmdopts,
                                                         criteria,

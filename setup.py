@@ -58,6 +58,7 @@ setup(
     install_requires=[
         "sierra>=1.0"
 
+        "networkx",
         "similaritymeasures",
         "fastdtw",
     ],

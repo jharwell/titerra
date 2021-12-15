@@ -36,9 +36,21 @@ class BaseScenarioGenerator(PlatformExpDefGenerator):
     def __init__(self, *args, **kwargs) -> None:
         PlatformExpDefGenerator.__init__(self, *args, **kwargs)
 
-    def generate_time(self, exp_def: XMLLuigi):
+    def generate_random(self, exp_def: XMLLuigi) -> None:
         """
         Generates XML changes for setting up metric collection in TITAN.
+
+        Does not write generated changes to the simulation definition pickle
+        file.
+        """
+        if exp_def.has_tag('.//params/rng'):
+            exp_def.attr_change(".//params/rng", "seed", str(self.random_seed))
+        else:
+            exp_def.tag_add(".//params", "rng", {"seed": str(self.random_seed)})
+
+    def generate_time(self, exp_def: XMLLuigi):
+        """
+        Generates XML changes for setting up time in TITAN.
 
         Writes generated changes to the simulation definition pickle file.
         """
@@ -78,7 +90,7 @@ class BaseScenarioGenerator(PlatformExpDefGenerator):
         Generate XML changes for the specified block distribution.
 
         Does not write generated changes to the simulation definition pickle
-        file. 
+        file.
         """
         scutils.apply_to_expdef(block_dist, exp_def)
 
@@ -122,6 +134,9 @@ class ForagingScenarioGenerator(BaseScenarioGenerator):
 
     def generate(self) -> XMLLuigi:
         exp_def = super().generate()
+
+        # Generate random seed definitions for TITAN
+        self.generate_random(exp_def)
 
         # Generate time definitions for TITAN
         self.generate_time(exp_def)
@@ -272,7 +287,8 @@ class ForagingRNGenerator(ForagingScenarioGenerator):
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        self.generate_block_dist(exp_def, block_distribution.RandomDistribution())
+        self.generate_block_dist(
+            exp_def, block_distribution.RandomDistribution())
 
         return exp_def
 
@@ -314,7 +330,8 @@ class ForagingPLGenerator(ForagingScenarioGenerator):
 
 def gen_generator_name(scenario_name: str) -> str:
     res = re.search('[SDQPR][SSSLN]', scenario_name)
-    assert res is not None, "Bad block distribution in {0}".format(scenario_name)
+    assert res is not None, "Bad block distribution in {0}".format(
+        scenario_name)
     abbrev = res.group(0)
 
     return abbrev + 'Generator'

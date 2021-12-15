@@ -1,4 +1,5 @@
-run:
-  run_metrics_leaf: 'metrics'
+sierra:
+  run:
+    run_metrics_leaf: 'metrics'
 
-perf: 'working.yaml'
+  perf: 'working.yaml'

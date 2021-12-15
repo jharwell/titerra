@@ -40,8 +40,8 @@ three-dimensional data, as compared to the output interval for 1D data.
 
 @implements.implements(IBaseVariable)
 class TimeSetup():
-    def __init__(self, duration: int, metric_interval: int) -> None:
-        self.duration = duration
+    def __init__(self, secs_per_run: int, metric_interval: int) -> None:
+        self.secs_per_run = secs_per_run
         self.metric_interval = metric_interval
         self.attr_changes = []
 
@@ -85,8 +85,8 @@ def factory(arg: str) -> TimeSetup:
 
     def __init__(self) -> None:
         TimeSetup.__init__(self,
-                           attr["duration"],
-                           int(attr["duration"] * attr['n_ticks_per_sec'] / attr["n_datapoints"]))
+                           attr["secs_per_run"],
+                           int(attr["secs_per_run"] * attr['n_ticks_per_sec'] / attr["n_datapoints"]))
 
     return type(name,  # type: ignore
                 (TimeSetup,),

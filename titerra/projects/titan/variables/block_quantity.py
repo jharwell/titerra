@@ -123,7 +123,7 @@ class Parser():
     :ref:`ln-bc-block-quantity`.
     """
 
-    def __call__(self, criteria_str: str) -> tp.Dict[str, tp.Any]:
+    def __call__(self, criteria_str: str) -> types.CLIArgSpec:
         ret = {
             'block_type': str(),
             'max_quantity': int(),

@@ -17,7 +17,7 @@ st:
   controllers:
     - name: FCRW_BST
       xml:
-        attr_change:
+        tag_change:
           - ['.//controllers', '__controller__', 'fcrw_bst_controller']
 
       graphs_inherit:

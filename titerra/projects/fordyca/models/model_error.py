@@ -41,8 +41,8 @@ class Model2DError():
     def __init__(self,
                  stddev_fname: str,
                  model: sierra.core.models.interface.IConcreteIntraExpModel2D,
-                 main_config: tp.Dict[str, tp.Any],
-                 model_config: tp.Dict[str, tp.Any]) -> None:
+                 main_config: types.YAMLDict,
+                 model_config: types.YAMLDict) -> None:
         self.stddev_fname = stddev_fname
         self.model = model
         self.main_config = main_config

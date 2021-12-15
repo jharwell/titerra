@@ -101,7 +101,7 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  main_config: tp.Dict[str, tp.Any],
+                  main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[pd.DataFrame, str]:
         saa_dfs = {}
@@ -124,7 +124,7 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
         return saa_dfs
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
@@ -274,11 +274,11 @@ class RobustnessUnivarGenerator:
 
     def __call__(self,
                  cmdopts: types.Cmdopts,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])
-        perf_csv = main_config['perf']['intra_perf_csv']
-        perf_col = main_config['perf']['intra_perf_col']
+        perf_csv = main_config['sierra']['perf']['intra_perf_csv']
+        perf_col = main_config['sierra']['perf']['intra_perf_col']
 
         if criteria.pm_query('robustness-saa'):
             SteadyStateRobustnessSAAUnivar(main_config,
@@ -306,7 +306,7 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  main_config: tp.Dict[str, tp.Any],
+                  main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
@@ -340,7 +340,7 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
         return saa_dfs
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
@@ -498,12 +498,12 @@ class RobustnessBivarGenerator:
 
     def __call__(self,
                  cmdopts: types.Cmdopts,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])
 
-        perf_csv = main_config['perf']['intra_perf_csv']
-        perf_col = main_config['perf']['intra_perf_col']
+        perf_csv = main_config['sierra']['perf']['intra_perf_csv']
+        perf_col = main_config['sierra']['perf']['intra_perf_col']
 
         if criteria.pm_query('robustness-saa'):
             SteadyStateRobustnessSAABivar(main_config,

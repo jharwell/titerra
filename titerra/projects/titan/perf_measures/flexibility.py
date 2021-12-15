@@ -59,7 +59,7 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  main_config: tp.Dict[str, tp.Any],
+                  main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[pd.DataFrame, str]:
         rt_dfs = {}
@@ -85,7 +85,7 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
         return rt_dfs
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
@@ -134,7 +134,7 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  main_config: tp.Dict[str, tp.Any],
+                  main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[pd.DataFrame, str]:
         ad_dfs = {}
@@ -159,7 +159,7 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
         return ad_dfs
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
@@ -215,11 +215,11 @@ class FlexibilityUnivarGenerator:
 
     def __call__(self,
                  cmdopts: types.Cmdopts,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])
-        perf_csv = main_config['perf']['intra_perf_csv']
-        perf_col = main_config['perf']['intra_perf_col']
+        perf_csv = main_config['sierra']['perf']['intra_perf_csv']
+        perf_col = main_config['sierra']['perf']['intra_perf_col']
 
         SteadyStateReactivityUnivar(
             main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)
@@ -240,7 +240,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
 
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  main_config: tp.Dict[str, tp.Any],
+                  main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
@@ -294,7 +294,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
         return rt_dfs
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
@@ -352,7 +352,7 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
-                  main_config: tp.Dict[str, tp.Any],
+                  main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
@@ -394,7 +394,7 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
         return ad_dfs
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  perf_csv: str,
                  perf_col: str) -> None:
@@ -455,11 +455,11 @@ class FlexibilityBivarGenerator:
 
     def __call__(self,
                  cmdopts: types.Cmdopts,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  criteria: bc.IConcreteBatchCriteria) -> None:
         self.logger.info("From %s", cmdopts["batch_stat_collate_root"])
-        perf_csv = main_config['perf']['intra_perf_csv']
-        perf_col = main_config['perf']['intra_perf_col']
+        perf_csv = main_config['sierra']['perf']['intra_perf_csv']
+        perf_col = main_config['sierra']['perf']['intra_perf_col']
 
         SteadyStateReactivityBivar(
             main_config, cmdopts, perf_csv, perf_col).from_batch(criteria)

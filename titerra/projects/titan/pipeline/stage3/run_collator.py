@@ -30,9 +30,9 @@ class ExperimentalRunCSVGatherer(run_collator.ExperimentalRunCSVGatherer):
     def gather_csvs_from_run(self, run: str) -> tp.Dict[tp.Tuple[str, str], pd.DataFrame]:
         ret = super().gather_csvs_from_run(run)
 
-        intra_interference_leaf = self.main_config['perf']['intra_interference_csv'].split('.')[
+        intra_interference_leaf = self.main_config['sierra']['perf']['intra_interference_csv'].split('.')[
             0]
-        intra_interference_col = self.main_config['perf']['intra_interference_col']
+        intra_interference_col = self.main_config['sierra']['perf']['intra_interference_col']
 
         run_output_root = os.path.join(self.exp_output_root,
                                        run,

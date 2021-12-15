@@ -63,11 +63,14 @@ class IntraExp_BlockAcqRate_NRobots():
     Models the steady state block acquisition rate of a swarm of N CRW robots.
 
     .. IMPORTANT::
-       This model does not have a kernel() function which computes the calculation, because
-       it does not require ANY experimental data, and can be computed from first principles, so it
-       is always OK to :method:`run()` it.
+
+       This model does not have a kernel() function which computes the
+       calculation, because it does not require ANY experimental data, and can
+       be computed from first principles, so it is always OK to :method:`run()`
+       it.
 
     From :xref:`Harwell2021b`.
+
     """
     @staticmethod
     def _kernel(N: float,
@@ -76,8 +79,8 @@ class IntraExp_BlockAcqRate_NRobots():
                 avg_acq_dist: float,
                 scenario: str) -> float:
         """
-        Calculates the CRW Diffusion constant in :xref:`Harwell2021b` for bounded arena geometry,
-        inspired by the results in :xref:`Codling2010`.
+        Calculates the CRW Diffusion constant in :xref:`Harwell2021b` for
+        bounded arena geometry, inspired by the results in :xref:`Codling2010`.
         """
         D = diffusion.crwD_for_searching(N=N,
                                          wander_speed=wander_speed,
@@ -86,10 +89,13 @@ class IntraExp_BlockAcqRate_NRobots():
 
         diff_time = avg_acq_dist ** 2 / (2 * D)
 
-        # Inverse of diffusion time from nest to expected acquisition location is alpha_b
+        # Inverse of diffusion time from nest to expected acquisition location
+        # is alpha_b
         return 1.0 / diff_time
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]) -> None:
+    def __init__(self,
+                 main_config: types.YAMLDict,
+                 config: types.YAMLDict) -> None:
         self.main_config = main_config
         self.config = config
 
@@ -112,16 +118,18 @@ class IntraExp_BlockAcqRate_NRobots():
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
 
-        # We calculate per-sim, rather than using the averaged block cluster results, because for
-        # power law distributions different simulations have different cluster locations, which
-        # affects the distribution via locality.
+        # We calculate per-sim, rather than using the averaged block cluster
+        # results, because for power law distributions different simulations
+        # have different cluster locations, which affects the distribution via
+        # locality.
         #
-        # For all other block distributions, we can operate on the averaged results, because the
-        # position of block clusters is the same in all simulations.
+        # For all other block distributions, we can operate on the averaged
+        # results, because the position of block clusters is the same in all
+        # simulations.
         if 'PL' in cmdopts['scenario']:
             result_opaths = [os.path.join(cmdopts['exp_output_root'],
                                           d,
-                                          self.main_config['sim']['sim_metrics_leaf'])
+                                          self.main_config['sierra']['run']['run_metrics_leaf'])
                              for d in os.listdir(cmdopts['exp_output_root'])]
         else:
             result_opaths = [os.path.join(cmdopts['exp_stat_root'])]
@@ -202,8 +210,8 @@ class IntraExp_BlockCollectionRate_NRobots():
     def calc_kernel_args(criteria:  bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts,
-                         main_config: tp.Dict[str, tp.Any],
-                         config: tp.Dict[str, tp.Any]):
+                         main_config: types.YAMLDict,
+                         config: types.YAMLDict):
         block_manip_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
                                                                     'block-manipulation.csv'))
 
@@ -221,11 +229,16 @@ class IntraExp_BlockCollectionRate_NRobots():
             'mu_bN': mu_bN
         }
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]) -> None:
+    def __init__(self,
+                 main_config: types.YAMLDict,
+                 config: types.Cmdopts) -> None:
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
+    def run_for_exp(self,
+                    criteria: bc.IConcreteBatchCriteria,
+                    cmdopts: types.Cmdopts,
+                    i: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -269,7 +282,7 @@ class InterExp_BlockAcqRate_NRobots():
        it is a summary model, built on simpler intra-experiment models.
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -337,7 +350,7 @@ class InterExp_BlockCollectionRate_NRobots():
 
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 

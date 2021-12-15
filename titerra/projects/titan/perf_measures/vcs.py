@@ -85,7 +85,7 @@ class EnvironmentalCS():
     """
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  exp_num: int) -> None:
         self.cmdopts = cmdopts
@@ -98,12 +98,12 @@ class EnvironmentalCS():
         ideal_var_df = DataFrames.expx_var_df(self.cmdopts,
                                               criteria,
                                               exp_dirs,
-                                              self.main_config['perf']['intra_tv_environment_csv'],
+                                              self.main_config['sierra']['perf']['intra_tv_environment_csv'],
                                               0)
         expx_var_df = DataFrames.expx_var_df(self.cmdopts,
                                              criteria,
                                              exp_dirs,
-                                             self.main_config['perf']['intra_tv_environment_csv'],
+                                             self.main_config['sierra']['perf']['intra_tv_environment_csv'],
                                              self.exp_num)
 
         attr = TemporalVarianceParser()(criteria.cli_arg)
@@ -134,7 +134,7 @@ class RawPerfCS():
     """
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts) -> None:
         self.cmdopts = cmdopts
         self.main_config = main_config
@@ -177,19 +177,19 @@ class AdaptabilityCS():
     """
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  criteria) -> None:
         self.cmdopts = cmdopts
         self.criteria = criteria
         self.main_config = main_config
 
-        self.perf_csv_col = main_config['perf']['intra_perf_col']
+        self.perf_csv_col = main_config['sierra']['perf']['intra_perf_col']
         self.var_csv_col = TemporalVarianceParser()(
             self.criteria.cli_arg)['variance_csv_col']
-        self.perf_leaf = self.main_config['perf']['intra_perf_csv'].split('.')[
+        self.perf_leaf = self.main_config['sierra']['perf']['intra_perf_csv'].split('.')[
             0]
-        self.tv_env_leaf = self.main_config['perf']['intra_tv_environment_csv'].split('.')[
+        self.tv_env_leaf = self.main_config['sierra']['perf']['intra_tv_environment_csv'].split('.')[
             0]
 
     def from_batch(self,
@@ -296,7 +296,7 @@ class ReactivityCS():
     """
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts,
                  criteria,
                  ideal_num: int,
@@ -307,12 +307,12 @@ class ReactivityCS():
         self.ideal_num = ideal_num
         self.exp_num = exp_num
 
-        self.perf_csv_col = self.main_config['perf']['intra_perf_col']
+        self.perf_csv_col = self.main_config['sierra']['perf']['intra_perf_col']
         self.var_csv_col = TemporalVarianceParser()(criteria.cli_arg)[
             'variance_csv_col']
-        self.perf_leaf = self.main_config['perf']['intra_perf_csv'].split('.')[
+        self.perf_leaf = self.main_config['sierra']['perf']['intra_perf_csv'].split('.')[
             0]
-        self.tv_env_leaf = self.main_config['perf']['intra_tv_environment_csv'].split('.')[
+        self.tv_env_leaf = self.main_config['sierra']['perf']['intra_tv_environment_csv'].split('.')[
             0]
 
     def from_batch(self,

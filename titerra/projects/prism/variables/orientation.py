@@ -20,13 +20,15 @@ import typing as tp
 import re
 
 # 3rd party packages
+from sierra.core import types
 
 # Project packages
 
 
 class Orientation():
     """
-    Represents the orientation of a construction target as one of the 4 cardinal directions.
+    Represents the orientation of a construction target as one of the 4 cardinal
+    directions.
     """
 
     def __init__(self, val: str) -> None:
@@ -71,7 +73,7 @@ class OrientationParser():
     :ref:`ln-prism-bc-ct-specs`.
     """
 
-    def __call__(self, cmdline: str) -> tp.Dict[str, tp.Any]:
+    def __call__(self, cmdline: str) -> types.CLIArgSpec:
         """
         Returns:
             List of dictionaries

@@ -76,7 +76,7 @@ class IntraExp_HomingTime_1Robot():
 
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -100,16 +100,18 @@ class IntraExp_HomingTime_1Robot():
         # Calculate nest extent
         nest = rep.Nest(cmdopts, criteria, exp_num)
 
-        # We calculate per-sim, rather than using the averaged block cluster results, because for
-        # power law distributions different simulations have different cluster locations, which
-        # affects the distribution via locality.
+        # We calculate per-sim, rather than using the averaged block cluster
+        # results, because for power law distributions different simulations
+        # have different cluster locations, which affects the distribution via
+        # locality.
         #
-        # For all other block distributions, we can operate on the averaged results, because the
-        # position of block clusters is the same in all simulations.
+        # For all other block distributions, we can operate on the averaged
+        # results, because the position of block clusters is the same in all
+        # simulations.
         if 'PL' in cmdopts['scenario']:
             result_opaths = [os.path.join(cmdopts['exp_output_root'],
                                           d,
-                                          self.main_config['sim']['sim_metrics_leaf'])
+                                          self.main_config['sierra']['run']['run_metrics_leaf'])
                              for d in os.listdir(cmdopts['exp_output_root'])]
         else:
             result_opaths = [os.path.join(cmdopts['exp_stat_root'])]
@@ -198,8 +200,8 @@ class IntraExp_HomingTime_NRobots():
     def calc_kernel_args(criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts,
-                         main_config: tp.Dict[str, tp.Any],
-                         model_config: tp.Dict[str, tp.Any]) -> dict:
+                         main_config: types.YAMLDict,
+                         model_config: types.YAMLDict) -> dict:
         homing1 = IntraExp_HomingTime_1Robot(main_config, model_config)
         tau_h1 = homing1.run(criteria, exp_num, cmdopts)[0]
 
@@ -220,7 +222,7 @@ class IntraExp_HomingTime_NRobots():
             'N': N
         }
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -271,7 +273,7 @@ class InterExp_HomingTime_NRobots():
     From :xref:`Harwell2021b`.
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]) -> None:
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict) -> None:
         self.main_config = main_config
         self.config = config
 

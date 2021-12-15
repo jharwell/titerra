@@ -113,7 +113,7 @@ class IntraExp_WallInterferenceRate_1Robot():
             'tau_av1': fsm_counts_df['cum_avg_interference_duration']
         }
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -239,7 +239,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
 
         return kargs
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -341,7 +341,7 @@ class IntraExp_RobotInterferenceTime_NRobots():
         kargs['N'] = criteria.populations(cmdopts)[exp_num]
         return kargs
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -396,7 +396,7 @@ class InterExp_RobotInterferenceRate_NRobots():
 
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 
@@ -465,7 +465,7 @@ class InterExp_RobotInterferenceTime_NRobots():
 
     """
 
-    def __init__(self, main_config: tp.Dict[str, tp.Any], config: tp.Dict[str, tp.Any]):
+    def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict):
         self.main_config = main_config
         self.config = config
 

@@ -75,7 +75,7 @@ class UnivarPerfMeasuresGenerator:
     """
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts) -> None:
         # Copy because we are modifying it and don't want to mess up the arguments for graphs that
         # are generated after us
@@ -83,12 +83,12 @@ class UnivarPerfMeasuresGenerator:
         self.main_config = main_config
 
     def __call__(self, criteria: bc.IConcreteBatchCriteria) -> None:
-        perf_csv = self.main_config['perf']['intra_perf_csv']
-        perf_col = self.main_config['perf']['intra_perf_col']
-        interference_csv = self.main_config['perf']['intra_interference_csv']
-        interference_col = self.main_config['perf']['intra_interference_col']
-        raw_title = self.main_config['perf']['raw_perf_title']
-        raw_ylabel = self.main_config['perf']['raw_perf_ylabel']
+        perf_csv = self.main_config['sierra']['perf']['intra_perf_csv']
+        perf_col = self.main_config['sierra']['perf']['intra_perf_col']
+        interference_csv = self.main_config['sierra']['perf']['intra_interference_csv']
+        interference_col = self.main_config['sierra']['perf']['intra_interference_col']
+        raw_title = self.main_config['sierra']['perf']['raw_perf_title']
+        raw_ylabel = self.main_config['sierra']['perf']['raw_perf_ylabel']
 
         if criteria.pm_query('raw'):
             pmraw.SteadyStateRawUnivar(self.cmdopts, perf_csv, perf_col).from_batch(criteria,
@@ -128,7 +128,7 @@ class BivarPerfMeasuresGenerator:
     """
 
     def __init__(self,
-                 main_config: tp.Dict[str, tp.Any],
+                 main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts) -> None:
         # Copy because we are modifying it and don't want to mess up the arguments for graphs that
         # are generated after us
@@ -136,11 +136,11 @@ class BivarPerfMeasuresGenerator:
         self.main_config = main_config
 
     def __call__(self, criteria: bc.IConcreteBatchCriteria) -> None:
-        perf_csv = self.main_config['perf']['intra_perf_csv']
-        perf_col = self.main_config['perf']['intra_perf_col']
-        interference_csv = self.main_config['perf']['intra_interference_csv']
-        interference_col = self.main_config['perf']['intra_interference_col']
-        raw_title = self.main_config['perf']['raw_perf_title']
+        perf_csv = self.main_config['sierra']['perf']['intra_perf_csv']
+        perf_col = self.main_config['sierra']['perf']['intra_perf_col']
+        interference_csv = self.main_config['sierra']['perf']['intra_interference_csv']
+        interference_col = self.main_config['sierra']['perf']['intra_interference_col']
+        raw_title = self.main_config['sierra']['perf']['raw_perf_title']
 
         if criteria.pm_query('raw'):
             pmraw.SteadyStateRawBivar(self.cmdopts,
