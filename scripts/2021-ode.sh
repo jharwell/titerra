@@ -55,7 +55,7 @@ OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
 
 OUTPUT_ROOT=$HOME/exp/2021-ode-3
 
-TIME_SMALL=time_setup.T200000
+TIME_SMALL=exp_setup.T200000
 VD_MIN_SMALL=1p0
 VD_MAX_SMALL=10p0
 VD_CARDINALITY_SMALL=C10
@@ -71,7 +71,7 @@ VD_MIN_LARGE=1p0
 VD_MAX_LARGE=10p0
 VD_CARDINALITY_LARGE=C10
 
-TIME_LARGE=time_setup.T200000
+TIME_LARGE=exp_setup.T200000
 CD_LARGE=1p0
 CD_CARDINALITY_LARGE=C14
 CD_SIZEINC_LARGE=I72
@@ -134,7 +134,7 @@ if [ "$TASK" == "small" ] || [ "$TASK" == "exp" ]; then
     do
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${VD_CRITERIA_SMALL}\
-                    --time-setup=${TIME_SMALL}\
+                    --exp-setup=${TIME_SMALL}\
                     --physics-n-engines=1
 
     done
@@ -143,7 +143,7 @@ if [ "$TASK" == "small" ] || [ "$TASK" == "exp" ]; then
     do
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${CD_CRITERIA_SMALL}\
-                    --time-setup=${TIME_SMALL}\
+                    --exp-setup=${TIME_SMALL}\
                     --physics-n-engines=1
 
     done
@@ -155,7 +155,7 @@ if [ "$TASK" == "large" ] || [ "$TASK" == "exp" ]; then
     do
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${VD_CRITERIA_LARGE}\
-                    --time-setup=${TIME_LARGE}\
+                    --exp-setup=${TIME_LARGE}\
                     --physics-n-engines=2
     done
 
@@ -163,7 +163,7 @@ if [ "$TASK" == "large" ] || [ "$TASK" == "exp" ]; then
     do
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${CD_CRITERIA_LARGE}\
-                    --time-setup=${TIME_LARGE}\
+                    --exp-setup=${TIME_LARGE}\
                     --physics-n-engines=2
 
     done

@@ -19,15 +19,15 @@
 # 3rd party packages
 
 # Project packages
-import titerra.projects.titan.generators.common as ticom
-from titerra.projects.titan.variables import arena, block_distribution
+import titerra.projects.common.generators.common as ticom
+from titerra.projects.common.variables import arena, block_distribution
 import titerra.projects.prism.generators.common as sicom
 
 
 class SSGenerator(sicom.ConstructionScenarioGenerator):
     """
     PRISM extensions to the base scenario generator
-    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for single source
+    :class:`~common.generators.scenario_generator.ConstrutionScenarioGenerator` for single source
     construction scenarios.
 
     This includes:
@@ -47,7 +47,7 @@ class SSGenerator(sicom.ConstructionScenarioGenerator):
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
             "SS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                    self.spec.arena_dim.ysize())
+                                                                             self.spec.arena_dim.ysize())
 
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
                                                    y_range=[
@@ -58,7 +58,8 @@ class SSGenerator(sicom.ConstructionScenarioGenerator):
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        self.generate_block_dist(exp_def, block_distribution.SingleSourceDistribution())
+        self.generate_block_dist(
+            exp_def, block_distribution.SingleSourceDistribution())
 
         # Mixed 2D/3D physics
         self.generate_mixed_physics(exp_def, 'single_source')
@@ -69,7 +70,7 @@ class SSGenerator(sicom.ConstructionScenarioGenerator):
 class DSGenerator(sicom.ConstructionScenarioGenerator):
     """
     PRISM extensions to the base scenario generator
-    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for dual source
+    :class:`~common.generators.scenario_generator.ConstrutionScenarioGenerator` for dual source
     construction scenarios.
 
     This includes:
@@ -89,7 +90,7 @@ class DSGenerator(sicom.ConstructionScenarioGenerator):
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == 2 * self.spec.arena_dim.ysize(),\
             "DS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                    self.spec.arena_dim.ysize())
+                                                                             self.spec.arena_dim.ysize())
 
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
                                                    y_range=[
@@ -100,7 +101,8 @@ class DSGenerator(sicom.ConstructionScenarioGenerator):
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        self.generate_block_dist(exp_def, block_distribution.DualSourceDistribution())
+        self.generate_block_dist(
+            exp_def, block_distribution.DualSourceDistribution())
 
         # Mixed 2D/3D physics
         self.generate_mixed_physics(exp_def, 'dual_source')
@@ -111,7 +113,7 @@ class DSGenerator(sicom.ConstructionScenarioGenerator):
 class QSGenerator(sicom.ConstructionScenarioGenerator):
     """
     PRISM extensions to the base scenario generator
-    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for quad source
+    :class:`~common.generators.scenario_generator.ConstrutionScenarioGenerator` for quad source
     construction scenarios.
 
     This includes:
@@ -131,7 +133,7 @@ class QSGenerator(sicom.ConstructionScenarioGenerator):
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
             "QS distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                       self.spec.arena_dim.ysize())
+                                                                                self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
@@ -140,7 +142,8 @@ class QSGenerator(sicom.ConstructionScenarioGenerator):
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        self.generate_block_dist(exp_def, block_distribution.QuadSourceDistribution())
+        self.generate_block_dist(
+            exp_def, block_distribution.QuadSourceDistribution())
 
         # Mixed 2D/3D physics
         self.generate_mixed_physics(exp_def, 'quad_source')
@@ -151,7 +154,7 @@ class QSGenerator(sicom.ConstructionScenarioGenerator):
 class RNGenerator(sicom.ConstructionScenarioGenerator):
     """
     PRISM extensions to the base scenario generator
-    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for random
+    :class:`~common.generators.scenario_generator.ConstrutionScenarioGenerator` for random
     construction scenarios.
 
     This includes:
@@ -171,7 +174,7 @@ class RNGenerator(sicom.ConstructionScenarioGenerator):
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
             "RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                       self.spec.arena_dim.ysize())
+                                                                                self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
@@ -191,7 +194,7 @@ class RNGenerator(sicom.ConstructionScenarioGenerator):
 class PLGenerator(sicom.ConstructionScenarioGenerator):
     """
     PRISM extensions to the base scenario generator
-    :class:`~titan.generators.scenario_generator.ConstrutionScenarioGenerator` for powerlaw
+    :class:`~common.generators.scenario_generator.ConstrutionScenarioGenerator` for powerlaw
     construction scenarios.
 
     This includes:
@@ -211,7 +214,7 @@ class PLGenerator(sicom.ConstructionScenarioGenerator):
         # Generate arena definitions
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
             "PL distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
-                                                                                       self.spec.arena_dim.ysize())
+                                                                                self.spec.arena_dim.ysize())
 
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),

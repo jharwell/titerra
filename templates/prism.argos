@@ -140,7 +140,7 @@
       <metrics
           metrics_path="metrics">
         <sinks>
-          <csv>
+          <file>
             <append
                 output_interval="1000"
                 block_acq_counts="block-acq-counts"
@@ -158,7 +158,7 @@
                 block_acq_explore_locs2D="block-acq-explore-locs2D"
                 swarm_dist2D_pos="swarm-dist-pos2D"
                 structure0_state="structure0-state"/>
-          </csv>
+          </file>
         </sinks>
       </metrics>
     </output>

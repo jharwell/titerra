@@ -114,9 +114,16 @@ nitpick_ignore = [
     ('py:class', 'multiprocessing.context.BaseContext.Queue')
 ]
 autoapi_modules = {
-    'projects.fordyca': {'output': 'api/projects/fordyca'},
-    'projects.prism': {'output': 'api/projects/prism'},
-    'projects.titan': {'output': 'api/projects/titan'}
+    'titerra.projects.fordyca_argos': {'output': 'api/projects/fordyca_argos'},
+    'titerra.projects.fordyca_rosrobot':
+    {
+        'output': 'api/projects/fordyca_rosrobot'
+    },
+    'titerra.projects.fordyca_rosgazebo':
+    {
+        'output': 'api/projects/fordyca_rosgazebo'
+    },
+    'titerra.projects.common': {'output': 'api/projects/common'}
 }
 
 autoapi_ignore = ['*flycheck*']
@@ -220,7 +227,8 @@ man_pages = [
      'The Command Line Interface to the TITAN sub-project PRISM',
      [author],
      1),
-    ('man/titerra', 'titerra', 'TITERRA: SIERRA Extensions For The TITAN Project', [author], 7),
+    ('man/titerra', 'titerra',
+     'TITERRA: SIERRA Extensions For The TITAN Project', [author], 7),
     ('man/sierra-msi', 'sierra-msi', 'How to use SIERRA on MSI', [author], 7),
 ]
 

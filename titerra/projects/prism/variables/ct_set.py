@@ -86,7 +86,8 @@ class ConstructionTargetSet():
         if not self.tag_adds:
             self.tag_adds = XMLTagAddList(XMLTagAdd('.//loop_functions',
                                                     'construct_targets',
-                                                    {}))
+                                                    {},
+                                                    False))
             for target in self.targets:
                 self.tag_adds.extend(target.gen_xml())
 
@@ -201,7 +202,7 @@ def factory(specs: tp.List[str],
     """
     assert len(specs) == len(orientations),\
         "# specs != # orientations: {0} != {1}".format(len(specs),
-                                                              len(orientations))
+                                                       len(orientations))
     targets = Parser()(specs, orientations)
 
     for target in targets:

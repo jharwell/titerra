@@ -1,0 +1,25 @@
+base_graphs: &base_graphs
+  - LN_spatial_interference
+  - LN_spatial_movement
+  - LN_spatial_nest_zone
+  - LN_block_trans
+  - LN_block_acq
+  - LN_block_manip
+
+d0:
+  controllers:
+    - name: CRW
+      xml:
+        # 1. Bringup core turtlebot + lidar sensor.
+        # 2. Start CRW node on each robot.
+        # 3. Start master node for d0 robots on ROS master.
+        tag_add:
+          - ["./robot/group/[@ns='__UUID__']", 'include', "{'file': '$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch'}"]
+          - ["./robot/group/[@ns='__UUID__']", "node", "{'name': 'fordyca_rosbridge_d0_crw_node', 'pkg':'fordyca_rosbridge', 'type':'fordyca_rosbridge_crw_node','output':'screen'}"]
+          - ["./master", "node", "{'name': 'fordyca_rosbridge_d0_master_node', 'pkg':'fordyca_rosbridge', 'type':'fordyca_rosbridge_d0_master_node','output':'screen'}"]
+
+        tag_change:
+            - ['.//controllers', '__CONTROLLER__', 'crw_controller']
+
+      graphs_inherit:
+        - *base_graphs

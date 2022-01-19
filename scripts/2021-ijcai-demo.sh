@@ -17,7 +17,7 @@ BASE_CMD="python3 main.py \
         --template-input-file=$SIERRA/templates/2021-ijcai-demo.argos \
         --project=fordyca\
         --physics-n-engines=1\
-        --time-setup=time_setup.T1000\
+        --exp-setup=exp_setup.T1000\
         --batch-criteria population_size.Log8\
         --exp-overwrite\
         --models-disable\

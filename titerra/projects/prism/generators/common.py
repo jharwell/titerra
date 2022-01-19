@@ -29,9 +29,9 @@ from sierra.core.xml import XMLLuigi
 import sierra.core.generators.scenario_generator as sg
 import sierra.core.utils as scutils
 
-from titerra.projects.titan.variables import block_distribution, arena
+from titerra.projects.common.variables import block_distribution, arena
 import titerra.projects.prism.variables.ct_set as ctset
-from titerra.projects.titan.generators.common import ForagingScenarioGenerator
+from titerra.projects.common.generators.argos import ForagingScenarioGenerator
 
 
 class ConstructionScenarioGenerator(ForagingScenarioGenerator):
@@ -62,7 +62,8 @@ class ConstructionScenarioGenerator(ForagingScenarioGenerator):
             zmax = max(zmax, t.extent.zsize())
 
         if self.cmdopts['physics_n_engines'] == 1:
-            logging.warning("Cannot mix 2D/3D engines with only 1 engine: using 1 3D engine")
+            logging.warning(
+                "Cannot mix 2D/3D engines with only 1 engine: using 1 3D engine")
             n_engines_2D = 0
             n_engines_3D = 1
             extents_3D = [self.spec.arena_dim]

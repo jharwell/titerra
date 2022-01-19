@@ -58,7 +58,7 @@ XCARDINALITY1=4
 XCARDINALITY2=3
 YCARDINALITY1=8
 YCARDINALITY2=8
-TIME=time_setup.T10000
+TIME=exp_setup.T10000
 TASKS=("scalability" "flexibility" "robustness_pd" "robustness_saa")
 NSIMS=192
 CONTROLLERS_LIST=(d0.CRW d0.DPO d1.BITD_DPO d2.BIRTD_DPO)
@@ -117,7 +117,7 @@ then
                     --batch-criteria block_motion_dynamics.C${XCARDINALITY1}.F25p0.RW0p001 population_constant_density.${DENSITY}.I16.C${YCARDINALITY1} \
                     --controller=${c} \
                     --n-blocks=${N_BLOCKS}\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
     done
 fi
 
@@ -130,7 +130,7 @@ then
                   --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} temporal_variance.MSine\
                   --controller=${c}\
                   --n-blocks=${N_BLOCKS}\
-                  --time-setup=${TIME}
+                  --exp-setup=${TIME}
 
     done
 fi
@@ -144,7 +144,7 @@ then
                     --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} saa_noise.all.C${YCARDINALITY2}\
                     --controller=${c} \
                     --n-blocks=${N_BLOCKS}\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
     done
 fi
 
@@ -156,7 +156,7 @@ then
                   --batch-criteria population_constant_density.${DENSITY}.I32.C${XCARDINALITY2} population_dynamics.C${YCARDINALITY2}.F2p0.D0p0001 \
                   --controller=${c} \
                   --n-blocks=${N_BLOCKS}\
-                  --time-setup=${TIME}
+                  --exp-setup=${TIME}
     done
 fi
 

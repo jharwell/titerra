@@ -1,0 +1,14 @@
+sierra:
+  run:
+    run_metrics_leaf: 'metrics'
+    library_name: 'libfordyca'
+    
+  perf: 'perf.yaml'
+
+ros:
+  robots:
+    turtlebot3:
+      pkg: "turtlebot3_gazebo"
+      model: "turtlebot3"
+      prefix: "tb3_"
+      model_variant: "burger"

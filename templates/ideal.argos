@@ -17,7 +17,7 @@
   <!-- *************** -->
   <controllers>
 
-    <__controller__ id="ffc"
+    <__CONTROLLER__ id="ffc"
                   library="foo">
       <actuators>
         <differential_steering implementation="default" />
@@ -191,7 +191,7 @@
                       max_speed="0.1" />
         </actuation_subsystem2D>
       </params>
-    </__controller__>
+    </__CONTROLLER__>
 
   </controllers>
 
@@ -205,7 +205,7 @@
       <metrics
           metrics_path="metrics">
         <sinks>
-          <csv>
+          <file>
         <append
             output_interval="1000"
             block_acq_counts="block-acq-counts"
@@ -245,7 +245,7 @@
                   cache_acq_vector_locs2D="cache-acq-vector-locs2D"
                   cache_locations="cache-locations"
                   spatial_dist2D_pos="spatial-dist2D-pos"/>
-          </csv>
+          </file>
         </sinks>
       </metrics>
     </output>
@@ -329,7 +329,7 @@
   <!-- * Arena configuration * -->
   <!-- *********************** -->
   <arena size="12, 6, 2" center="6,3,1">
-
+pp
     <floor id="floor"
            source="loop_functions"
            pixels_per_meter="50" />

@@ -51,7 +51,7 @@ OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
 # Begin Experiments                                                            #
 ################################################################################
 OUTPUT_ROOT=$HOME/exp/2021-tro-sc1-4
-TIME=time_setup.T10000
+TIME=exp_setup.T10000
 
 CONTROLLERS_LIST=(d0.CRW d0.DPO d1.BITD_DPO d2.BIRTD_DPO)
 TASKS=("scalability" "flexibility" "robustness_saa" "robustness_pd")
@@ -151,13 +151,13 @@ then
                     --batch-criteria population_size.Log128 \
                     --controller=${c} \
                     --n-blocks=512\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
 
         $SIERRA_CMD --scenario=RN.48x48x2 \
                       --batch-criteria population_size.Log512 \
                       --controller=${c} \
                       --n-blocks=2048\
-                      --time-setup=${TIME}
+                      --exp-setup=${TIME}
     done
 fi
 
@@ -170,13 +170,13 @@ then
                     --batch-criteria temporal_variance.BCSquare.Z50 \
                     --controller=${c}\
                     --n-blocks=200\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
 
         $SIERRA_CMD --scenario=RN.48x48x2 \
                       --batch-criteria temporal_variance.BCSquare.Z200\
                       --controller=${c} \
                       --n-blocks=800\
-                      --time-setup=${TIME}
+                      --exp-setup=${TIME}
 
     done
 fi
@@ -192,14 +192,14 @@ then
                     --controller=${c} \
                     --n-blocks=200\
                     --n-robots=50\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
 
         $SIERRA_CMD --scenario=RN.48x48x2 \
                     --batch-criteria saa_noise.all.${CARDINALITY}.Z200\
                     --controller=${c} \
                     --n-blocks=800\
                     --n-robots=200\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
 
     done
 fi
@@ -216,7 +216,7 @@ then
                     --controller=${c} \
                     --n-blocks=200\
                     --n-robots=50\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
 
         # Steady state population of 20 when total swarm size is 200 (repair queue
         # steady state of 180)
@@ -226,7 +226,7 @@ then
                     --controller=${c} \
                     --n-blocks=800\
                     --n-robots=200\
-                    --time-setup=${TIME}
+                    --exp-setup=${TIME}
 
     done
 fi

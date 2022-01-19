@@ -95,9 +95,10 @@ class BaseConstructTarget():
             'orientation': self.spec['orientation'],
             'graphml': self.graphml_path
         }
-        return XMLTagAddList((XMLTagAdd('.//loop_functions/construct_targets',
-                                        uuid,
-                                        attrs)))
+        return XMLTagAddList(XMLTagAdd('.//loop_functions/construct_targets',
+                                       uuid,
+                                       attrs,
+                                       False))
 
     def write_graphml(self, graph: nx.Graph, path: str) -> None:
         """
@@ -468,11 +469,11 @@ class Ramp(BaseConstructTarget):
         if self.spec['orientation'].is_EW():
             assert self.extent.xsize() % self.kRAMP_LENGTH_RATIO == 0,\
                 "X size={0} not a multiple for ramp block length ratio={1}".format(self.extent.xsize(),
-                                                                                          self.kRAMP_LENGTH_RATIO)
+                                                                                   self.kRAMP_LENGTH_RATIO)
         elif self.spec['orientation'].is_NS():
             assert self.extent.ysize() % self.kRAMP_LENGTH_RATIO == 0,\
                 "Y size={0} not a multiple for ramp block length ratio {1}".format(self.extent.ysize(),
-                                                                                          self.kRAMP_LENGTH_RATIO)
+                                                                                   self.kRAMP_LENGTH_RATIO)
 
     def gen_graph(self) -> nx.Graph:
         graph = nx.Graph()

@@ -1,0 +1,14 @@
+perf:
+  inverted: false
+
+  intra_perf_csv: 'block-transportee.csv'
+  intra_perf_col: 'int_avg_transported'
+
+  intra_interference_csv: 'spatial-interference-counts.csv'
+  intra_interference_col: 'int_avg_exp_interference'
+
+  intra_tv_environment_csv: 'tv-environment.csv'
+  intra_tv_population_csv: 'tv-population.csv'
+
+  raw_perf_title: 'Blocks Transported (Cumulative Average)'
+  raw_perf_ylabel: '\# Blocks'

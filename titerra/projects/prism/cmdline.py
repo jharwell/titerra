@@ -24,11 +24,11 @@ import argparse
 # 3rd party packages
 
 # Project packages
-import titerra.projects.titan as titan
+import titerra.projects.common as common
 import sierra.core.cmdline as sacmd
 
 
-class Cmdline(titan.cmdline.Cmdline):
+class Cmdline(common.cmdline.Cmdline):
     """
     Defines PRISM extensions to the core command line arguments defined in
     :class:`~core.cmdline.CoreCmdline`.
@@ -101,7 +101,7 @@ class Cmdline(titan.cmdline.Cmdline):
         options.
 
         """
-        titan.cmdline.Cmdline.cmdopts_update(cli_args, cmdopts)
+        common.cmdline.Cmdline.cmdopts_update(cli_args, cmdopts)
         # Stage1
         updates = {
             'controller': cli_args.controller,
@@ -111,7 +111,7 @@ class Cmdline(titan.cmdline.Cmdline):
         cmdopts.update(updates)
 
 
-class CmdlineValidator(titan.cmdline.CmdlineValidator):
+class CmdlineValidator(common.cmdline.CmdlineValidator):
     def __call__(self, args) -> None:
         super().__call__(args)
 

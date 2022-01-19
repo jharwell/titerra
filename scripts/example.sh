@@ -27,10 +27,10 @@ sierra-cli \
     --sierra-root=$OUTPUT_ROOT\
     --template-input-file=$TITERRA/templates/ideal.argos \
     --n-sims=8\
-    --log-level=TRACE\
-    --project=fordyca\
+    --log-level=INFO\
+    --project=fordyca_argos\
     --hpc-env=hpc.local\
-    --pipeline 4 --exp-graphs=all\
+    --pipeline 4\
     --physics-n-engines=1\
     --controller=d0.CRW\
     --scenario=SS.12x6x1\
@@ -38,6 +38,6 @@ sierra-cli \
     --no-verify-results\
     --batch-criteria population_size.Log8\
     --n-blocks=20\
-    --time-setup=time_setup.T10000\
+    --exp-setup=exp_setup.T10000\
     --exp-overwrite\
     --models-disable
