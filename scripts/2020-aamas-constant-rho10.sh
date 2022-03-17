@@ -1,14 +1,14 @@
 #!/bin/bash -l
 #SBATCH --time=24:00:00
-#SBATCH --nodes 8
-#SBATCH --tasks-per-node=4
-#SBATCH --cpus-per-task=6
+#SBATCH --nodes 10
+#SBATCH --tasks-per-node=3
+#SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=2G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=harwe006@umn.edu
 #SBATCH --output=R-%x.%j.out
 #SBATCH --error=R-%x.%j.err
-#SBATCH -J 2020-aamas-d0-constant-rho10
+#SBATCH -J 2020-aamas-d0-constant-rho10-1
 
 ################################################################################
 # Setup Simulation Environment                                                 #
@@ -82,19 +82,19 @@ SIERRA_BASE_CMD="sierra-cli \
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
     # 4 controllers, 3 scenarios
-    SCENARIO_NUM=$(($SLURM_ARRAY_TASK_ID % 3)) # This is the scenario
-    CONTROLLER_NUM=$(($SLURM_ARRAY_TASK_ID / 3)) # This is the controller
+    SCENARIO_NUM=$(($SLURM_ARRAY_TASK_ID / 4)) # This is the scenario
+    CONTROLLER_NUM=$(($SLURM_ARRAY_TASK_ID % 4)) # This is the controller
     CONTROLLERS=(${CONTROLLERS_LIST[$CONTROLLER_NUM]})
-    SCENARIOS=${SCENARIOS_LIST=[$SCENARIO_NUM]}
+    SCENARIOS=(${SCENARIOS_LIST[$SCENARIO_NUM]})
 
     SIERRA_CMD="$SIERRA_BASE_CMD \
                 --exec-env=hpc.slurm \
                 --exec-resume \
-                --pipeline 1"
+                --pipeline 1 2"
 
-    echo "********************************************************************************\n"
+    echo -e "********************************************************************************\n"
     squeue -j $SLURM_JOB_ID[$SLURM_ARRAY_TASK_ID] -o "%.9i %.9P %.8j %.8u %.2t %.10M %.6D %S %e"
-    echo "********************************************************************************\n"
+    echo -e "********************************************************************************\n"
 else
     TASK="$1"
     CONTROLLERS=("${CONTROLLERS_LIST[@]}")
@@ -103,7 +103,8 @@ else
     SIERRA_CMD="$SIERRA_BASE_CMD\
                   --exec-env=hpc.local\
                   --physics-n-engines=4 \
-                  --exec-resume
+                  --exec-resume \
+                  --pipeline 1
                   "
 fi
 
@@ -133,9 +134,12 @@ if [ "$TASK" == "comp" ]; then
                   --plot-large-text\
                   --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT\
-                  --comparison-type='diff2D'"
-
-    $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I12.C10 ta_policy_set.all \
-                --controllers-list=d1.BITD_ODPO,d2.BIRTD_DPO\
-                --controllers-legend="Average Cross-Clique Centrality=1","Average Cross-Clique Centrality=1.2"
+                  --comparison-type=HMraw"
+    for s in "${SCENARIOS[@]}"
+    do
+        $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I12.C10 ta_policy_set.all \
+                    --controllers-list=d0.DPO,d0.DPO \
+                    --scenario=${s} \
+                    --controllers-legend="Average Cross-Clique Centrality=1","Average Cross-Clique Centrality=1.2"
+        done
 fi

@@ -37,6 +37,7 @@ class StaticCache():
                it.
         extents: List of the extents within the arena to generate definitions for.
     """
+    kCacheDimFrac = 0.15
 
     def __init__(self, sizes: tp.List[int], extents: tp.List[ArenaExtent]):
         self.sizes = sizes
@@ -45,22 +46,36 @@ class StaticCache():
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         """
-        Generate list of sets of changes necessary to make to the input file to correctly set up the
-        simulation for the list of static cache sizes specified in constructor.
+        Generate list of sets of changes necessary to make to the input file to
+        correctly set up the simulation for the list of static cache sizes
+        specified in constructor.
 
         - Disables dynamic caches
+
         - Enables static caches
-        - Sets static cache size (initial # blocks upon creation) and its dimensions in the arena
-          during its existence.
+
+        - Sets static cache size (initial # blocks upon creation) and its
+          dimensions in the arena during its existence.
+
         """
         if self.attr_changes is None:
+
             self.attr_changes = [XMLAttrChangeSet(
-                XMLAttrChange(".//loop_functions/caches/dynamic", "enable", "false"),
-                XMLAttrChange(".//loop_functions/caches/static", "enable", "true"),
-                XMLAttrChange(".//loop_functions/caches/static", "size", "{0:.9f}".format(s)),
-                XMLAttrChange(".//loop_functions/caches", "dimension", "{0:.9f}".format(max(e.ur.x * 0.20,
-                                                                                            e.ur.y * 0.20)))
+                XMLAttrChange(".//loop_functions/caches/dynamic",
+                              "enable",
+                              "false"),
+                XMLAttrChange(".//loop_functions/caches/static",
+                              "enable",
+                              "true"),
+                XMLAttrChange(".//loop_functions/caches/static",
+                              "size",
+                              "{0:.9f}".format(s)),
+                XMLAttrChange(".//loop_functions/caches",
+                              "dimension",
+                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                   e.ur.y * self.kCacheDimFrac)))
             ) for e in self.extents for s in self.sizes]
+
         return self.attr_changes
 
     def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:

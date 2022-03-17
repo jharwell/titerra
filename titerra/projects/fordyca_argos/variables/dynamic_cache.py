@@ -28,14 +28,17 @@ from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange, XMLTagRmList, XMLTa
 
 @implements.implements(IBaseVariable)
 class DynamicCache():
-
     """
-    Defines the size and capacity of a dynamic cache to test with. Only really applicable to single
-    source foraging scenarios, but will work with only types as well.
+    Defines the size and capacity of a dynamic cache to test with. Only really
+    applicable to single source foraging scenarios, but will work with only
+    types as well.
 
     Attributes:
-        extents: List of the extents within the arena to generate definitions for.
+        extents: List of the extents within the arena to generate definitions
+        for.
+
     """
+    kCacheDimFrac = 0.15
 
     def __init__(self, extents: tp.List[ArenaExtent]):
         self.extents = extents
@@ -51,39 +54,62 @@ class DynamicCache():
         """
         if self.attr_changes is None:
             self.attr_changes = [XMLAttrChangeSet(
-                XMLAttrChange(".//loop_functions/caches/dynamic", "enable", "true"),
-                XMLAttrChange(".//loop_functions/caches/static", "enable", "false"),
-                XMLAttrChange(".//loop_functions/caches/dynamic", "min_dist", "{0:.9f}".format(min(e.ur.x * 0.20,
-                                                                                                   e.ur.y * 0.20))),
+                XMLAttrChange(".//loop_functions/caches/dynamic",
+                              "enable",
+                              "true"),
+                XMLAttrChange(".//loop_functions/caches/static",
+                              "enable",
+                              "false"),
+                XMLAttrChange(".//loop_functions/caches/dynamic",
+                              "min_dist",
+                              "{0:.9f}".format(min(e.ur.x * self.kCacheDimFrac,
+                                                   e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//loop_functions/caches", "dimension", "{0:.9f}".format(max(e.ur.x * 0.20,
-                                                                                            e.ur.y * 0.20))),
+                XMLAttrChange(".//loop_functions/caches",
+                              "dimension",
+                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                   e.ur.y * self.kCacheDimFrac))),
 
-                # Set to dimensions of cache to ensure that caches will not be created such that they
-                # overlap
-                XMLAttrChange(".//cache_sel_matrix", "cache_prox_dist", "{0:.9f}".format(max(e.ur.x * 0.20,
-                                                                                             e.ur.y * 0.20))),
-                # Set to slightly less than dimensions of cache to give robots more flexibility/less
-                # congestion when they try to create caches.
-                XMLAttrChange(".//cache_sel_matrix", "new_cache_tol", "{0:.9f}".format(max(e.ur.x * 0.15,
-                                                                                             e.ur.y * 0.15))),
-                XMLAttrChange(".//cache_sel_matrix", "nest_prox_dist", "{0:.9f}".format(max(e.ur.x * 0.20,
-                                                                                            e.ur.y * 0.20))),
+                # Set to dimensions of cache to ensure that caches will not be
+                # created such that they overlap
+                XMLAttrChange(".//cache_sel_matrix",
+                              "cache_prox_dist",
+                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                   e.ur.y * self.kCacheDimFrac))),
+                # Set to slightly less than dimensions of cache to give robots
+                # more flexibility/less congestion when they try to create
+                # caches.
+                XMLAttrChange(".//cache_sel_matrix",
+                              "new_cache_tol",
+                              "{0:.9f}".format(max(e.ur.x * 0.75 * self.kCacheDimFrac,
+                                                   e.ur.y * 0.75 * self.kCacheDimFrac))),
+                XMLAttrChange(".//cache_sel_matrix",
+                              "nest_prox_dist",
+                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                   e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//cache_sel_matrix", "block_prox_dist", "{0:.9f}".format(max(e.ur.x * 0.20,
-                                                                                             e.ur.y * 0.20))),
+                XMLAttrChange(".//cache_sel_matrix",
+                              "block_prox_dist",
+                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                   e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//block_sel_matrix/pickup_policy", "prox_dist", "{0:.9f}".format(max(e.ur.x * 0.20,
-                                                                                                     e.ur.y * 0.20))),
+                XMLAttrChange(".//block_sel_matrix/pickup_policy",
+                              "prox_dist",
+                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                   e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//cache_sel_matrix", "site_xrange", "{0}:{1:.9f}".format(max(e.ur.x * 0.20,
-                                                                                             e.ur.y * 0.20) / 2.0,
-                                                                                         e.ur.x - max(e.ur.x * 0.20,
-                                                                                                      e.ur.y * 0.20) / 2.0)),
-                XMLAttrChange(".//cache_sel_matrix", "site_yrange", "{0}:{1:.9f}".format(max(e.ur.x * 0.20,
-                                                                                             e.ur.y * 0.20) / 2.0,
-                                                                                         e.ur.y - max(e.ur.x * 0.20,
-                                                                                                      e.ur.y * 0.20) / 2.0)),
+                XMLAttrChange(".//cache_sel_matrix",
+                              "site_xrange",
+                              "{0}:{1:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                       e.ur.y * self.kCacheDimFrac) / 2.0,
+                                                   e.ur.x - max(e.ur.x * self.kCacheDimFrac,
+                                                                e.ur.y * self.kCacheDimFrac) / 2.0)),
+                XMLAttrChange(".//cache_sel_matrix",
+                              "site_yrange",
+                              "{0}:{1:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                       e.ur.y * self.kCacheDimFrac) / 2.0,
+                                                   e.ur.y - max(e.ur.x * self.kCacheDimFrac,
+                                                                e.ur.y * self.kCacheDimFrac) / 2.0)),
             ) for e in self.extents]
         return self.attr_changes
 
