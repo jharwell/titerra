@@ -1,14 +1,14 @@
 #!/bin/bash -l
 #SBATCH --time=24:00:00
-#SBATCH --nodes 8
-#SBATCH --tasks-per-node=4
-#SBATCH --cpus-per-task=6
+#SBATCH --nodes 10
+#SBATCH --tasks-per-node=3
+#SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=2G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=harwe006@umn.edu
 #SBATCH --output=R-%x.%j.out
 #SBATCH --error=R-%x.%j.err
-#SBATCH -J 2020-aamas-d0-constant-rho10
+#SBATCH -J 2020-aamas-d0-constant-rho10-1
 
 ################################################################################
 # Setup Simulation Environment                                                 #
@@ -27,7 +27,7 @@ fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
 # AND the fordyca library path.
-export ARGOS_PLUGIN_PATH=$localroot/lib/argos3:$FORDYCA_ROOT/build/lib
+export ARGOS_PLUGIN_PATH=$ARGOS_PLUGIN_PATH:$FORDYCA_ROOT/build/lib
 
 # Setup logging (maybe compiled out and unneeded, but maybe not)
 export LOG4CXX_CONFIGURATION=$FORDYCA_ROOT/log4cxx.xml
@@ -50,14 +50,16 @@ OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
 # Begin Experiments                                                            #
 ################################################################################
 OUTPUT_ROOT=$HOME/exp/2020-aamas-constant-rho10-1
-TIME=exp_setup.T10000
+EXP_SETUP=exp_setup.T10000
 
 CONTROLLERS_LIST=(d1.BITD_DPO d1.BITD_ODPO d2.BIRTD_DPO d2.BIRTD_ODPO)
 SCENARIOS_LIST=(SS.36x18x1 DS.36x18x1 QS.36x36x1)
+# CONTROLLERS_LIST=(d1.BITD_DPO)
+# SCENARIOS_LIST=(QS.36x36x1)
 
 TASK="exp"
 CARDINALITY=C8
-NRUNS=4
+NRUNS=3
 
 BLOCK_COUNT=1000
 
@@ -76,25 +78,26 @@ SIERRA_BASE_CMD="sierra-cli \
                  --dist-stats=conf95\
                  --exp-overwrite \
                  --models-disable\
+                 --exp-setup=${EXP_SETUP}\
                  --with-robot-leds\
-                 --log-level=DEBUG\
+                 --log-level=DEBUG \
                  --no-verify-results"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
     # 4 controllers, 3 scenarios
-    SCENARIO_NUM=$(($SLURM_ARRAY_TASK_ID % 3)) # This is the scenario
-    CONTROLLER_NUM=$(($SLURM_ARRAY_TASK_ID / 3)) # This is the controller
+    SCENARIO_NUM=$(($SLURM_ARRAY_TASK_ID / 4)) # This is the scenario
+    CONTROLLER_NUM=$(($SLURM_ARRAY_TASK_ID % 4)) # This is the controller
     CONTROLLERS=(${CONTROLLERS_LIST[$CONTROLLER_NUM]})
-    SCENARIOS=${SCENARIOS_LIST=[$SCENARIO_NUM]}
+    SCENARIOS=(${SCENARIOS_LIST[$SCENARIO_NUM]})
 
     SIERRA_CMD="$SIERRA_BASE_CMD \
                 --exec-env=hpc.slurm \
                 --exec-resume \
-                --pipeline 1"
+                --pipeline 1 2"
 
-    echo "********************************************************************************\n"
+    echo -e "********************************************************************************\n"
     squeue -j $SLURM_JOB_ID[$SLURM_ARRAY_TASK_ID] -o "%.9i %.9P %.8j %.8u %.2t %.10M %.6D %S %e"
-    echo "********************************************************************************\n"
+    echo -e "********************************************************************************\n"
 else
     TASK="$1"
     CONTROLLERS=("${CONTROLLERS_LIST[@]}")
@@ -102,8 +105,9 @@ else
 
     SIERRA_CMD="$SIERRA_BASE_CMD\
                   --exec-env=hpc.local\
-                  --physics-n-engines=4 \
-                  --exec-resume
+                  --physics-n-engines=8 \
+                  --exec-resume \
+                  --pipeline 1 2
                   "
 fi
 
@@ -133,9 +137,12 @@ if [ "$TASK" == "comp" ]; then
                   --plot-large-text\
                   --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT\
-                  --comparison-type='diff2D'"
-
-    $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I12.C10 ta_policy_set.all \
-                --controllers-list=d1.BITD_ODPO,d2.BIRTD_DPO\
-                --controllers-legend="Average Cross-Clique Centrality=1","Average Cross-Clique Centrality=1.2"
+                  --comparison-type=HMraw"
+    for s in "${SCENARIOS[@]}"
+    do
+        $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I12.C10 ta_policy_set.all \
+                    --controllers-list=d0.DPO,d0.DPO \
+                    --scenario=${s} \
+                    --controllers-legend="Average Cross-Clique Centrality=1","Average Cross-Clique Centrality=1.2"
+        done
 fi

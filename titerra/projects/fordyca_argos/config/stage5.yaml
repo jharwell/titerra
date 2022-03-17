@@ -39,35 +39,35 @@ intra_scenario:
       primary_axis: 0
       include_exp: '2:'
 
-      # flexibility
-    - src_stem: PM-ss-reactivity
-      dest_stem: cc-PM-ss-reactivity
-      title: ''
-      label: '$DTW(P_{R^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
-      primary_axis: 0
-      include_exp: '1:'
+    #   # flexibility
+    # - src_stem: PM-ss-reactivity
+    #   dest_stem: cc-PM-ss-reactivity
+    #   title: ''
+    #   label: '$DTW(P_{R^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
+    #   primary_axis: 0
+    #   include_exp: '1:'
 
-    - src_stem: PM-ss-adaptability
-      dest_stem: cc-PM-ss-adaptability
-      title: ''
-      label: '$DTW(P_{A^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
-      primary_axis: 0
-      include_exp: '1:'
+    # - src_stem: PM-ss-adaptability
+    #   dest_stem: cc-PM-ss-adaptability
+    #   title: ''
+    #   label: '$DTW(P_{A^{*}}(\mathcal{N},\kappa,t),P(\mathcal{N},\kappa,t))$'
+    #   primary_axis: 0
+    #   include_exp: '1:'
 
-    - src_stem: PM-ss-robustness-pd
-      dest_stem: cc-PM-ss-robustness-pd
-      title: ''
-      label: 'Robustness Value'
-      primary_axis: 0
-      include_exp: '1:'
+    # - src_stem: PM-ss-robustness-pd
+    #   dest_stem: cc-PM-ss-robustness-pd
+    #   title: ''
+    #   label: 'Robustness Value'
+    #   primary_axis: 0
+    #   include_exp: '1:'
 
-    # robustness
-    - src_stem: PM-ss-robustness-saa
-      dest_stem: cc-PM-ss-robustness-saa
-      title: ''
-      label: '$DTW(P_{B_{saa}^{*}}(N,\kappa,t),P(\mathcal{N},\kappa,t))$'
-      primary_axis: 0
-      include_exp: '1:'
+    # # robustness
+    # - src_stem: PM-ss-robustness-saa
+    #   dest_stem: cc-PM-ss-robustness-saa
+    #   title: ''
+    #   label: '$DTW(P_{B_{saa}^{*}}(N,\kappa,t),P(\mathcal{N},\kappa,t))$'
+    #   primary_axis: 0
+    #   include_exp: '1:'
 
 # Inter-scenario
 inter_scenario:

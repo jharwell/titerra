@@ -40,7 +40,7 @@ class Cmdline(cmdline.ARGoSCmdline):
                  stages: tp.List[int]) -> None:
         super().scaffold_cli(parents)
 
-        super().init_cli(stages, )
+        super().init_cli(stages)
 
     def init_multistage(self):
         super().init_multistage()

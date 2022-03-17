@@ -1,6 +1,6 @@
 sierra:
   run:
     run_metrics_leaf: 'metrics'
-    library_name: 'libfordyca-argos-footbot-v1120'
+    library_name: 'libfordyca-argos-footbot'
 
   perf: '2021-tro-sc1-perf.yaml'
