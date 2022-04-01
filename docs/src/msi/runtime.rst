@@ -23,11 +23,11 @@ Workflow
    script in the SIERRA repo for your experiment/batch experiment, and modify as
    needed:
 
-   Slurm parameters you **DO** need to change:
+   SLURM parameters you **DO** need to change:
 
      - The email (I don't want to get emails about **YOUR** jobs).
 
-   Slurm parameters you **MIGHT** need to change:
+   SLURM parameters you **MIGHT** need to change:
 
      - The number of requested nodes.
 

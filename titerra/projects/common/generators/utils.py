@@ -45,17 +45,24 @@ def generate_time(exp_def: XMLLuigi,
     scutils.pickle_modifications(adds, chgs, spec.exp_def_fpath)
 
 
-def generate_random(exp_def: XMLLuigi, random_seed: int) -> None:
+def generate_random(exp_def: XMLLuigi,
+                    controller_param_xpath: str,
+                    random_seed: int) -> None:
     """
     Generates XML changes for setting up metric collection in TITAN.
 
     Does not write generated changes to the simulation definition pickle
     file.
     """
-    if exp_def.has_tag('.//params/rng'):
-        exp_def.attr_change(".//params/rng", "seed", str(random_seed))
+    if exp_def.has_tag(f'{controller_param_xpath}/rng'):
+        exp_def.attr_change(f'{controller_param_xpath}/rng',
+                            "seed",
+                            str(random_seed))
     else:
-        exp_def.tag_add(".//params", "rng", {"seed": str(random_seed)})
+        exp_def.tag_add(f'{controller_param_xpath}/rng',
+                        {
+                            "seed": str(random_seed)
+                        })
 
 
 def generate_output(exp_def: XMLLuigi,

@@ -64,7 +64,9 @@ class ExpRunDefUniqueGenerator(PlatformExpRunDefUniqueGenerator):
     def generate(self, exp_def: XMLLuigi):
         super().generate(exp_def)
 
-        tiutils.generate_random(exp_def, self.random_seed)
+        tiutils.generate_random(exp_def,
+                                "./params/controllers/*",
+                                self.random_seed)
 
         tiutils.generate_output(exp_def,
                                 "./params/controllers/*",

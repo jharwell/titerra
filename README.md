@@ -11,7 +11,7 @@ Documentation is [here](https://swarm-robotics-titerra.readthedocs.io/en/latest/
 # Requirements
 
 - SIERRA 1.0.0
-- python >= 3.6
+- python >= 3.9
 - ARGoS >= 3.0.0-beta59.
 
 # License

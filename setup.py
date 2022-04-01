@@ -28,10 +28,17 @@ here = pathlib.Path(__file__).parent
 # The text of the README file
 readme = (here / "docs/src/synopsis.rst").read_text()
 
+# Get version
+ver_ns = {}
+ver_path = os.path.join('titerra', 'version.py')
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), ver_ns)
+
+
 # This call to setup() does all the work
 setup(
     name="titerra",
-    version="1.0.0",
+    version=ver_ns['__version__'],
     description="SIERRA extensions for the TITAN project",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -43,8 +50,13 @@ setup(
     classifiers=[
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Programming Language :: Python :: 3",
+        "Environment :: Console",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: POSIX :: Linux",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development :: Libraries :: Application Frameworks"
     ],
     packages=['titerra', 'titerra.projects', 'titerra.tools'],
     package_dir={'titerra': 'titerra',

@@ -1,26 +1,39 @@
-########
-SYNOPSIS
-########
+=======
+TITERRA
+=======
 
-.. toctree::
-   :maxdepth: 1
+Synopsis
+========
 
-   /src/synopsis.rst
+TITERRA is the :xref:`SIERRA` projects, plugins, and extensions that I'm using
+on my PhD thesis.
 
-########
-PROJECTS
-########
+Contains the following sub-projects:
 
-.. toctree::
-   :maxdepth: 1
+1. :xref:`FORDYCA` (foraging with dynamic caches)
+2. :xref:`PRISM` (graph manipulation for construction, deconstruction)
 
-   /src/projects/index.rst
+This the "main menu" of the TITERRA reference manual, which captures most, but
+not all of its documentation. For the full experience, look at the online docs
+at :xref:`TITERRA_DOCS`.
 
-########
-SEE ALSO
-########
 
-.. toctree::
-   :maxdepth: 1
+Components
+==========
 
-   /man/seealso.rst
+The following manpages are available:
+
+- :manpage:`sierra` - The SIERRA manual, which TITERRA is built on.
+
+- :manpage:`sierra-msi` - How to use SIERRA on the Minnesota Supercomputing
+  Institute (MSI).
+
+- :manpage:`fordyca-cli` - Command line interface for the FORDYCA project.
+
+- :manpage:`prism-cli` - Command line interface for the prism project.
+
+
+Bugs
+====
+
+Should be reported to :xref:`TITERRA_GITHUB`.
