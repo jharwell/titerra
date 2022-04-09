@@ -1,7 +1,7 @@
 perf:
   inverted: false
 
-  intra_perf_csv: 'block-transportee.csv'
+  intra_perf_csv: 'blocks-transportee.csv'
   intra_perf_col: 'int_avg_transported'
 
   intra_interference_csv: 'spatial-interference-counts.csv'

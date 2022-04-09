@@ -29,13 +29,12 @@ import math
 import implements
 import pandas as pd
 import sierra.core.models.interface
-import sierra.core.utils
 import sierra.plugins.platform.argos.variables.exp_setup as ts
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core.xml import XMLAttrChangeSet
-from sierra.core import types
+from sierra.core import types, utils, storage
 
 # Project packages
 import titerra.projects.fordyca_base.models.representation as rep
@@ -116,7 +115,7 @@ class IntraExp_HomingTime_1Robot():
         else:
             result_opaths = [os.path.join(cmdopts['exp_stat_root'])]
 
-        cluster_df = sierra.core.utils.pd_csv_read(
+        cluster_df = storage.DataFrameReader('storage.csv')(
             os.path.join(result_opaths[0], 'block-clusters.csv'))
 
         # We calculate 1 data point for each interval
@@ -149,7 +148,7 @@ class IntraExp_HomingTime_1Robot():
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
 
         # Convert seconds to timesteps for displaying on graphs
         avg_homing_ts = avg_homing_sec * time_params['ticks_per_sec']
@@ -243,7 +242,7 @@ class IntraExp_HomingTime_NRobots():
             exp_num: int,
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
-        cluster_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
+        cluster_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
                                                                 'block-clusters.csv'))
 
         # We calculate 1 data point for each interval
@@ -314,7 +313,7 @@ class InterExp_HomingTime_NRobots():
                 cmdopts2["batch_stat_root"], exp)
             cmdopts2["exp_model_root"] = os.path.join(
                 cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(
+            utils.dir_create_checked(
                 cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets a single graph

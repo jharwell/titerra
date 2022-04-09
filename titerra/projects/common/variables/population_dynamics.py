@@ -149,7 +149,7 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
 
     @staticmethod
     def calc_untasked_swarm_system_time(exp_def: XMLAttrChangeSet) -> float:
-        params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+        params = ts.ARGoSExpSetup.extract_time_params(exp_def)
         T = params['T_in_secs'] * params['controller_ticks_per_sec']
         lambda_d, mu_b, lambda_m, mu_r = PopulationDynamics.extract_rate_params(
             exp_def)

@@ -23,7 +23,6 @@ import logging  # type: ignore
 import networkx as nx
 import sierra.core.logging
 from sierra.core.vector import Vector3D
-from sierra.core.utils import ArenaExtent
 
 # Project packages
 from titerra.projects.prism.cmdline import Cmdline

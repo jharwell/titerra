@@ -27,9 +27,8 @@ import typing as tp
 import implements
 import pandas as pd
 import sierra.core.models.interface
-import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
-from sierra.core import types
+from sierra.core import types, utils, storage
 
 # Project packages
 
@@ -106,7 +105,7 @@ class IntraExp_WallInterferenceRate_1Robot():
 
     @staticmethod
     def calc_kernel_args(exp_stat_root: str) -> tp.Dict[str, pd.DataFrame]:
-        fsm_counts_df = sierra.core.utils.pd_csv_read(os.path.join(exp_stat_root,
+        fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(exp_stat_root,
                                                                    'fsm-interference-counts.csv'))
         return {
             'N_av1': fsm_counts_df['cum_avg_exp_interference'],
@@ -136,7 +135,7 @@ class IntraExp_WallInterferenceRate_1Robot():
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
 
-        fsm_df = sierra.core.utils.pd_csv_read(
+        fsm_df = storage.DataFrameReader('storage.csv')(
             os.path.join(result_opath, 'fsm-interference-counts.csv'))
 
         # We calculate 1 data point for each interval
@@ -231,7 +230,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
 
         # Add additional args for N robot case
         resultN_opath = os.path.join(cmdopts['exp_stat_root'])
-        fsm_countsN_df = sierra.core.utils.pd_csv_read(os.path.join(resultN_opath,
+        fsm_countsN_df = storage.DataFrameReader('storage.csv')(os.path.join(resultN_opath,
                                                                     'fsm-interference-counts.csv'))
 
         kargs['N_avN'] = fsm_countsN_df['cum_avg_exp_interference']
@@ -261,7 +260,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
-        fsm_df = sierra.core.utils.pd_csv_read(
+        fsm_df = storage.DataFrameReader('storage.csv')(
             os.path.join(result_opath, 'fsm-interference-counts.csv'))
 
         # We calculate 1 data point for each interval
@@ -363,7 +362,7 @@ class IntraExp_RobotInterferenceTime_NRobots():
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         result_opath = os.path.join(cmdopts['exp_stat_root'])
-        fsm_df = sierra.core.utils.pd_csv_read(
+        fsm_df = storage.DataFrameReader('storage.csv')(
             os.path.join(result_opath, 'fsm-interference-counts.csv'))
 
         # We calculate 1 data point for each interval
@@ -439,7 +438,7 @@ class InterExp_RobotInterferenceRate_NRobots():
                 cmdopts["batch_stat_root"], exp)
             cmdopts2["exp_model_root"] = os.path.join(
                 cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(
+            utils.dir_create_checked(
                 cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets one graph
@@ -507,7 +506,7 @@ class InterExp_RobotInterferenceTime_NRobots():
                 cmdopts["batch_stat_root"], exp)
             cmdopts2["exp_model_root"] = os.path.join(
                 cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(
+            utils.dir_create_checked(
                 cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets one graph

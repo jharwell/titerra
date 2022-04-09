@@ -21,18 +21,18 @@ import sys
 
 # Common TITAN packages to lift into 'fordyca_argos.variables' namespace for use in the
 # SIERRA project for FORDYCA.
-from titerra.projects.common.variables import arena as arena
-from titerra.projects.common.variables import block_density as block_density
-from titerra.projects.common.variables import block_distribution as block_distribution
-from titerra.projects.common.variables import block_motion_dynamics as block_motion_dynamics
-from titerra.projects.common.variables import block_quantity as block_quantity
-from titerra.projects.common.variables import nest as nest
-from titerra.projects.common.variables import oracle as oracle
-from titerra.projects.common.variables import population_size as population_size
-from titerra.projects.common.variables import ta_policy_set as ta_policy_set
-from titerra.projects.common.variables import temporal_variance as temporal_variance
-from titerra.projects.common.variables import temporal_variance_parser as temporal_variance_parser
-from titerra.projects.common.variables import exp_setup as exp_setup
+from titerra.projects.common.variables import arena
+from titerra.projects.common.variables import block_density
+from titerra.projects.common.variables import block_distribution
+from titerra.projects.common.variables import block_motion_dynamics
+from titerra.projects.common.variables import block_quantity
+from titerra.projects.common.variables import nest
+from titerra.projects.common.variables import oracle
+from titerra.projects.common.variables import population_size
+from titerra.projects.common.variables import ta_policy_set
+from titerra.projects.common.variables import temporal_variance
+from titerra.projects.common.variables import temporal_variance_parser
+from titerra.projects.common.variables import exp_setup
 
 # Do the lifts
 sys.modules['fordyca_argos.variables.arena'] = arena

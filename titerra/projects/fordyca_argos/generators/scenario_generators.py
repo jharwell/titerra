@@ -18,7 +18,7 @@
 import typing as tp
 
 # 3rd party packages
-import sierra.core.utils as scutils
+from sierra.core import utils as scutils
 from sierra.core.xml import XMLLuigi
 
 # Project packages

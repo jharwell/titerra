@@ -29,13 +29,11 @@ from functools import reduce
 # 3rd party packages
 import implements
 import pandas as pd
-from sierra.core import types
+from sierra.core import types, config, utils
 import sierra.core.models.interface
-from sierra.core import utils as scutils
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core.xml import XMLAttrChangeSet
-import sierra.core.config
 import sierra.plugins.platform.argos.variables.exp_setup as ts
 
 
@@ -125,13 +123,13 @@ class IntraExp_ODE_1Robot():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = utils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
+        fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
                                                        'fsm-interference-counts.csv'))
 
         # T,n_datapoints are directly from simulation inputs
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
         T = time_params['T_in_secs'] * time_params['ticks_per_sec']
 
         n_datapoints = len(fsm_counts_df.index)
@@ -242,7 +240,7 @@ class IntraExp_ODE_NRobots():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = scutils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
+        fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
                                                          'fsm-interference-counts.csv'))
 
         # N,T,n_datapoints are directly from simulation inputs
@@ -250,7 +248,7 @@ class IntraExp_ODE_NRobots():
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
         T = time_params['T_in_secs'] * time_params['ticks_per_sec']
         n_datapoints = len(fsm_counts_df.index)
 
@@ -265,9 +263,9 @@ class IntraExp_ODE_NRobots():
 
         # FIXME: N_av1 COULD be computed a priori, but I don't have time to do it right now, so I
         # just read it from simulation results.
-        fsm_counts1_df = scutils.pd_csv_read(os.path.join(cmdopts['exp0_stat_root'],
+        fsm_counts1_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
                                                           'fsm-interference-counts.csv'))
-        fsm_countsN_df = scutils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
+        fsm_countsN_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
                                                           'fsm-interference-counts.csv'))
 
         N_av1 = fsm_counts1_df['int_avg_exp_interference'].iloc[-1]
@@ -372,7 +370,7 @@ class InterExp_ODE_NRobots():
             cmdopts2["exp0_stat_root"] = os.path.join(
                 cmdopts["batch_stat_root"], dirs[0])
 
-            scutils.dir_create_checked(cmdopts2['exp_model_root'],
+            utils.dir_create_checked(cmdopts2['exp_model_root'],
                                        exist_ok=True)
 
             intra_dfs = IntraExp_ODE_NRobots(self.main_config,

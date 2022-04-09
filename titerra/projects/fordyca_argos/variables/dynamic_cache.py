@@ -22,7 +22,7 @@ import implements
 
 # Project packages
 from sierra.core.variables.base_variable import IBaseVariable
-from sierra.core.utils import ArenaExtent as ArenaExtent
+from sierra.core.utils import ArenaExtent
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange, XMLTagRmList, XMLTagAddList
 
 

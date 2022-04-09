@@ -29,10 +29,8 @@ import typing as tp
 # 3rd party packages
 import pandas as pd
 from sierra.core.variables.batch_criteria import BatchCriteria
-import sierra.core.utils
-import sierra.core.config
+from sierra.core.utils import types, storage
 import sierra.core.plugin_manager as pm
-from sierra.core import types
 
 # Project packages
 import titerra.projects.common.perf_measures.vcs as vcs
@@ -132,7 +130,7 @@ class FlexibilityPlotsCSVGenerator:
                 'ideal_adaptability': adaptability.waveforms_for_example_plots(0, exp_num)[0][:, 1]
             }
         )
-        sierra.core.utils.pd_csv_write(df, os.path.join(
+        storage.DataFrameWriter('storage.csv')(df, os.path.join(
             stat_root, 'flexibility-plots.csv'), index=False)
 
 

@@ -29,13 +29,12 @@ import pandas as pd
 
 # Project packages
 import sierra.core.models.interface
-import sierra.core.utils
 from sierra.core.experiment.spec import ExperimentSpec
 import titerra.projects.fordyca_base.models.representation as rep
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChangeSet
-from sierra.core import types
+from sierra.core import types, storage, utils
 import sierra.plugins.platform.argos.variables.exp_setup as ts
 
 from titerra.projects.fordyca_base.models.density import BlockAcqDensity
@@ -146,7 +145,7 @@ class IntraExp_BlockAcqRate_NRobots():
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSTimeSetup.extract_time_params(exp_def)
+        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
 
         alpha_b = self._kernel(N=n_robots,
                                wander_speed=float(
@@ -155,7 +154,7 @@ class IntraExp_BlockAcqRate_NRobots():
                                avg_acq_dist=avg_acq_dist,
                                scenario=cmdopts['scenario'])
 
-        rate_df = sierra.core.utils.pd_csv_read(
+        rate_df = storage.DataFrameReader('storage.csv')(
             os.path.join(result_opath, 'block-manipulation.csv'))
 
         # We calculate 1 data point for each interval
@@ -212,7 +211,7 @@ class IntraExp_BlockCollectionRate_NRobots():
                          cmdopts: types.Cmdopts,
                          main_config: types.YAMLDict,
                          config: types.YAMLDict):
-        block_manip_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
+        block_manip_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
                                                                     'block-manipulation.csv'))
 
         # Calculate acquisition rate
@@ -254,7 +253,7 @@ class IntraExp_BlockCollectionRate_NRobots():
             criteria: bc.IConcreteBatchCriteria,
             exp_num: int,
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
-        rate_df = sierra.core.utils.pd_csv_read(os.path.join(cmdopts['exp_stat_root'],
+        rate_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
                                                              'block-manipulation.csv'))
 
         # We calculate 1 data point for each interval
@@ -325,7 +324,7 @@ class InterExp_BlockAcqRate_NRobots():
                 cmdopts["batch_stat_root"], exp)
             cmdopts2["exp_model_root"] = os.path.join(
                 cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(
+            utils.dir_create_checked(
                 cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets a single graph
@@ -393,7 +392,7 @@ class InterExp_BlockCollectionRate_NRobots():
                 cmdopts["batch_stat_root"], exp)
             cmdopts2["exp_model_root"] = os.path.join(
                 cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(
+            utils.dir_create_checked(
                 cmdopts2['exp_model_root'], exist_ok=True)
 
             # Model only targets a single graph

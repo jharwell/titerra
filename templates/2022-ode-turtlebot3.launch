@@ -28,6 +28,9 @@
             <block range="-0.05:0.05"
                    consensus="4"/>
           </env_sensor>
+          <sonar_sensor
+              trigger_pin="16"
+              echo_pin="18"/>
         </sensing_subsystemQ3D>
         <nest dims="1.0, 4.0" center="2, 3" />
         <strategy>

@@ -26,13 +26,11 @@ import typing as tp
 import pandas as pd
 from sierra.plugins.platform.argos.variables import population_size
 from sierra.core.variables import batch_criteria as bc
-import sierra.core.config
 from sierra.core.xml import XMLAttrChangeSet
 from sierra.plugins.platform.argos.variables import population_constant_density as pcd
 from sierra.plugins.platform.argos.variables import population_variable_density as pvd
 import sierra.core.stat_kernels
-from sierra.core import utils as scutils
-from sierra.core import types
+from sierra.core import utils, types, config, storage
 
 # Project packages
 
@@ -124,7 +122,7 @@ class BaseSteadyStateFL:
         exp_def = XMLAttrChangeSet.unpickle(os.path.join(cmdopts["batch_input_root"],
                                                          criteria.gen_exp_dirnames(
                                                              self.cmdopts)[0],
-                                                         sierra.core.config.kPickleLeaf))
+                                                         config.kPickleLeaf))
 
         # Integers always seem to be pickled as floats, so you can't convert directly without an
         # exception.
@@ -295,7 +293,7 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
         # We need to know which of the 2 variables was swarm size, in order to
         # determine the correct dimension along which to compute the metric,
         # which depends on performance between adjacent swarm sizes.
-        axis = scutils.get_primary_axis(criteria,
+        axis = utils.get_primary_axis(criteria,
                                         [population_size.PopulationSize,
                                          pcd.PopulationConstantDensity,
                                          pvd.PopulationVariableDensity],
@@ -362,7 +360,7 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
         # We need to know which of the 2 variables was swarm size, in order to
         # determine the correct dimension along which to compute the metric,
         # which depends on performance between adjacent swarm sizes.
-        axis = scutils.get_primary_axis(criteria,
+        axis = utils.get_primary_axis(criteria,
                                         [population_size.PopulationSize,
                                          pcd.PopulationConstantDensity,
                                          pvd.PopulationVariableDensity],
@@ -399,12 +397,12 @@ def gather_collated_sim_dfs(cmdopts: types.Cmdopts,
                             csv_leaf: str,
                             csv_col: str) -> tp.Dict[str, pd.DataFrame]:
     # exp_dirs = criteria.gen_exp_dirnames(cmdopts)
-    exp_dirs = scutils.exp_range_calc(cmdopts, '', criteria)
+    exp_dirs = utils.exp_range_calc(cmdopts, '', criteria)
     dfs = {}
     for d in exp_dirs:
         csv_ipath = os.path.join(cmdopts["batch_stat_collate_root"],
                                  d + '-' + csv_leaf + '-' + csv_col + '.csv')
-        dfs[d] = scutils.pd_csv_read(csv_ipath)
+        dfs[d] = storage.DataFrameReader('storage.csv')(csv_ipath)
     return dfs
 
 
@@ -459,7 +457,7 @@ def _univar_distribution_do_prepare(cmdopts: types.Cmdopts,
     for stat in dist_dfs[list(dist_dfs.keys())[0]]:
         stat_opath = os.path.join(cmdopts["batch_stat_collate_root"],
                                   oleaf + stat)
-        scutils.pd_csv_write(joined[stat], stat_opath, index=False)
+        storage.DataFrameWriter('storage.csv')(joined[stat], stat_opath, index=False)
 
 
 def univar_distribution_prepare_join(cmdopts: types.Cmdopts,
@@ -467,7 +465,7 @@ def univar_distribution_prepare_join(cmdopts: types.Cmdopts,
                                      dist_dfs: tp.Dict[str, pd.DataFrame],
                                      exclude_exp0: bool) -> tp.Dict[str, pd.DataFrame]:
     # exp_dirs = criteria.gen_exp_dirnames(cmdopts)
-    exp_dirs = scutils.exp_range_calc(cmdopts, '', criteria)
+    exp_dirs = utils.exp_range_calc(cmdopts, '', criteria)
 
     # For batch criteria only defined for exp > 0 for some graphs
     if exclude_exp0:
@@ -493,7 +491,7 @@ def _bivar_distribution_do_prepare(cmdopts: types.Cmdopts,
 
     exp_dirs = criteria.gen_exp_dirnames(cmdopts)
 
-    xlabels, ylabels = scutils.bivar_exp_labels_calc(exp_dirs)
+    xlabels, ylabels = utils.bivar_exp_labels_calc(exp_dirs)
     if exclude_exp0:
         xlabels = xlabels[axis == 0:]
         ylabels = ylabels[axis == 1:]
@@ -509,7 +507,7 @@ def _bivar_distribution_do_prepare(cmdopts: types.Cmdopts,
                 df.iloc[xlabels.index(xlabel), ylabels.index(
                     ylabel)] = dist_dfs[exp][stat]
 
-        scutils.pd_csv_write(df, stat_opath, index=False)
+        storage.DataFrameWriter('storage.csv')(df, stat_opath, index=False)
 
 
 __api__ = [

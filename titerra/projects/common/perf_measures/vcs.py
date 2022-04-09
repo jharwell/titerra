@@ -28,8 +28,8 @@ import fastdtw
 import pandas as pd
 import numpy as np
 import similaritymeasures as sm
-import sierra.core.utils
-from sierra.core import types
+
+from sierra.core import types, utils, storage, config
 import sierra.core.config
 
 # Project packages
@@ -461,7 +461,7 @@ class CSRaw():
             if normalize_method == 'sigmoid':
                 # Lower distance is better, so invert the usual sigmoid signs to normalize into
                 # [-1,1], where higher values are better.
-                return sierra.core.utils.Sigmoid(-dist)() - sierra.core.utils.Sigmoid(dist)()
+                return utils.Sigmoid(-dist)() - utils.Sigmoid(dist)()
             raise NotImplementedError
 
 
@@ -481,7 +481,7 @@ class DataFrames:
                             dirs[exp_num],
                             tv_environment_csv)
         try:
-            return sierra.core.utils.pd_csv_read(path)
+            return storage.DataFrameReader('storage.csv')(path)
         except (FileNotFoundError, IndexError):
             logging.fatal("%s does not exist for exp num %s",
                           path,
@@ -502,7 +502,7 @@ class DataFrames:
                             dirs[exp_num],
                             intra_perf_csv)
         try:
-            return sierra.core.utils.pd_csv_read(path)
+            return storage.DataFrameReader('storage.csv')(path)
         except (FileNotFoundError, IndexError):
             logging.fatal("%s does not exist for exp num %s",
                           path,

@@ -21,9 +21,8 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-from sierra.core import types
+from sierra.core import types, utils, storage
 import sierra.core.models.interface
-import sierra.core.utils
 import sierra.core.variables.batch_criteria as bc
 
 # Project packages
@@ -68,7 +67,7 @@ class Model2DError():
                 cmdopts["batch_stat_root"], exp)
             cmdopts2["exp_model_root"] = os.path.join(
                 cmdopts['batch_model_root'], exp)
-            sierra.core.utils.dir_create_checked(
+            utils.dir_create_checked(
                 cmdopts2['exp_model_root'], exist_ok=True)
 
             # Calculate model prediction heatmap
@@ -78,7 +77,7 @@ class Model2DError():
             # Get data heatmap
             data_ipath = os.path.join(
                 cmdopts2['exp_stat_root'], self.stddev_fname)
-            data_df = sierra.core.utils.pd_csv_read(data_ipath)
+            data_df = sierra.core.storage.DataFrameReader('storage.csv')(data_ipath)
 
             # Compute datapoint
             d1_norm = (model_df - data_df).abs().to_numpy().sum()

@@ -49,9 +49,13 @@ class TimeSetup():
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
         if not self.attr_changes:
             self.attr_changes = [XMLAttrChangeSet(
+                # 2022/4/7: Network metrics are streamed to the master every
+                # timestep for simplicity; this may be revisited in the future
+                # if needed. It seemed better to make this change here than to
+                # have the C++ code ignore what is set here and always do 1.
                 XMLAttrChange(".//output/metrics/sinks/network/stream",
                               "output_interval",
-                              "{0}".format(self.metric_interval)),
+                              "{0}".format(1)),
                 XMLAttrChange(".//output/metrics/sinks/file/append",
                               "output_interval",
                               "{0}".format(self.metric_interval)),

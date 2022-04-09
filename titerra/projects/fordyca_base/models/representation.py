@@ -20,12 +20,11 @@ import typing as tp
 
 # 3rd party packages
 import pandas as pd
-import sierra.core.utils
+from sierra.core import utils, storage, types
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
-from sierra.core import types
 
 # Project packages
 import titerra.projects.common.generators.scenario_generator_parser as sgp
@@ -102,7 +101,7 @@ class BlockClusterSet():
                  nest: Nest,
                  sim_opath: str) -> None:
 
-        clusters_df = sierra.core.utils.pd_csv_read(
+        clusters_df = storage.DataFrameReader('storage.csv')(
             os.path.join(sim_opath, 'block-clusters.csv'))
         n_clusters = len([c for c in clusters_df.columns if 'xmin' in c])
 
