@@ -24,13 +24,13 @@
             <!-- NEST: The nest is a relatively light gray. -->
             <nest range="0.6:0.8"
                   consensus="3"/>
-            <!-- BLOCK: Blocks are black. -->
-            <block range="-0.05:0.05"
-                   consensus="4"/>
+            <!-- BLOCK: Blocks are detected within 5-10cm -->
+            <block range="5:10"
+                   consensus="2"/>
           </env_sensor>
           <sonar_sensor
-              trigger_pin="16"
-              echo_pin="18"/>
+              trigger_pin="17"
+              echo_pin="27"/>
         </sensing_subsystemQ3D>
         <nest dims="1.0, 4.0" center="2, 3" />
         <strategy>
