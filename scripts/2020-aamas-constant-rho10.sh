@@ -1,6 +1,6 @@
 #!/bin/bash -l
-#SBATCH --time=24:00:00
-#SBATCH --nodes 10
+#SBATCH --time=48:00:00
+#SBATCH --nodes 1
 #SBATCH --tasks-per-node=3
 #SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=2G
@@ -16,6 +16,7 @@
 # Initialize modules
 source /home/gini/shared/swarm/bin/msi-env-setup.sh
 
+export RESEARCH_INSTALL_PREFIX=$HOME/.local
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
     export TITERRA_ROOT=$HOME/research/titerra
@@ -27,7 +28,7 @@ fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
 # AND the fordyca library path.
-export ARGOS_PLUGIN_PATH=$ARGOS_PLUGIN_PATH:$FORDYCA_ROOT/build/lib
+export ARGOS_PLUGIN_PATH=$ARGOS_PLUGIN_PATH:$RESEARCH_INSTALL_PREFIX
 
 # Setup logging (maybe compiled out and unneeded, but maybe not)
 export LOG4CXX_CONFIGURATION=$FORDYCA_ROOT/log4cxx.xml
@@ -38,24 +39,38 @@ export SIERRA_PLUGIN_PATH=$TITERRA_ROOT/titerra/projects
 
 # From MSI docs: transfers all of the loaded modules to the compute nodes (not
 # inherited from the master/launch node when using GNU parallel)
-export PARALLEL="--workdir . --env PATH --env LD_LIBRARY_PATH --env
-LOADEDMODULES --env _LMFILES_ --env MODULE_VERSION --env MODULEPATH --env
-MODULEVERSION_STACK --env MODULESHOME --env OMP_DYNAMICS --env
-OMP_MAX_ACTIVE_LEVELS --env OMP_NESTED --env OMP_NUM_THREADS --env
-OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
---env ARGOS_PLUGIN_PATH --env LOG4CXX_CONFIGURATION
---env SIERRA_PLUGIN_PATH --env SIERRA_ARCH"
+export PARALLEL="--workdir . \
+       --env PATH \
+       --env LD_LIBRARY_PATH \
+       --env LOADEDMODULES \
+       --env _LMFILES_ \
+       --env MODULE_VERSION \
+       --env MODULEPATH \
+       --env MODULEVERSION_STACK \
+       --env MODULESHOME \
+       --env OMP_DYNAMICS \
+       --env OMP_MAX_ACTIVE_LEVELS \
+       --env OMP_NESTED \
+       --env OMP_NUM_THREADS \
+       --env OMP_SCHEDULE \
+       --env OMP_STACKSIZE \
+       --env OMP_THREAD_LIMIT \
+       --env OMP_WAIT_POLICY \
+       --env ARGOS_PLUGIN_PATH \
+       --env LOG4CXX_CONFIGURATION \
+       --env SIERRA_PLUGIN_PATH \
+       --env SIERRA_ARCH"
 
 ################################################################################
 # Begin Experiments                                                            #
 ################################################################################
 OUTPUT_ROOT=$HOME/exp/2020-aamas-constant-rho10-1
-EXP_SETUP=exp_setup.T10000
+EXP_SETUP=exp_setup.T1000
 
-# CONTROLLERS_LIST=(d1.BITD_DPO d1.BITD_ODPO d2.BIRTD_DPO d2.BIRTD_ODPO)
-# SCENARIOS_LIST=(SS.36x18x1 DS.36x18x1 QS.36x36x1)
-CONTROLLERS_LIST=(d2.BIRTD_DPO)
-SCENARIOS_LIST=(SS.36x18x1)
+CONTROLLERS_LIST=(d1.BITD_DPO d1.BITD_ODPO d2.BIRTD_DPO d2.BIRTD_ODPO)
+SCENARIOS_LIST=(SS.36x18x1 DS.36x18x1 QS.36x36x1)
+#CONTROLLERS_LIST=(d1.BITD_DPO)
+#SCENARIOS_LIST=(SS.36x18x1)
 
 TASK="exp"
 CARDINALITY=C8
@@ -77,11 +92,10 @@ SIERRA_BASE_CMD="sierra-cli \
                  --project=fordyca_argos\
                  --dist-stats=conf95\
                  --exp-overwrite \
-                 --models-disable\
                  --exp-setup=${EXP_SETUP}\
                  --with-robot-leds\
                  --log-level=DEBUG \
-                 --no-verify-results"
+                 --skip-verify-results"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
     # 4 controllers, 3 scenarios

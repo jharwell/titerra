@@ -16,16 +16,17 @@
             output_leaf="__current_date__"
             />
         <sensing_subsystemQ3D>
-          <!-- -5pi/6 : 5pi/6 -->
-          <proximity_sensor fov="-2.61:2.61"
-                            delta="0.12" />
+          <!-- -pi/2 : pi/2 -->
+          <proximity_sensor fov="-1.57:1.57"
+                            delta="0.04" />
 
           <env_sensor>
-            <!-- NEST: The nest is a relatively light gray. -->
-            <nest range="0.6:0.8"
-                  consensus="3"/>
-            <!-- BLOCK: Blocks are detected within 5-10cm -->
-            <block range="5:10"
+            <!-- NEST: The nest is detected when the robot light sensor readings
+                 get large enough. -->
+            <nest range="410:2000"
+                  consensus="2"/>
+            <!-- BLOCK: Blocks are detected within 1-7cm -->
+            <block range="1:7"
                    consensus="2"/>
           </env_sensor>
           <sonar_sensor
@@ -34,14 +35,23 @@
         </sensing_subsystemQ3D>
         <nest dims="1.0, 4.0" center="2, 3" />
         <strategy>
-          <nest_acq
-              strategy="wander"
-              />
+          <nest>
+            <acq strategy="wander"
+                 duration="10"/>
+            <exit strategy="wander"/>
+          </nest>
+          <blocks>
+            <drop
+                strategy="backup_pivot"
+                duration="40"/>
+            <explore
+                strategy="CRW"
+                min_duration="20"/>
+          </blocks>
         </strategy>
         <actuation_subsystem2D>
           <force_calculator>
-            <avoidance_force lookahead="0.5"
-                             max="0.08"/>
+            <avoidance_force max="0.08"/>
             <wander_force circle_distance="4.0"
                           circle_radius="100.0"
                           max="0.09"
@@ -50,12 +60,13 @@
               <bias_angle src="uniform"
                           max_delta="0.0872"/>
             </wander_force>
-            <phototaxis_force max="0.08"/>
+            <phototaxis_force max="0.16"/>
           </force_calculator>
 
           <!-- 25 degrees soft_turn_max. -->
           <diff_drive soft_turn_max="0.436"
-                      max_speed="0.1" />
+                      max_linear_speed="0.08"
+                      max_angular_speed="0.28"/>
         </actuation_subsystem2D>
       </__CONTROLLER__>
     </controllers>

@@ -84,19 +84,19 @@ class PaperFigureGenerator():
     def __call__(self, args) -> None:
         os.makedirs(args.output_dir, exist_ok=True)
 
-        # # Blocks
-        # self._blocks(args)
+        # Blocks
+        self._blocks(args)
 
-        # # Coherent graphs
-        # self._coherent_cube(args)
-        # self._coherent_pyramid(args)
-        # self._coherent_cube_horizontal_hole(args)
+        # Coherent graphs
+        self._coherent_cube(args)
+        self._coherent_pyramid(args)
+        self._coherent_cube_horizontal_hole(args)
 
         # Shells
         self._shells(args)
 
         # Incoherent graphs
-        # self._incoherent_cube_overhangs(args)
+        self._incoherent_cube_overhangs(args)
 
     def _blocks(self, args: argparse.Namespace) -> None:
         # Cube block

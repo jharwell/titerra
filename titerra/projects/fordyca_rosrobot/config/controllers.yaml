@@ -16,7 +16,8 @@ d0:
         tag_add:
           - ["./robot/group/[@ns='__UUID__']", 'include', "{'file': '$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch'}"]
           - ["./robot/group/[@ns='__UUID__']", "node", "{'name': 'fordyca_rosbridge_d0_crw_node', 'pkg':'fordyca_rosbridge', 'type':'fordyca_rosbridge_crw_node','output':'screen'}"]
-          - ["./robot/group/[@ns='__UUID__']", "node", "{'name': 'sr04us_ping_service', 'pkg':'sr04us', 'type':'ping_service','output':'screen'}"]
+          - ["./robot/group/[@ns='__UUID__']", "node", "{'name': 'sr04us_ping_service', 'pkg':'sr04us', 'type':'sr04us_ping_service','output':'screen'}"]
+          - ["./robot/group/[@ns='__UUID__']", "node", "{'name': 'tsl2591_readings_service', 'pkg':'tsl2591', 'type':'tsl2591_readings_service.py','output':'screen'}"]
           - ["./master", "node", "{'name': 'fordyca_rosbridge_d0_master_node', 'pkg':'fordyca_rosbridge', 'type':'fordyca_rosbridge_d0_master_node','output':'screen'}"]
 
         tag_change:

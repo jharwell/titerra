@@ -1,7 +1,7 @@
 LN_block_manip:
   graphs:
-    - src_stem: block-manipulation
-      dest_stem: block-manip-events-free
+    - src_stem: blocks-manipulation
+      dest_stem: blocks-manip-events-free
       cols:
         - int_avg_free_pickup_events
         - int_avg_free_drop_events
@@ -17,8 +17,8 @@ LN_block_manip:
       xlabel: 'Interval'
       ylabel: '\# Pickups/Drops'
 
-    - src_stem: block-manipulation
-      dest_stem: block-manip-events-free-pickup
+    - src_stem: blocks-manipulation
+      dest_stem: blocks-manip-events-free-pickup
       cols:
         - int_avg_free_pickup_events
         - cum_avg_free_pickup_events
@@ -30,14 +30,14 @@ LN_block_manip:
       xlabel: 'Interval'
       ylabel: '\# Pickups/Drops'
 
-    - src_stem: block-manipulation
-      dest_stem: block-manip-events-cache
+    - src_stem: blocks-manipulation
+      dest_stem: blocks-manip-events-cache
       cols:
         - int_avg_cache_pickup_events
         - int_avg_cache_drop_events
         - cum_avg_cache_pickup_events
         - cum_avg_cache_drop_events
-      title: 'Block Manipulation Pickups/Drops'
+      title: 'Cache Block Manipulation: Pickups/Drops'
       legend:
         - 'Average \# Cache Pickups (Interval)'
         - 'Average \# Cache Drops (Interval)'
@@ -47,8 +47,8 @@ LN_block_manip:
       xlabel: 'Interval'
       ylabel: '\# Pickups/Drops'
 
-    - src_stem: block-manipulation
-      dest_stem: block-manip-penalties-free
+    - src_stem: blocks-manipulation
+      dest_stem: blocks-manip-penalties-free
       cols:
         - int_avg_free_pickup_penalty
         - int_avg_free_drop_penalty
@@ -63,8 +63,8 @@ LN_block_manip:
       xlabel: 'Interval'
       ylabel: 'Penalty'
 
-    - src_stem: block-manipulation
-      dest_stem: block-manip-penalties-cache
+    - src_stem: blocks-manipulation
+      dest_stem: blocks-manip-penalties-cache
       cols:
         - int_avg_cache_pickup_penalty
         - int_avg_cache_drop_penalty
@@ -133,7 +133,7 @@ LN_perception:
 
 LN_block_trans:
   graphs:
-    - src_stem: block-transportee
+    - src_stem: blocks-transportee
       dest_stem: blocks-transported-avg
       cols:
         - int_avg_transported
@@ -152,7 +152,7 @@ LN_block_trans:
       title: 'Average Blocks Transported'
       xlabel: 'Interval'
       ylabel: '\# Blocks'
-    - src_stem: block-transportee
+    - src_stem: blocks-transportee
       dest_stem: blocks-transported-cum
       cols:
         - cum_transported
@@ -166,8 +166,8 @@ LN_block_trans:
       xlabel: 'Interval'
       ylabel: '\# Blocks'
 
-    - src_stem: block-transportee
-      dest_stem: block-transporters-count
+    - src_stem: blocks-transportee
+      dest_stem: blocks-transporters-count
       cols:
         - int_avg_transporters
         - cum_avg_transporters
@@ -177,8 +177,8 @@ LN_block_trans:
         - 'Average \# Transporters Per Block (cumulative)'
       xlabel: 'Interval'
       ylabel: '\# Transporters'
-    - src_stem: block-transportee
-      dest_stem: block-transportee-time
+    - src_stem: blocks-transportee
+      dest_stem: blocks-transportee-time
       cols:
         - int_avg_transport_time
         - cum_avg_transport_time
@@ -189,8 +189,8 @@ LN_block_trans:
       xlabel: 'Interval'
       ylabel: '\# Timesteps'
 
-    - src_stem: block-transportee
-      dest_stem: block-transportee-wait-time
+    - src_stem: blocks-transportee
+      dest_stem: blocks-transportee-wait-time
       cols:
         - int_avg_initial_wait_time
         - cum_avg_initial_wait_time
@@ -201,8 +201,8 @@ LN_block_trans:
       xlabel: 'Interval'
       ylabel: '\# Timesteps'
 
-    - src_stem: block-transporter
-      dest_stem: block-transporter-homing-nest
+    - src_stem: blocks-transporter
+      dest_stem: blocks-transporter-homing-nest
       cols:
         - int_avg_phototaxiing_to_goal_no_ca
         - cum_avg_phototaxiing_to_goal_no_ca
