@@ -147,12 +147,23 @@
               timestep="20000"
               cache_size="3"/>
         </cache_sel_matrix>
-         <strategy>
-         <explore
-             block_strategy="CRW"
-             cache_strategy="ledtaxis_search"/>
-         <nest_acq
-             strategy="wander_random_thresh"/>
+        <strategy>
+          <blocks>
+            <explore
+                strategy="CRW"
+                min_duration="50"/>
+          </blocks>
+          <caches>
+            <explore
+              strategy="ledtaxis_search"
+              min_duration="50"/>
+          </caches>
+          <nest>
+            <acq strategy="wander_random_thresh"
+                 duration="50"/>
+            <exit
+                strategy="anti_phototaxis"/>
+            </nest>
          </strategy>
 
         <sensing_subsystemQ3D>

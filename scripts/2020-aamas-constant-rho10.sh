@@ -54,7 +54,7 @@ EXP_SETUP=exp_setup.T10000
 
 # CONTROLLERS_LIST=(d1.BITD_DPO d1.BITD_ODPO d2.BIRTD_DPO d2.BIRTD_ODPO)
 # SCENARIOS_LIST=(SS.36x18x1 DS.36x18x1 QS.36x36x1)
-CONTROLLERS_LIST=(d2.BIRTD_DPO)
+CONTROLLERS_LIST=(d1.BITD_DPO)
 SCENARIOS_LIST=(SS.36x18x1)
 
 TASK="exp"
@@ -77,11 +77,10 @@ SIERRA_BASE_CMD="sierra-cli \
                  --project=fordyca_argos\
                  --dist-stats=conf95\
                  --exp-overwrite \
-                 --models-disable\
                  --exp-setup=${EXP_SETUP}\
                  --with-robot-leds\
                  --log-level=DEBUG \
-                 --no-verify-results"
+                 --skip-verify-results"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
     # 4 controllers, 3 scenarios

@@ -30,13 +30,23 @@
 
             <env_sensor>
               <!-- NEST: The nest is a relatively light gray. -->
-              <nest range="0.6:0.8"
-                    consensus="3"/>
+              <nest range="100:200"
+                    consensus="1"/>
               <!-- BLOCK: Blocks are black. -->
               <block range="-0.05:0.05"
                      consensus="4"/>
             </env_sensor>
           </sensing_subsystemQ3D>
+           <strategy>
+             <blocks>
+               <explore
+                   strategy="CRW"
+                   min_duration="0"/>
+               </blocks>
+               <nest_acq
+                   strategy="wander"
+                   />
+           </strategy>
           <actuation_subsystem2D>
             <force_calculator>
               <avoidance_force lookahead="0.5"
