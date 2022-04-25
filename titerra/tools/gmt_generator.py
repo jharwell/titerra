@@ -21,10 +21,11 @@ import logging  # type: ignore
 
 # 3rd party packages
 import networkx as nx
+
+# Project packages
 import sierra.core.logging
 from sierra.core.vector import Vector3D
 
-# Project packages
 from titerra.projects.prism.cmdline import Cmdline
 import titerra.projects.prism.variables.ct_set as ctset
 from titerra.projects.prism.variables.orientation import Orientation
@@ -34,7 +35,7 @@ class GMTGeneratorCmdline():
     def __init__(self) -> None:
 
         self.parser = argparse.ArgumentParser(prog='gmt_generator')
-        Cmdline.add_ct_args(self.parser, self.parser)
+        Cmdline.add_ct_args(self.parser)
 
         self.parser.add_argument("-f", "--output-file", nargs='+')
         self.parser.add_argument("--for-paper",
@@ -63,8 +64,9 @@ class GMTGenerator():
         else:
             target_set = ctset.factory(args.ct_specs,
                                        args.ct_orientations,
+                                       args.ct_paradigm,
                                        "")
-            for i in range(0, len(target_set.targets)):
+            for i, _ in enumerate(target_set.targets):
                 opath = os.path.join(args.output_dir,
                                      args.output_file[i])
                 os.makedirs(os.path.dirname(opath), exist_ok=True)
@@ -80,46 +82,85 @@ class PaperFigureGenerator():
         self.logger = logging.getLogger(__name__)
 
     def __call__(self, args) -> None:
-        # Coherent graphs
-        self._coherent_cube_horizontal_hole(args)
-        self._coherent_pyramid(args)
-        self._coherent_cube(args)
+        os.makedirs(args.output_dir, exist_ok=True)
+
+        # # Blocks
+        # self._blocks(args)
+
+        # # Coherent graphs
+        # self._coherent_cube(args)
+        # self._coherent_pyramid(args)
+        # self._coherent_cube_horizontal_hole(args)
 
         # Shells
-        self._complement_shell(args)
+        self._shells(args)
 
         # Incoherent graphs
-        self._incoherent_cube_overhangs(args)
-        self._incoherent_cube_simple_cavity(args)
-        self._incoherent_cube_extent_cavity(args)
+        # self._incoherent_cube_overhangs(args)
 
-    def _coherent_pyramid(self, args) -> None:
-        self.logger.info("Processing coherent pyramid")
-
-        target = ctset.factory(["ct_specs.pyramid.beam1.7x7x4@0,0,0"],
+    def _blocks(self, args: argparse.Namespace) -> None:
+        # Cube block
+        target = ctset.factory(["ct_specs.prism.beam1.1x1x1@0,0,0"],
                                ["0"],
+                               args.ct_paradigm,
                                "").targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph,
                              os.path.join(args.output_dir,
-                                          "coherent-pyramid.graphml"))
+                                          "beam1.graphml"))
 
-    def _coherent_cube(self, args) -> None:
+        # Beam2 block
+        target = ctset.factory(["ct_specs.prism.beam2.2x1x1@0,0,0"],
+                               ["0"],
+                               args.ct_paradigm,
+                               "").targets[0]
+        graph = target.gen_graph()
+        target.write_graphml(graph,
+                             os.path.join(args.output_dir,
+                                          "beam2.graphml"))
+
+        # Beam3 block
+        target = ctset.factory(["ct_specs.prism.beam3.3x1x1@0,0,0"],
+                               ["0"],
+                               args.ct_paradigm,
+                               "").targets[0]
+        graph = target.gen_graph()
+        target.write_graphml(graph,
+                             os.path.join(args.output_dir,
+                                          "beam3.graphml"))
+
+    def _coherent_cube(self, args: argparse.Namespace) -> None:
         self.logger.info("Processing coherent cube")
         target = ctset.factory(["ct_specs.prism.beam1.3x3x3@0,0,0"],
                                ["0"],
+                               args.ct_paradigm,
                                "").targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph,
                              os.path.join(args.output_dir,
                                           "coherent-cube.graphml"))
 
-    def _coherent_cube_horizontal_hole(self, args) -> None:
-        self.logger.info("Processing coherent cube (horizontal hole)")
-        target = ctset.factory(["ct_specs.prism.mixed_beam.5x5x3@0,0,0"],
+    def _coherent_pyramid(self, args: argparse.Namespace) -> None:
+        self.logger.info("Processing coherent pyramid")
+
+        target = ctset.factory(["ct_specs.pyramid.beam1.7x7x4@0,0,0"],
                                ["0"],
+                               args.ct_paradigm,
+                               "").targets[0]
+        graph = target.gen_graph()
+        target.write_graphml(graph,
+                             os.path.join(args.output_dir,
+                                          "coherent-pyramid.graphml"))
+
+    def _coherent_cube_horizontal_hole(self, args: argparse.Namespace) -> None:
+        self.logger.info("Processing coherent cube (horizontal hole)")
+        target = ctset.factory(["ct_specs.prism.mixed_beam.3x3x3@0,0,0"],
+                               ["0"],
+                               args.ct_paradigm,
                                "").targets[0]
         graph = nx.Graph()
+
+        # Base layer is all cube blocks
         for j in range(0, 3):
             for i in range(0, 3):
                 target.graph_block_add(graph,
@@ -127,6 +168,8 @@ class PaperFigureGenerator():
                                        Vector3D(i, j, 0),
                                        Orientation("0"))
 
+        # Second layer is 2 beam blocks along X separated by 1 unit (this is the
+        # hole)
         target.graph_block_add(graph,
                                'beam3',
                                Vector3D(0, 0, 1),
@@ -136,121 +179,77 @@ class PaperFigureGenerator():
                                Vector3D(2, 0, 1),
                                Orientation("PI/2"))
 
+        # Top layer is 3 beam blocks along Y
         for j in range(0, 3):
-            for i in [0]:
-                target.graph_block_add(graph,
-                                       'beam3',
-                                       Vector3D(i, j, 2),
-                                       Orientation("0"))
+            target.graph_block_add(graph,
+                                   'beam3',
+                                   Vector3D(0, j, 2),
+                                   Orientation("0"))
 
         target.write_graphml(graph,
                              os.path.join(args.output_dir,
                                           "coherent-cube-horizontal-hole.graphml"))
 
-    def _complement_shell(self, args) -> None:
-        self.logger.info("Processing complement shell")
+    def _shells(self, args: argparse.Namespace) -> None:
+        self.logger.info("Processing shell")
 
-        target = ctset.factory(["ct_specs.pyramid.beam1.5x5x3@0,0,0"],
+        target = ctset.factory(["ct_specs.pyramid.beam1.5x3x4@0,0,0"],
                                ["0"],
+                               args.ct_paradigm,
                                "").targets[0]
         graph = nx.Graph()
-        for j in range(1, 4):
-            for i in range(1, 4):
+        for i in range(1, 4):
+            for j in range(1, 2):
                 target.graph_block_add(graph,
                                        'beam1',
                                        Vector3D(i, j, 1),
                                        Orientation("0"))
         target.graph_block_add(graph,
                                'beam1',
-                               Vector3D(2, 2, 2),
+                               Vector3D(2, 1, 2),
                                Orientation("0"))
+
         with_virtual_shell = target.graph_virtual_shell_add(graph)
         target.write_graphml(with_virtual_shell,
                              os.path.join(args.output_dir,
-                                          "pyramid-virtual-shell.graphml"))
+                                          "podium-virtual-shell.graphml"))
 
         with_complement_shell = target.graph_complement_shell_add(graph)
         target.write_graphml(with_complement_shell,
                              os.path.join(args.output_dir,
-                                          "pyramid-complement-shell.graphml"))
+                                          "podium-complement-shell.graphml"))
 
-    def _incoherent_cube_overhangs(self, args) -> None:
+    def _incoherent_cube_overhangs(self, args: argparse.Namespace) -> None:
         self.logger.info("Processing incoherent cube (overhangs)")
-        target = ctset.factory(["ct_specs.prism.beam1.5x5x5@0,0,0"],
+        target = ctset.factory(["ct_specs.prism.beam1.3x2x2@0,0,0"],
                                ["0"],
+                               args.ct_paradigm,
                                "").targets[0]
         graph = nx.Graph()
-        for j in range(1, 4):
-            for i in range(0, 3):
+        for j in range(0, 2):
+            for i in range(0, 2):
                 target.graph_block_add(graph,
                                        'beam1',
                                        Vector3D(i, j, 0),
                                        Orientation("0"))
 
-        for i in range(0, 3):
-            for j in range(1, 3):
+        for i in range(0, 1):
+            for j in range(0, 2):
                 target.graph_block_add(graph,
                                        'beam1',
                                        Vector3D(i, j, 1),
                                        Orientation("0"))
 
-        for i in range(0, 3):
-            target.graph_block_add(graph,
-                                   'beam2',
-                                   Vector3D(i, 4, 1),
-                                   Orientation("3PI/2"))
-
-        for j in range(1, 4):
-            for i in range(0, 3):
+        for i in range(2, 3):
+            for j in range(0, 2):
                 target.graph_block_add(graph,
-                                       'beam1',
-                                       Vector3D(i, j, 2),
-                                       Orientation("0"))
-        for j in range(1, 4):
-            for i in range(1, 4):
-                target.graph_block_add(graph,
-                                       'beam1',
-                                       Vector3D(i, j, 3),
-                                       Orientation("0"))
+                                       'beam2',
+                                       Vector3D(i, j, 1),
+                                       Orientation("PI"))
 
         target.write_graphml(graph,
                              os.path.join(args.output_dir,
                                           "incoherent-cube-overhangs.graphml"))
-
-    def _incoherent_cube_simple_cavity(self, args) -> None:
-        self.logger.info("Processing incoherent cube with simple cavity")
-        target = ctset.factory(["ct_specs.prism.beam1.3x3x3@0,0,0"],
-                               ["0"],
-                               "").targets[0]
-        graph = target.gen_graph()
-        target.graph_block_remove(graph, Vector3D(1, 1, 1))
-        target.graph_block_add(graph,
-                               'vbeam1',
-                               Vector3D(1, 1, 1),
-                               Orientation("0"))
-
-        target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "incoherent-cube-simple-cavity.graphml"))
-
-    def _incoherent_cube_extent_cavity(self, args) -> None:
-        self.logger.info("Processing incoherent cube with extent cavity")
-        target = ctset.factory(["ct_specs.prism.beam1.3x3x3@0,0,0"],
-                               ["0"],
-                               "").targets[0]
-        graph = target.gen_graph()
-        target.graph_block_remove(graph, Vector3D(1, 1, 1))
-        target.graph_block_remove(graph, Vector3D(1, 1, 2))
-        target.graph_block_remove(graph, Vector3D(1, 0, 2))
-
-        target.graph_block_add(graph,
-                               'beam2',
-                               Vector3D(1, 0, 2),
-                               Orientation("PI/2"))
-
-        target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "incoherent-cube-extent-cavity.graphml"))
 
 
 def main() -> None:

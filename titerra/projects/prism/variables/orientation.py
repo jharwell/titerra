@@ -20,9 +20,10 @@ import typing as tp
 import re
 
 # 3rd party packages
-from sierra.core import types
+import numpy as np
 
 # Project packages
+from sierra.core import types
 
 
 class Orientation():
@@ -30,6 +31,19 @@ class Orientation():
     Represents the orientation of a construction target as one of the 4 cardinal
     directions.
     """
+
+    @staticmethod
+    def from_num(val: float) -> 'Orientation':
+        if np.isclose([val], [0], rtol=0, atol=10 ** -3):
+            return Orientation('0')
+        elif np.isclose([val], [math.pi/2.0], rtol=0, atol=10 ** -3):
+            return Orientation('PI/2')
+        elif np.isclose([val], [math.pi], rtol=0, atol=10 ** -3):
+            return Orientation('PI')
+        elif np.isclose([val], [3.0 * math.pi/2.0], rtol=0, atol=10 ** -3):
+            return Orientation('3PI/2')
+
+        assert False
 
     def __init__(self, val: str) -> None:
         self.str_val = val
@@ -64,7 +78,10 @@ class Orientation():
             return math.pi / 2.0
         if orientation == 'PI':
             return math.pi
-        return math.pi * 1.5
+        if orientation == '3PI/2':
+            return math.pi * 1.5
+
+        assert False
 
 
 class OrientationParser():

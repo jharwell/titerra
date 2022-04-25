@@ -23,7 +23,6 @@ for usage documentation.
 # Core packages
 import logging  # type: ignore
 import typing as tp
-import math
 
 # 3rd party packages
 import networkx as nx
@@ -62,13 +61,15 @@ class BaseConstructTarget():
         structure: Dictionary of (key,value) pairs defining the structure, as
                    returned by :class:`ConstructTargetSetParser`.
     """
-    kBEAM3_EXTENT = 3
 
     def __init__(self,
                  spec: types.CLIArgSpec,
                  target_id: int,
+                 paradigm: str,
                  graphml_path: str):
         self.spec = spec
+        self.paradigm = paradigm
+
         self.target_id = target_id
         self.graphml_path = graphml_path
         self.extent = ArenaExtent(origin=Vector3D(self.spec['anchor'][0],
@@ -78,6 +79,7 @@ class BaseConstructTarget():
                                                 self.spec['bb'][1],
                                                 self.spec['bb'][2]))
         self.logger = logging.getLogger(__name__)
+        self.logger.info("BB=%s", self.extent)
 
     def gen_xml(self, uuid: str) -> XMLTagAddList:
         """
@@ -104,17 +106,8 @@ class BaseConstructTarget():
         """
         Writes generated GraphML to the filesystem.
         """
+        self.logger.info("Write graph to %s", path)
         nx.write_graphml(graph, path)
-
-    def calc_vertex_descriptor(self, n: Vector3D) -> int:
-        """
-        Map an (X,Y,Z) coordinate to a unique integer corresponding to its
-        position in a 1D representation of a 3D array.
-
-        """
-        return n.z * self.extent.xsize() * self.extent.ysize() + \
-            n.y * self.extent.ysize() + \
-            n.x
 
     def coord_within_bb(self, c: Vector3D) -> bool:
         index_bounds = self.extent.dims
@@ -126,14 +119,6 @@ class BaseConstructTarget():
 
         return True
 
-    def calc_vertex_coord(self, vd: int) -> Vector3D:
-        z = int(vd / (self.extent.xsize() * self.extent.ysize()))
-        vd = vd - (z * self.extent.xsize() * self.extent.ysize())
-
-        y = int(vd / self.extent.xsize())
-        x = vd % self.extent.xsize()
-        return Vector3D(x, y, z)
-
     def graph_virtual_shell_add(self, graph: nx.Graph) -> nx.Graph:
         for vd in graph.copy():
             xplus1 = Vector3D(1, 0, 0)
@@ -144,20 +129,14 @@ class BaseConstructTarget():
             zminus1 = Vector3D(0, 0, -1)
             neighbors = [xplus1, xminus1, yplus1, yminus1, zplus1, zminus1]
 
-            c = self.calc_vertex_coord(vd)
+            c = self.calc_vertex_coord(vd, self.extent)
             for n in neighbors:
-                neighbor = c + n
-                attrs = {
-                    gmt_spec.kBlockTypeKey: gmt_spec.kBlockTypes['vbeam1'],
-                    gmt_spec.kVertexAnchorKey: '{0},{1},{2}'.format(neighbor.x,
-                                                                    neighbor.y,
-                                                                    neighbor.z),
-                    gmt_spec.kVertexZRotKey: str(Orientation("0")),
-                    gmt_spec.kVertexColorKey: gmt_spec.kBlockColors['vbeam1']
-                }
-                n_vd = self.calc_vertex_descriptor(c + n)
+                n_vd = self.calc_vertex_descriptor(c + n, self.extent)
                 if n_vd not in graph and self.coord_within_bb(c + n):
-                    self.graph_block_add(graph, 'vbeam1', c + n, Orientation("0"))
+                    self.graph_block_add(graph,
+                                         'vbeam1',
+                                         c + n,
+                                         Orientation("0"))
 
         return graph
 
@@ -174,17 +153,12 @@ class BaseConstructTarget():
             for j in range(0, self.extent.ysize()):
                 for k in range(0, self.extent.zsize()):
                     c = Vector3D(i, j, k)
-                    vd = self.calc_vertex_descriptor(c)
-                    attrs = {
-                        gmt_spec.kBlockTypeKey: gmt_spec.kBlockTypes['vbeam1'],
-                        gmt_spec.kVertexAnchorKey: '{0},{1},{2}'.format(c.x,
-                                                                        c.y,
-                                                                        c.z),
-                        gmt_spec.kVertexZRotKey: str(Orientation("0")),
-                        gmt_spec.kVertexColorKey: gmt_spec.kBlockColors['vbeam1']
-                    }
+                    vd = self.calc_vertex_descriptor(c, self.extent)
                     if vd not in graph:
-                        self.graph_block_add(graph, 'vbeam1', c, Orientation("0"))
+                        self.graph_block_add(graph,
+                                             'vbeam1',
+                                             c,
+                                             Orientation("0"))
 
         return graph
 
@@ -194,7 +168,7 @@ class BaseConstructTarget():
         """
         Removes the block at the specified anchor point from the graph.
         """
-        vd = self.calc_vertex_descriptor(c)
+        vd = self.calc_vertex_descriptor(c, self.extent)
         graph.remove_node(vd)
 
     def graph_block_add(self,
@@ -203,15 +177,71 @@ class BaseConstructTarget():
                         c: Vector3D,
                         z_rot: Orientation) -> None:
         """
+        Idempotently add a node of the specified type and its edges using the
+        configured block representation paradigm.
+        """
+        if self.paradigm == 'semantic':
+            self._graph_block_add_semantic(graph, block_type, c, z_rot)
+        elif self.paradigm == 'edge':
+            self._graph_block_add_edge(graph, block_type, c, z_rot)
+        elif self.paradigm == 'vertex':
+            raise NotImplementedError
+
+    def _graph_block_add_edge(self,
+                              graph: nx.Graph,
+                              block_type: str,
+                              c: Vector3D,
+                              z_rot: Orientation) -> None:
+        # Add the anchor
+        vd1 = self.calc_vertex_descriptor(c, self.extent)
+        self.logger.trace("Add %s anchor1: %s -> %s", block_type, vd1, c)
+        attrs = {
+            gmt_spec.kBlockTypeKey: gmt_spec.kBlockTypes[block_type],
+            gmt_spec.kVertexAnchorKey: '{0},{1},{2}'.format(c.x, c.y, c.z),
+            gmt_spec.kVertexZRotKey: str(z_rot),
+            gmt_spec.kVertexColorKey: gmt_spec.kBlockColors[block_type]
+        }
+        assert not graph.has_node(vd1), f"vd={vd1}=vertex@{c} already exists"
+        graph.add_node(vd1, **attrs)
+        self._connect_vertex_to_neighbors(graph, vd1, block_type, c)
+
+        size = gmt_spec.kBlockExtents[block_type]
+        extent = self.calc_block_extent_from_pose(c, z_rot, size)
+
+        # Adding cube block--no other end to add
+        if len(extent) == 0:
+            return
+
+        # Add the other end
+        end = extent[-1]
+        vd2 = self.calc_vertex_descriptor(end, self.extent)
+        self.logger.trace("Add %s anchor2: %s -> %s", block_type, vd2, end)
+
+        # We only need block anchor and color attributes. All other
+        # information is encoding into the graph itself in the form of
+        # additional vertices.
+        attrs = {
+            gmt_spec.kVertexAnchorKey: '{0},{1},{2}'.format(end.x,
+                                                            end.y,
+                                                            end.z),
+            gmt_spec.kVertexColorKey: gmt_spec.kBlockColors[block_type]
+        }
+        assert not graph.has_node(vd2), f"vd={vd2}=vertex@{c} already exists"
+        graph.add_node(vd2, **attrs)
+        self._connect_vertex_to_neighbors(graph, vd2, block_type, end)
+
+        # Connect endpoints
+        graph.add_edge(vd1, vd2, weight=1)
+
+    def _graph_block_add_semantic(self,
+                                  graph: nx.Graph,
+                                  block_type: str,
+                                  c: Vector3D,
+                                  z_rot: Orientation) -> None:
+        """
         Idempotently add a node of the specified type and its edges.
         """
-        vd = self.calc_vertex_descriptor(c)
-        extents = {
-            'vbeam1': 1,
-            'beam1': 1,
-            'beam2': 2,
-            'beam3': 3
-        }
+        vd = self.calc_vertex_descriptor(c, self.extent)
         self.logger.trace("Add %s anchor: %s -> %s", block_type, vd, c)
         attrs = {
             gmt_spec.kBlockTypeKey: gmt_spec.kBlockTypes[block_type],
@@ -219,9 +249,16 @@ class BaseConstructTarget():
             gmt_spec.kVertexZRotKey: str(z_rot),
             gmt_spec.kVertexColorKey: gmt_spec.kBlockColors[block_type]
         }
-        assert not graph.has_node(vd), "Vertex@{0} already exists".format(c)
+        assert not graph.has_node(vd), f"vd={vd}=vertex@{c} already exists"
         graph.add_node(vd, **attrs)
 
+        self._connect_vertex_to_neighbors(graph, vd, block_type, c)
+
+    def _connect_vertex_to_neighbors(self,
+                                     graph: nx.Graph,
+                                     vd: int,
+                                     block_type: str,
+                                     c: Vector3D) -> None:
         xplus1 = Vector3D(1, 0, 0)
         xminus1 = Vector3D(-1, 0, 0)
         yplus1 = Vector3D(0, 1, 0)
@@ -229,48 +266,14 @@ class BaseConstructTarget():
         zminus1 = Vector3D(0, 0, -1)
         zplus1 = Vector3D(0, 0, 1)
 
-        if extents[block_type] > 1:
-            if z_rot.is_N():
-                extent_anchor_neighbor = c + (yplus1 * extents[block_type])
-                origin_anchor_neighbors = [zminus1, xplus1, xminus1, yminus1]
-            elif z_rot.is_S():
-                extent_anchor_neighbor = c + (yminus1 * extents[block_type])
-                origin_anchor_neighbors = [zminus1, xplus1, xminus1, yplus1]
-            elif z_rot.is_E():
-                extent_anchor_neighbor = c + (xplus1 * extents[block_type])
-                origin_anchor_neighbors = [zminus1, yplus1, yminus1, xminus1]
-            elif z_rot.is_W():
-                extent_anchor_neighbor = c + (xminus1 * extents[block_type])
-                origin_anchor_neighbors = [zminus1, yplus1, yminus1, xplus1]
+        neighbors = [yplus1, yminus1, xplus1, xminus1, zminus1, zplus1]
 
-            extent_neighbor_vd = self.calc_vertex_descriptor(extent_anchor_neighbor)
-
-            if not graph.has_node(extent_neighbor_vd):  # neighbor in virtual shell
-                attrs = {
-                    gmt_spec.kBlockTypeKey: gmt_spec.kBlockTypes['vbeam1'],
-                    gmt_spec.kVertexAnchorKey: '{0},{1},{2}'.format(extent_anchor_neighbor.x,
-                                                                    extent_anchor_neighbor.y,
-                                                                    extent_anchor_neighbor.z),
-                    gmt_spec.kVertexZRotKey: str(z_rot),
-                    gmt_spec.kVertexColorKey: gmt_spec.kBlockColors['vbeam1']
-                }
-                self.logger.trace("Add virtual vertex: %s -> %s",
-                                  extent_neighbor_vd,
-                                  extent_anchor_neighbor)
-                graph.add_node(extent_neighbor_vd, **attrs)
-
-            # Connect block origin anchor to its extent neighbor
-            graph.add_edge(vd, extent_neighbor_vd, weight=extents[block_type])
-        else:
-            origin_anchor_neighbors = [yplus1, xplus1,
-                                       yminus1, xminus1, zminus1, zplus1]
-
-        # Connect block origin anchor to its manhattan neighbors
-        for n in origin_anchor_neighbors:
+        # Connect vertex to its manhattan neighbors.
+        for n in neighbors:
             if not self.coord_within_bb(c + n):
                 continue
 
-            n_vd = self.calc_vertex_descriptor(c + n)
+            n_vd = self.calc_vertex_descriptor(c + n, self.extent)
             if n_vd not in graph:
                 continue
 
@@ -294,7 +297,7 @@ class BaseConstructTarget():
 
         """
         # Add anchor node
-        vd = self.calc_vertex_descriptor(c)
+        vd = self.calc_vertex_descriptor(c, self.extent)
         self.logger.trace("Add ramp anchor: %s -> %s", vd, c)
 
         attrs = {
@@ -316,7 +319,7 @@ class BaseConstructTarget():
         if c.x < self.extent.xsize() - xratio:
             dest = Vector3D(c.x + xratio, c.y, c.z)
             graph.add_edge(vd,
-                           self.calc_vertex_descriptor(dest),
+                           self.calc_vertex_descriptor(dest, self.extent),
                            weight=str(xratio))
             self.logger.trace(
                 "Add ramp edge: %s -> %s,weight=%s", c, dest, xratio)
@@ -324,34 +327,103 @@ class BaseConstructTarget():
         if c.y < self.extent.ysize() - yratio:
             dest = Vector3D(c.x, c.y + yratio, c.z)
             graph.add_edge(vd,
-                           self.calc_vertex_descriptor(dest),
+                           self.calc_vertex_descriptor(dest, self.extent),
                            weight=str(yratio))
             self.logger.trace(
                 "Add ramp edge: %s -> %s,weight=%s", c, dest, yratio)
 
         if c.z < self.extent.zsize() - zratio:
             dest = Vector3D(c.x, c.y, c.z + zratio)
-            graph.add_edge(vd, self.calc_vertex_descriptor(
-                dest), weight=str(zratio))
+            graph.add_edge(vd,
+                           self.calc_vertex_descriptor(dest, self.extent),
+                           weight=str(zratio))
             self.logger.trace(
                 "Add ramp edge: %s -> %s,weight=%s", c, dest, zratio)
 
+    @staticmethod
+    def calc_vertex_coord(vd: int, extent: ArenaExtent) -> Vector3D:
+        z = int(vd / (extent.xsize() * extent.ysize()))
+        vd = vd - (z * extent.xsize() * extent.ysize())
 
-@ implements.implements(IConcreteGMT)
+        y = int(vd / extent.xsize())
+        x = vd % extent.xsize()
+        return Vector3D(x, y, z)
+
+    @staticmethod
+    def calc_vertex_descriptor(n: Vector3D, extent: ArenaExtent) -> int:
+        """
+        Map an (X,Y,Z) coordinate to a unique integer corresponding to its
+        position in a 1D representation of a 3D array.
+
+        """
+        return n.z * extent.xsize() * extent.ysize() + \
+            n.y * extent.xsize() + \
+            n.x
+
+    @staticmethod
+    def calc_block_extent(graph: nx.Graph,
+                          anchor: Vector3D,
+                          bb: ArenaExtent) -> tp.List[Vector3D]:
+        vd = BaseConstructTarget.calc_vertex_descriptor(anchor, bb)
+        return BaseConstructTarget.calc_block_extent_from_vd(graph, vd)
+
+    @staticmethod
+    def calc_block_extent_from_pose(anchor: Vector3D,
+                                    z_rot: Orientation,
+                                    size: int) -> tp.List[Vector3D]:
+        coords = []
+
+        if size == 1:
+            return coords
+
+        if z_rot.is_N():
+            for y in range(anchor.y, anchor.y + size):
+                coords.append(anchor + Vector3D(0, 1, 0) * y)
+        elif z_rot.is_S():
+            for y in range(anchor.y, anchor.y - size, -1):
+                coords.append(anchor - Vector3D(0, 1, 0) * y)
+        elif z_rot.is_E():
+            for x in range(anchor.x, anchor.x + size):
+                coords.append(anchor + Vector3D(1, 0, 0) * x)
+        elif z_rot.is_W():
+            for x in range(anchor.x, anchor.x - size, -1):
+                coords.append(anchor - Vector3D(1, 0, 0) * x)
+
+        return coords
+
+    @staticmethod
+    def calc_block_extent_from_vd(graph: nx.Graph,
+                                  vd: int) -> tp.List[Vector3D]:
+        for k, v in gmt_spec.kBlockTypes.items():
+            if v == graph.nodes[vd][gmt_spec.kBlockTypeKey]:
+                block_type = k
+
+        z_rot = Orientation.from_num(float(graph.nodes[vd][gmt_spec.kVertexZRotKey]))
+
+        extent = gmt_spec.kBlockExtents[block_type]
+
+        anchor = Vector3D.from_str(graph.nodes[vd][gmt_spec.kVertexAnchorKey])
+        return BaseConstructTarget.calc_block_extent_from_pose(anchor,
+                                                               z_rot,
+                                                               extent)
+
+
+@implements.implements(IConcreteGMT)
 class Beam1Prism(BaseConstructTarget):
     """
     Construction target class for 3D rectangular prismatic structures composed
     only of cube blocks.
     """
-    @ staticmethod
+    @staticmethod
     def uuid(target_id: int) -> str:
-        return 'pyramid' + str(target_id)
+        return 'beam1prism' + str(target_id)
 
     def __init__(self,
                  spec: types.CLIArgSpec,
                  target_id: int,
+                 paradigm: str,
                  graphml_path: str) -> None:
-        super().__init__(spec, target_id, graphml_path)
+        super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
         graph = nx.Graph()
@@ -377,44 +449,123 @@ class Beam1Prism(BaseConstructTarget):
         return graph
 
 
-@ implements.implements(IConcreteGMT)
+@implements.implements(IConcreteGMT)
+class Beam2Prism(BaseConstructTarget):
+    """
+    Construction target class for 3D rectangular prismatic structures composed
+    only of beam2 blocks.
+    """
+    @staticmethod
+    def uuid(target_id: int) -> str:
+        return 'beam2_prism' + str(target_id)
+
+    def __init__(self,
+                 spec: types.CLIArgSpec,
+                 target_id: int,
+                 paradigm: str,
+                 graphml_path: str) -> None:
+        super().__init__(spec, target_id, paradigm, graphml_path)
+
+    def gen_graph(self) -> nx.Graph:
+        graph = nx.Graph()
+
+        if self.spec['orientation'].is_EW():
+            for x in range(0, self.extent.xsize(), 2):
+                for y in range(0, self.extent.ysize()):
+                    for z in range(0, self.extent.zsize()):
+                        self.graph_block_add(graph,
+                                             'beam2',
+                                             Vector3D(x, y, z),
+                                             self.spec['orientation'])
+        elif self.spec['orientation'].is_NS():
+            for y in range(0, self.extent.ysize(), 2):
+                for x in range(0, self.extent.xsize()):
+                    for z in range(0, self.extent.zsize()):
+                        self.graph_block_add(graph,
+                                             'beam2',
+                                             Vector3D(x, y, z),
+                                             self.spec['orientation'])
+        return graph
+
+
+@implements.implements(IConcreteGMT)
+class Beam3Prism(BaseConstructTarget):
+    """
+    Construction target class for 3D rectangular prismatic structures composed
+    only of beam3 blocks.
+    """
+    @staticmethod
+    def uuid(target_id: int) -> str:
+        return 'beam3_prism' + str(target_id)
+
+    def __init__(self,
+                 spec: types.CLIArgSpec,
+                 target_id: int,
+                 paradigm: str,
+                 graphml_path: str) -> None:
+        super().__init__(spec, target_id, paradigm, graphml_path)
+
+    def gen_graph(self) -> nx.Graph:
+        graph = nx.Graph()
+
+        if self.spec['orientation'].is_EW():
+            for x in range(0, self.extent.xsize(), 3):
+                for y in range(0, self.extent.ysize()):
+                    for z in range(0, self.extent.zsize()):
+                        self.graph_block_add(graph,
+                                             'beam3',
+                                             Vector3D(x, y, z),
+                                             self.spec['orientation'])
+        elif self.spec['orientation'].is_NS():
+            for y in range(0, self.extent.ysize(), 3):
+                for x in range(0, self.extent.xsize()):
+                    for z in range(0, self.extent.zsize()):
+                        self.graph_block_add(graph,
+                                             'beam3',
+                                             Vector3D(x, y, z),
+                                             self.spec['orientation'])
+        return graph
+
+
+@implements.implements(IConcreteGMT)
 class MixedBeamPrism(BaseConstructTarget):
     """
     Construction target class for 3D rectangular prismatic structures composed
     of a mix of beam blocks.
 
     """
-    @ staticmethod
+    @staticmethod
     def uuid(target_id: int) -> str:
-        return 'pyramid' + str(target_id)
+        return 'mixed_beam_prism' + str(target_id)
 
     def __init__(self,
                  spec: types.CLIArgSpec,
                  target_id: int,
+                 paradigm: str,
                  graphml_path: str) -> None:
-        super().__init__(spec, target_id, graphml_path)
+        super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
         raise NotImplementedError("Error: Cannot generate mixed graph--manual \
                                    specification required")
-        return graph
 
 
-@ implements.implements(IConcreteGMT)
+@implements.implements(IConcreteGMT)
 class Beam1Pyramid(BaseConstructTarget):
     """
     Construction target class for 3D pyramids composed only of cube blocks;
     i.e., a stepped pyramid.
     """
-    @ staticmethod
+    @staticmethod
     def uuid(target_id: int) -> str:
-        return 'pyramid' + str(target_id)
+        return 'beam1_pyramid' + str(target_id)
 
     def __init__(self,
                  spec: types.CLIArgSpec,
                  target_id: int,
+                 paradigm: str,
                  graphml_path: str) -> None:
-        super().__init__(spec, target_id, graphml_path)
+        super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
         graph = nx.Graph()
@@ -442,7 +593,7 @@ class Beam1Pyramid(BaseConstructTarget):
         return graph
 
 
-@ implements.implements(IConcreteGMT)
+@implements.implements(IConcreteGMT)
 class Ramp(BaseConstructTarget):
     """
     Construction target class for 3D ramps.
@@ -453,15 +604,16 @@ class Ramp(BaseConstructTarget):
     The ratio between the length of beam1 blocks and ramp blocks.
     """
 
-    @ staticmethod
+    @staticmethod
     def uuid(target_id: int) -> str:
         return 'ramp' + str(target_id)
 
     def __init__(self,
                  spec: types.CLIArgSpec,
                  target_id: int,
+                 paradigm: str,
                  graphml_path: str) -> None:
-        super().__init__(spec, target_id, graphml_path)
+        super().__init__(spec, target_id, paradigm, graphml_path)
         self.tag_adds = []
         self._structure_sanity_checks()
 

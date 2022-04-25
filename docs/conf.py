@@ -136,7 +136,11 @@ xref_links = {
     "COSM": ("COSM", "https://swarm-robotics-cosm.readthedocs.io"),
     "RCPPSW": ("RCPPSW", "https://swarm-robotics-rcppsw.readthedocs.io"),
     "RCSW": ("RCSW", "https://swarm-robotics-rcsw.readthedocs.io"),
-    "LIBRA": ("LIBRA", "https://swarm-robotics-libra.readthedocs.io")
+    "LIBRA": ("LIBRA", "https://swarm-robotics-libra.readthedocs.io"),
+    "TITERRA_DOCS": ("https://swarm-robotics-titerra.readthedocs.io",
+                     "https://swarm-robotics-titerra.readthedocs.io"),
+    "TITERRA_GITHUB": ("https://github.com/swarm-robotics/titerra.git",
+                       "https://github.com/swarm-robotics/titerra.git")
 }
 
 # -- Options for HTML output ----------------------------------------------

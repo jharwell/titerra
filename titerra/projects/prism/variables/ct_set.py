@@ -32,7 +32,7 @@ from sierra.core import types
 
 # Project packages
 
-from titerra.projects.prism.variables import construction_targets as ct
+from titerra.projects.prism.variables import construct_targets as ct
 import titerra.projects.prism.variables.orientation as orientation
 
 
@@ -44,8 +44,10 @@ class ConstructionTargetSet():
 
     def __init__(self,
                  target_specs: types.CLIArgSpec,
+                 paradigm: str,
                  graphml_root: str) -> None:
         self.target_specs = target_specs
+        self.paradigm = paradigm
         self.graphml_root = graphml_root
 
         self.targets = []
@@ -60,8 +62,8 @@ class ConstructionTargetSet():
             elif spec['shape'] == 'ramp':
                 self.targets.append(self._gen_ramp(target_id, spec))
             else:
-                assert False,\
-                    "Missing case for target shape '{0}'".format(spec['type'])
+                raise NotImplementedError(
+                    "Missing case for target shape '{0}'".format(spec['type']))
 
             target_id += 1
 
@@ -102,23 +104,43 @@ class ConstructionTargetSet():
         if spec['composition'] == 'beam1':
             graphml_path = os.path.join(self.graphml_root,
                                         ct.Beam1Prism.uuid(target_id) + '.graphml')
-            return ct.Beam1Prism(spec, target_id, graphml_path)
+            return ct.Beam1Prism(spec, target_id, self.paradigm, graphml_path)
+        elif spec['composition'] == 'beam2':
+            graphml_path = os.path.join(self.graphml_root,
+                                        ct.Beam2Prism.uuid(target_id) + '.graphml')
+            return ct.Beam2Prism(spec, target_id, self.paradigm, graphml_path)
+        elif spec['composition'] == 'beam3':
+            graphml_path = os.path.join(self.graphml_root,
+                                        ct.Beam3Prism.uuid(target_id) + '.graphml')
+            return ct.Beam3Prism(spec, target_id, self.paradigm, graphml_path)
         elif spec['composition'] == 'mixed_beam':
             graphml_path = os.path.join(self.graphml_root,
                                         ct.MixedBeamPrism.uuid(target_id) + '.graphml')
-            return ct.MixedBeamPrism(spec, target_id, graphml_path)
+            return ct.MixedBeamPrism(spec,
+                                     target_id,
+                                     self.paradigm,
+                                     graphml_path)
+        else:
+            raise NotImplementedError(
+                "'{0}' not supported for prism structures".format(spec['composition']))
 
     def _gen_pyramid(self, target_id: int, spec: types.CLIArgSpec):
         if spec['composition'] == 'beam1':
             graphml_path = os.path.join(self.graphml_root,
                                         ct.Beam1Pyramid.uuid(target_id) + '.graphml')
-            return ct.Beam1Pyramid(spec, target_id, graphml_path)
+            return ct.Beam1Pyramid(spec, target_id, self.paradigm, graphml_path)
+        else:
+            raise NotImplementedError(
+                "'{0}' not supported for pyramid structures".format(spec['composition']))
 
     def _gen_ramp(self, target_id: int, spec: types.CLIArgSpec):
         if spec['composition'] == 'ramp+beam1':
             graphml_path = os.path.join(self.graphml_root,
                                         ct.Ramp.uuid(target_id) + '.graphml')
-            return ct.Ramp(spec, target_id, graphml_path)
+            return ct.Ramp(spec, target_id, self.paradigm, graphml_path)
+        else:
+            raise NotImplementedError(
+                "'{0}' not supported for ramp structures".format(spec['composition']))
 
 
 class Parser():
@@ -149,14 +171,13 @@ class Parser():
 
             # Parse target shape
             res = re.search("prism|ramp|pyramid", spec)
-            assert res is not None, \
-                "Bad target shape specification in {0}".format(spec)
+            assert res is not None, f"Bad target shape specification in {spec}"
             parsed_spec['shape'] = res.group(0)
 
             # Parse target composition
-            res = re.search(r"ramp\+beam1|beam1|mixed_beam", spec)
+            res = re.search(r"ramp\+beam1|beam1|beam2|beam3|mixed_beam", spec)
             assert res is not None, \
-                "Bad target composition specification in {0}".format(spec)
+                f"Bad target composition specification in {spec}"
             parsed_spec['composition'] = res.group(0)
 
             if parsed_spec['shape'] == 'ramp':
@@ -164,7 +185,10 @@ class Parser():
                     "Bad composition specification for {0}".format(
                         parsed_spec['shape'])
             elif parsed_spec['shape'] == 'prism':
-                assert parsed_spec['composition'] in ['beam1', 'mixed_beam'],\
+                assert parsed_spec['composition'] in ['beam1',
+                                                      'beam2',
+                                                      'beam3',
+                                                      'mixed_beam'],\
                     "Bad composition specification for {0}".format(
                         parsed_spec['shape'])
             elif parsed_spec['shape'] == 'pyramid':
@@ -195,7 +219,8 @@ class Parser():
 
 def factory(specs: tp.List[str],
             orientations: tp.List[str],
-            exp_input_root: str):
+            ct_repr: str,
+            graphml_root: str):
     """
     Factory to create :class:`ConstructTargetSet` derived classes from the
     cmdline specification.
@@ -208,4 +233,4 @@ def factory(specs: tp.List[str],
     for target in targets:
         target['orientation'] = orientation.Orientation(target['orientation'])
 
-    return ConstructionTargetSet(targets, exp_input_root)
+    return ConstructionTargetSet(targets, ct_repr, graphml_root)

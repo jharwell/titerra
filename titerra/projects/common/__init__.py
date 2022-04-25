@@ -19,3 +19,4 @@
 # 3rd party packages
 
 # Project packages
+from . import cmdline

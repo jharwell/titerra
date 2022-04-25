@@ -16,6 +16,7 @@
 
 # Core packages
 import pathlib
+import os
 from setuptools import setup, find_packages
 
 # 3rd party packages

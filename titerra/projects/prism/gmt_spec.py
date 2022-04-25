@@ -30,14 +30,21 @@ kBlockTypes = {
     'beam2': 2,
     'beam3': 3,
     'ramp2': 4,
-    'vbeam1': 5
+    'vbeam1': 5,
 }
 kBlockColors = {
     'beam1': 'red',
     'beam2': 'green',
     'beam3': 'blue',
     'ramp2': 'yellow',
-    'vbeam1': 'gray'
+    'vbeam1': 'grey',
+}
+
+kBlockExtents = {
+    'beam1': 1,
+    'beam2': 2,
+    'beam3': 3,
+    'vbeam1': 1
 }
 kBlockTypeKey = 'type'
 kVertexAnchorKey = 'anchor'
