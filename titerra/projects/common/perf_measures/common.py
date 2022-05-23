@@ -21,6 +21,7 @@ Common calculations used by multiple performance measures.
 import os
 import math
 import typing as tp
+import logging
 
 # 3rd party packages
 import pandas as pd
@@ -29,8 +30,7 @@ from sierra.core.variables import batch_criteria as bc
 from sierra.core.xml import XMLAttrChangeSet
 from sierra.plugins.platform.argos.variables import population_constant_density as pcd
 from sierra.plugins.platform.argos.variables import population_variable_density as pvd
-import sierra.core.stat_kernels
-from sierra.core import utils, types, config, storage
+from sierra.core import utils, types, config, storage, stat_kernels
 
 # Project packages
 
@@ -201,6 +201,14 @@ class SteadyStatePerfLostInteractiveSwarmUnivar(BaseSteadyStatePerfLostInteracti
             exp0_interference_df = collated_interference[exp0]
 
             for sim in expx_perf_df.columns:
+                if sim not in exp0_interference_df.columns or sim not in expx_interference_df.columns:
+                    plostn_dfs[expx].loc[0, sim] = 0
+                    logging.warning("Run %s not found in %s or %s: P_{lost}(N) -> 0",
+                                    sim,
+                                    exp0,
+                                    expx)
+                    continue
+
                 # steady state
                 tlost1 = exp0_interference_df.loc[exp0_interference_df.index[-1], sim]
                 # steady state
@@ -285,8 +293,10 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
                   cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame],
                   collated_interference: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.get_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.get_tag_addlist())
+
         populations = criteria.populations(cmdopts)
         plost_dfs = {}
 
@@ -353,8 +363,10 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
                   collated_perf: tp.Dict[str, pd.DataFrame],
                   collated_plost: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.get_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.get_tag_addlist())
+
         fl_dfs = {}
 
         # We need to know which of the 2 variables was swarm size, in order to
@@ -412,14 +424,13 @@ def univar_distribution_prepare(cmdopts: types.Cmdopts,
                                 pm_dfs: tp.Dict[str, pd.DataFrame],
                                 exclude_exp0: bool) -> None:
 
+
     if cmdopts['dist_stats'] in ['none', 'all']:
-        dist_dfs = sierra.core.stat_kernels.mean.from_pm(pm_dfs)
-
-    if cmdopts['dist_stats'] in ['conf95', 'all']:
-        dist_dfs = sierra.core.stat_kernels.conf95.from_pm(pm_dfs)
-
-    if cmdopts['dist_stats'] in ['bw', 'all']:
-        dist_dfs = sierra.core.stat_kernels.bw.from_pm(pm_dfs)
+        dist_dfs = stat_kernels.mean.from_pm(pm_dfs)
+    elif cmdopts['dist_stats'] in ['conf95', 'all']:
+        dist_dfs = stat_kernels.conf95.from_pm(pm_dfs)
+    elif cmdopts['dist_stats'] in ['bw', 'all']:
+        dist_dfs = stat_kernels.bw.from_pm(pm_dfs)
 
     _univar_distribution_do_prepare(
         cmdopts, criteria, oleaf, dist_dfs, exclude_exp0)
@@ -433,13 +444,13 @@ def bivar_distribution_prepare(cmdopts: types.Cmdopts,
                                axis: tp.Optional[int] = None) -> None:
 
     if cmdopts['dist_stats'] in ['none', 'all']:
-        dist_dfs = sierra.core.stat_kernels.mean.from_pm(pm_dfs)
+        dist_dfs = stat_kernels.mean.from_pm(pm_dfs)
 
     if cmdopts['dist_stats'] in ['conf95', 'all']:
-        dist_dfs = sierra.core.stat_kernels.conf95.from_pm(pm_dfs)
+        dist_dfs = stat_kernels.conf95.from_pm(pm_dfs)
 
     if cmdopts['dist_stats'] in ['bw', 'all']:
-        dist_dfs = sierra.core.stat_kernels.bw.from_pm(pm_dfs)
+        dist_dfs = stat_kernels.bw.from_pm(pm_dfs)
 
     _bivar_distribution_do_prepare(
         cmdopts, criteria, oleaf, dist_dfs, exclude_exp0, axis)

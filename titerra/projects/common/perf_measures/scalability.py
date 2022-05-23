@@ -32,6 +32,7 @@ import os
 import logging
 import typing as tp
 import math
+import logging
 
 # 3rd party packages
 import pandas as pd
@@ -97,6 +98,9 @@ class BaseSteadyStateParallelFraction():
                normalize: bool,
                normalize_method: str) -> tp.Optional[float]:
 
+        assert n_robots_i >= 1, "n_robots must be >= 1"
+        assert n_robots_iminus1 >= 1, "n_robots must be >= 1"
+
         if n_robots_i > 1:
             size_ratio = float(n_robots_i) / float(n_robots_iminus1)
             if speedup_i == math.inf:
@@ -139,6 +143,7 @@ class BaseSteadyStateNormalizedEfficiency():
 
     @staticmethod
     def kernel(perf_i: float, n_robots_i: int) -> float:
+        assert n_robots_i >= 1, "n_robots must be >= 1"
         return perf_i / float(n_robots_i)
 
 ################################################################################
@@ -163,6 +168,8 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
 
         for i in range(0, criteria.n_exp()):
             n_robots_x = populations[i]
+            assert n_robots_x >= 1, "n_robots must be >= 1"
+
             expx = list(collated_perf.keys())[i]
             expx_perf_df = collated_perf[expx]
             sc_dfs[expx] = pd.DataFrame(columns=collated_perf[expx].columns,
@@ -231,7 +238,9 @@ class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
                   cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
-        size = len(criteria.gen_attr_changelist())
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        size = len(criteria.gen_attr_changelist()) + len(criteria.gen_tag_addlist())
         sc_dfs = {}
 
         for i in range(1, size):
@@ -247,6 +256,14 @@ class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
             for sim in collated_perf[expx].columns:
                 perf_i = expx_df.loc[expx_df.index[-1], sim]
                 n_robots_i = populations[i]
+
+                if sim not in exp_iminus1_df.columns:
+                    sc_dfs[expx].loc[0, sim] = 0
+                    logging.warning("Run %s not found in %s or %s: scalability -> 0",
+                                    sim,
+                                    expx,
+                                    exp_iminus1)
+                    continue
 
                 perf_iminus1 = exp_iminus1_df.loc[exp_iminus1_df.index[-1], sim]
                 n_robots_iminus1 = populations[i - 1]
@@ -323,8 +340,10 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
                   cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+
         populations = criteria.populations(cmdopts)
         sc_dfs = {}
 
@@ -391,8 +410,10 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         populations = criteria.populations(cmdopts)
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
         sc_dfs = {}
 
         for i in range(axis == 0, xsize):

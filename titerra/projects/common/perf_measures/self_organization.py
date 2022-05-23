@@ -287,8 +287,17 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
                                         index=[0])  # Steady state
 
             for sim in expx_fl_df.columns:
+                if sim not in exp_xminus1_fl_df.columns:
+                    so_dfs[expx].loc[0, sim] = 0
+                    logging.warning("Run %s not found in %s or %s: self-org -> 0",
+                                    sim,
+                                    expx,
+                                    exp_xminus1)
+                    continue
+
                 fl_x = expx_fl_df.loc[expx_fl_df.index[-1], sim]
                 fl_xminus1 = exp_xminus1_fl_df.loc[exp_xminus1_fl_df.index[-1], sim]
+
 
                 self_org = BaseSteadyStateFLMarginal.kernel(fl_i=fl_x,
                                                             fl_iminus1=fl_xminus1,
@@ -380,6 +389,13 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
                                         index=[0])  # Steady state
 
             for sim in expx_fl_df.columns:
+                if sim not in expx_fl_df.columns or sim not in exp0_fl_df.columns:
+                    so_dfs[expx].loc[0, sim] = 0
+                    logging.warning("Run %s not found in %s: self-org -> 0",
+                                    sim,
+                                    expx)
+                    continue
+
                 fl_x = expx_fl_df.loc[expx_fl_df.index[-1], sim]
                 fl_1 = exp0_fl_df.loc[exp0_fl_df.index[-1], sim]
                 self_org = BaseSteadyStateFLInteractive.kernel(fl_i=fl_x,
@@ -473,6 +489,13 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
                                         index=[0])  # Steady state
 
             for sim in expx_perf_df.columns:
+                if sim not in expx_perf_df.columns or sim not in exp_xminus1_perf_df.columns:
+                    logging.warning("Run %s not found in %s or %s: self org -> 0",
+                                    sim,
+                                    expx,
+                                    exp_xminus1)
+                    so_dfs[expx].loc[0, sim] = 0
+                    continue
                 perf_x = expx_perf_df.loc[expx_perf_df.index[-1], sim]
                 perf_xminus1 = exp_xminus1_perf_df.loc[exp_xminus1_perf_df.index[-1], sim]
                 self_org = BaseSteadyStatePGMarginal.kernel(perf_i=perf_x,
@@ -551,6 +574,14 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
                                         index=[0])  # Steady state
 
             for sim in expx_perf_df.columns:
+                if sim not in expx_perf_df.columns or sim not in exp0_perf_df.columns:
+                    so_dfs[expx].loc[0, sim] = 0
+                    logging.warning("Run %s not found in %s or %s: self-org -> 0",
+                                    sim,
+                                    exp0,
+                                    expx)
+                    continue
+
                 perf_0 = exp0_perf_df.loc[exp0_perf_df.index[-1], sim]
                 perf_x = expx_perf_df.loc[expx_perf_df.index[-1], sim]
                 self_org = BaseSteadyStatePGInteractive.kernel(perf_i=perf_x,
@@ -664,8 +695,10 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
                   axis: int,
                   collated_fl: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
         so_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -781,8 +814,11 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
                   axis: int,
                   collated_fl: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+
         so_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -893,8 +929,11 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+
         so_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -998,8 +1037,11 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         populations = criteria.populations(cmdopts)
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+
         so_dfs = {}
 
         for i in range(axis == 0, xsize):

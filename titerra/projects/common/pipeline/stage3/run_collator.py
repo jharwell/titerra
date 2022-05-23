@@ -27,19 +27,21 @@ import sierra.core.storage as storage
 
 
 class ExperimentalRunCSVGatherer(run_collator.ExperimentalRunCSVGatherer):
-    def gather_csvs_from_run(self, run: str) -> tp.Dict[tp.Tuple[str, str], pd.DataFrame]:
-        ret = super().gather_csvs_from_run(run)
+    def gather_csvs_from_run(self,
+                             exp_output_root: str,
+                             run: str) -> tp.Dict[tp.Tuple[str, str], pd.DataFrame]:
+        ret = super().gather_csvs_from_run(exp_output_root, run)
 
         intra_interference_leaf = self.main_config['sierra']['perf']['intra_interference_csv'].split('.')[
             0]
         intra_interference_col = self.main_config['sierra']['perf']['intra_interference_col']
 
-        run_output_root = os.path.join(self.exp_output_root,
+        run_output_root = os.path.join(exp_output_root,
                                        run,
                                        self.run_metrics_leaf)
 
         reader = storage.DataFrameReader(self.storage_medium)
-        run_output_root = os.path.join(self.exp_output_root,
+        run_output_root = os.path.join(exp_output_root,
                                        run,
                                        self.run_metrics_leaf)
         interference_df = reader(os.path.join(run_output_root,

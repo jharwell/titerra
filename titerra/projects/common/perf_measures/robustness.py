@@ -309,9 +309,12 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
                   main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   axis: int,
-                  collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+                  collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str,pd.DataFrame]:
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+
         saa_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -394,8 +397,11 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
                   cmdopts: types.Cmdopts,
                   axis: int,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
-        xsize = len(criteria.criteria1.gen_attr_changelist())
-        ysize = len(criteria.criteria2.gen_attr_changelist())
+
+        # Exactly one of these will be non-zero; verified during stage 1
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+
         exp_dirs = criteria.gen_exp_dirnames(cmdopts)
         pd_dfs = {}
 
