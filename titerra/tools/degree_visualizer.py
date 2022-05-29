@@ -21,12 +21,32 @@ import networkx as nx
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from matplotlib.colors import LinearSegmentedColormap
+
 mpl.style.use('seaborn-colorblind')
+
 # Project packages
 
 
 def draw(G, pos, measures, measure_name, vmin: float, vmax: float, zaxis: bool):
-    nodes = nx.draw_networkx_nodes(G, pos, node_size=10000, cmap=plt.cm.coolwarm,
+    colors = ["#0173b2",
+              "#de8f05",
+              "#029e73",
+              "#d55e00",
+              "#cc78bc",
+              "#ca9161",
+              "#fbafe4",
+              "#949494",
+              "#ece133",
+              "#56b4e9"]
+
+    colormap = LinearSegmentedColormap.from_list("seaborn-colorblind",
+                                                 colors=colors[1:3],
+                                                 N=100)
+    nodes = nx.draw_networkx_nodes(G,
+                                   pos,
+                                   cmap=colormap,
+                                   node_size=10000,
                                    node_color=list(measures.values()),
                                    nodelist=measures.keys(),
                                    vmin=vmin,

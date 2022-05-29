@@ -40,12 +40,27 @@ export SIERRA_ARCH=$MSIARCH
 
 # From MSI docs: transfers all of the loaded modules to the compute nodes (not
 # inherited from the master/launch node when using GNU parallel)
-export PARALLEL="--workdir . --env PATH --env LD_LIBRARY_PATH --env
-LOADEDMODULES --env _LMFILES_ --env MODULE_VERSION --env MODULEPATH --env
-MODULEVERSION_STACK --env MODULESHOME --env OMP_DYNAMICS --env
-OMP_MAX_ACTIVE_LEVELS --env OMP_NESTED --env OMP_NUM_THREADS --env
-OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
---env ARGOS_PLUGIN_PATH --env LOG4CXX_CONFIGURATION --env SIERRA_ARCH"
+export PARALLEL="--workdir . \
+       --env PATH \
+       --env LD_LIBRARY_PATH \
+       --env LOADEDMODULES \
+       --env _LMFILES_ \
+       --env MODULE_VERSION \
+       --env MODULEPATH \
+       --env MODULEVERSION_STACK \
+       --env MODULESHOME \
+       --env OMP_DYNAMICS \
+       --env OMP_MAX_ACTIVE_LEVELS \
+       --env OMP_NESTED \
+       --env OMP_NUM_THREADS \
+       --env OMP_SCHEDULE \
+       --env OMP_STACKSIZE \
+       --env OMP_THREAD_LIMIT \
+       --env OMP_WAIT_POLICY \
+       --env ARGOS_PLUGIN_PATH \
+       --env LOG4CXX_CONFIGURATION \
+       --env SIERRA_PLUGIN_PATH \
+       --env SIERRA_ARCH"
 
 
 ################################################################################
@@ -73,14 +88,14 @@ VD_CARDINALITY_LARGE=C10
 
 TIME_LARGE=exp_setup.T200000
 CD_LARGE=1p0
-CD_CARDINALITY_LARGE=C14
+CD_CARDINALITY_LARGE=C16
 CD_SIZEINC_LARGE=I72
 
 CD_CRITERIA_LARGE=population_constant_density.${CD_LARGE}.${CD_SIZEINC_LARGE}.${CD_CARDINALITY_LARGE}
 VD_CRITERIA_LARGE=population_variable_density.${VD_MIN_LARGE}.${VD_MAX_LARGE}.${VD_CARDINALITY_LARGE}
 
-SCENARIOS_LIST_CD=(RN.8x8x2)
-# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
+# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2)
+SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
 # SCENARIOS_LIST_VD_LARGE=(RN.256x256x2)
 # SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
@@ -91,14 +106,14 @@ NSIMS=32
 SIERRA_BASE_CMD="sierra-cli \
                   --sierra-root=$OUTPUT_ROOT\
                   --template-input-file=$TITERRA_ROOT/templates/2021-ode.argos \
-                  --n-sims=$NSIMS\
+                  --n-runs=$NSIMS\
                   --controller=d0.CRW\
-                  --project=fordyca\
-                  --pipeline 1 4\
-                  --project-no-yaml-LN --exec-sims-per-node=12 --exec-resume\
+                  --project=fordyca_argos\
+                  --pipeline 4\
+                  --project-no-yaml-LN --exec-jobs-per-node=12 --exec-resume\
                   --dist-stats=conf95 \
                   --with-robot-leds\
-                  --log-level=TRACE\
+                  --log-level=DEBUG\
                   --exp-overwrite"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
@@ -120,9 +135,10 @@ else
     SCENARIOS_VD_LARGE=("${SCENARIOS_LIST_VD_LARGE[@]}")
     TASK="$1"
     SIERRA_CMD="$SIERRA_BASE_CMD \
-                 --hpc-env=hpc.local\
-                 --no-verify-results\
-                 --exp-graphs=inter
+                 --exec-env=hpc.local\
+                 --df-skip-verify\
+                 --exp-graphs=inter \
+                 --models-enable
                  "
 fi
 
@@ -156,7 +172,7 @@ if [ "$TASK" == "large" ] || [ "$TASK" == "exp" ]; then
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${VD_CRITERIA_LARGE}\
                     --exp-setup=${TIME_LARGE}\
-                    --physics-n-engines=2
+`3`                    --physics-n-engines=2
     done
 
     for s in "${SCENARIOS_CD[@]}"
@@ -171,7 +187,7 @@ fi
 
 if [ "$TASK" == "comp" ]; then
     STAGE5_CMD="sierra-cli \
-                  --project=fordyca\
+                  --project=fordyca_argos\
                   --pipeline 5\
                   --scenario-comparison\
                   --dist-stats=conf95\
@@ -181,13 +197,13 @@ if [ "$TASK" == "comp" ]; then
                   --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT"
 
-    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-    #             --scenarios-list=SS.16x8x2,DS.16x8x2
-    #             --scenarios-legend="SS","DS"
-
     $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-                --scenarios-list=RN.8x8x2\
-                --scenarios-legend="RN"
+                --scenarios-list=SS.16x8x2,DS.16x8x2 \
+                --scenarios-legend="SS","DS"
+
+    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
+    #             --scenarios-list=RN.8x8x2\
+    #             --scenarios-legend="RN"
 
     # $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
     #             --scenarios-list=SS.32x16x2,DS.32x16x2\

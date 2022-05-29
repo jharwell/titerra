@@ -103,17 +103,17 @@ inter_scenario:
     - src_stem: block-transporter-homing-nest-int-avg
       dest_stem: sc-N_h
       #title: 'Homing ($\mathcal{N}_h(t)$)'
-      label: '\# Robots'
+      label: '\# Robots Homing'
       # include_exp: '2:'
 
     - src_stem: block-acq-counts-true-exploring-int-avg
       dest_stem: sc-N_s
       #title: 'Searching ($\mathcal{N}_s(t)$)'
-      label: '\# Robots'
+      label: '\# Robots Searching'
       # include_exp: '2:'
 
     - src_stem: interference-in-int-avg
       dest_stem: sc-N_av
       #title: 'Collision Avoidance ($\mathcal{N}_{av}(t)=\mathcal{N}_{av}^s(t)+\mathcal{N}_{av}^h(t)$)'
-      label: '\# Robots'
+      label: '\# Robots Avoiding Collision'
       # include_exp: '2:'

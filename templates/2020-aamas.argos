@@ -203,7 +203,8 @@
 
           <!-- 15 degrees soft_turn_max. -->
           <diff_drive soft_turn_max="0.262"
-                      max_speed="0.1" />
+                      max_linear_speed="0.1"
+                      max_angular_speed="0.5"/>
         </actuation_subsystem2D>
       </params>
     </__CONTROLLER__>

@@ -1,0 +1,1 @@
+../../fordyca_base/models/AURO2022.py

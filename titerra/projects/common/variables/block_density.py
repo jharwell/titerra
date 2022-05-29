@@ -26,12 +26,10 @@ import os
 # 3rd party packages
 import implements
 from sierra.plugins.platform.argos.variables import constant_density as cd
-import sierra.core.utils
 from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 import sierra.core.plugin_manager as pm
-from sierra.core import types
-import sierra.core.config
+from sierra.core import types, utils, config
 import sierra.core.variables.batch_criteria as bc
 
 # Project packages
@@ -53,7 +51,7 @@ class BlockConstantDensity(cd.ConstantDensity):
                  main_config: tp.Dict[str, str],
                  batch_input_root: str,
                  target_density: float,
-                 dimensions: tp.List[sierra.core.utils.ArenaExtent],
+                 dimensions: tp.List[utils.ArenaExtent],
                  dist_type: str) -> None:
         cd.ConstantDensity.__init__(self,
                                     cli_arg,
@@ -77,7 +75,7 @@ class BlockConstantDensity(cd.ConstantDensity):
                     if c.path == ".//arena" and c.attr == "size":
                         x, y, z = c.value.split(',')
                         dims = Vector3D(float(x), float(y), float(z))
-                        extent = sierra.core.utils.ArenaExtent(dims)
+                        extent = utils.ArenaExtent(dims)
 
                         # Always need at least 1 block
                         n_blocks = max(2, extent.area() *
@@ -108,9 +106,9 @@ class BlockConstantDensity(cd.ConstantDensity):
         for d in exp_dirs:
             pkl_path = os.path.join(self.batch_input_root,
                                     d,
-                                    sierra.core.config.kPickleLeaf)
+                                    config.kPickleLeaf)
             exp_def = XMLAttrChangeSet.unpickle(pkl_path)
-            areas.append(sierra.core.utils.extract_arena_dims(exp_def).area())
+            areas.append(utils.extract_arena_dims(exp_def).area())
 
         return areas
 
@@ -143,13 +141,13 @@ def factory(cli_arg: str,
         r = range(kw['arena_x'],
                   kw['arena_x'] + attr['cardinality'] * attr['arena_size_inc'],
                   attr['arena_size_inc'])
-        dims = [sierra.core.utils.ArenaExtent(
+        dims = [utils.ArenaExtent(
             Vector3D(x, x / 2.0, 0)) for x in r]
     elif kw['dist_type'] == "PL" or kw['dist_type'] == "RN":
         r = range(kw['arena_x'],
                   kw['arena_x'] + attr['cardinality'] * attr['arena_size_inc'],
                   attr['arena_size_inc'])
-        dims = [sierra.core.utils.ArenaExtent(Vector3D(x, x, 0)) for x in r]
+        dims = [utils.ArenaExtent(Vector3D(x, x, 0)) for x in r]
     else:
         raise NotImplementedError(
             "Unsupported block dstribution '{0}': Only SS,DS,QS,RN supported".format(kw['dist_type']))

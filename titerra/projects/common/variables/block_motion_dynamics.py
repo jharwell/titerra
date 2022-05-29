@@ -145,7 +145,9 @@ def factory(cli_arg: str,
     def gen_dynamics():
         # ideal conditions = no dynamics
         dynamics = [XMLAttrChangeSet(*{policy_xml,
-                                       XMLAttrChange('.//arena_map/blocks/motion', d[0], "0.0")}) for d in attr['dynamics']]
+                                       XMLAttrChange('.//arena_map/blocks/motion',
+                                                     d[0],
+                                                     "0.0")}) for d in attr['dynamics']]
 
         for x in range(0, attr['cardinality'] - 1):
             expx = [XMLAttrChangeSet(*{policy_xml,

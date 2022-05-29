@@ -2,7 +2,7 @@ perf:
   # inverted: true
   inverted: False
 
-  intra_interference_csv: 'spatial-interference-counts.csv'
+  intra_interference_csv: 'fsm-interference-counts.csv'
   intra_interference_col: 'cum_avg_exp_interference'
 
   intra_perf_csv: 'block-manipulation.csv'

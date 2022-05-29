@@ -148,10 +148,10 @@ class IntraExp_HomingTime_1Robot():
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
+        time_params = ts.ExpSetup.extract_time_params(exp_def)
 
         # Convert seconds to timesteps for displaying on graphs
-        avg_homing_ts = avg_homing_sec * time_params['ticks_per_sec']
+        avg_homing_ts = avg_homing_sec * time_params['n_ticks_per_sec']
 
         # All done!
         res_df['model'] += avg_homing_ts
@@ -243,7 +243,7 @@ class IntraExp_HomingTime_NRobots():
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         cluster_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                                'block-clusters.csv'))
+                                                                         'block-clusters.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=cluster_df.index)

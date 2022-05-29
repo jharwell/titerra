@@ -124,8 +124,8 @@ class BaseSteadyStateFL:
                                                              self.cmdopts)[0],
                                                          config.kPickleLeaf))
 
-        # Integers always seem to be pickled as floats, so you can't convert directly without an
-        # exception.
+        # Integers always seem to be pickled as floats, so you can't convert
+        # directly without an exception.
         for path, attr, value in exp_def:
             if path == './/experiment' and attr == 'length':
                 length = int(float(value))
@@ -304,10 +304,10 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
         # determine the correct dimension along which to compute the metric,
         # which depends on performance between adjacent swarm sizes.
         axis = utils.get_primary_axis(criteria,
-                                        [population_size.PopulationSize,
-                                         pcd.PopulationConstantDensity,
-                                         pvd.PopulationVariableDensity],
-                                        cmdopts)
+                                      [population_size.PopulationSize,
+                                       pcd.PopulationConstantDensity,
+                                       pvd.PopulationVariableDensity],
+                                      cmdopts)
 
         for i in range(0, xsize):
             for j in range(0, ysize):
@@ -373,10 +373,10 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
         # determine the correct dimension along which to compute the metric,
         # which depends on performance between adjacent swarm sizes.
         axis = utils.get_primary_axis(criteria,
-                                        [population_size.PopulationSize,
-                                         pcd.PopulationConstantDensity,
-                                         pvd.PopulationVariableDensity],
-                                        cmdopts)
+                                      [population_size.PopulationSize,
+                                       pcd.PopulationConstantDensity,
+                                       pvd.PopulationVariableDensity],
+                                      cmdopts)
         for i in range(0, xsize):
             for j in range(0, ysize):
                 expx = list(collated_perf.keys())[i * ysize + j]

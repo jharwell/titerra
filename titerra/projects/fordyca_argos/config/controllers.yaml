@@ -83,8 +83,8 @@ d1:
     - name: BITD_ODPO
       xml:
         attr_change:
-          - ['.//oracle_manager/tasking_oracle', 'task_exec_est', 'true' ]
-          - ['.//oracle_manager/tasking_oracle', 'task_interface_est', 'true' ]
+          - ['.//aggregate_oracle/tasking_oracle', 'task_exec_est', 'true' ]
+          - ['.//aggregate_oracle/tasking_oracle', 'task_interface_est', 'true' ]
         tag_change:
           - ['.//controllers', '__CONTROLLER__', 'bitd_odpo_controller']
 

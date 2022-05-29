@@ -225,8 +225,8 @@ def factory(cli_arg: str,
             cmdopts: types.Cmdopts,
             **kwargs) -> TemporalVariance:
     """
-    Factory to create :class:`TemporalVariance` derived classes from the command line definition of
-    batch criteria.
+    Factory to create :class:`TemporalVariance` derived classes from the command
+    line definition of batch criteria.
 
     """
     attr = TemporalVarianceParser()(cli_arg)

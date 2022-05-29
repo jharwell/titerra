@@ -69,8 +69,8 @@ EXP_SETUP=exp_setup.T1000
 
 CONTROLLERS_LIST=(d1.BITD_DPO d1.BITD_ODPO d2.BIRTD_DPO d2.BIRTD_ODPO)
 SCENARIOS_LIST=(SS.36x18x1 DS.36x18x1 QS.36x36x1)
-#CONTROLLERS_LIST=(d1.BITD_DPO)
-#SCENARIOS_LIST=(SS.36x18x1)
+# CONTROLLERS_LIST=(d1.BITD_ODPO)
+# SCENARIOS_LIST=(QS.36x36x1)
 
 TASK="exp"
 CARDINALITY=C8
@@ -84,7 +84,7 @@ DENSITY=CD10p0
 
 SIERRA_BASE_CMD="sierra-cli \
                  --sierra-root=$OUTPUT_ROOT  \
-                 --template-input-file=$TITERRA_ROOT/templates/2020-aamas-constant-rho10.argos\
+                 --template-input-file=$TITERRA_ROOT/templates/2020-aamas.argos\
                  --n-runs=$NRUNS \
                  --exp-graphs=inter\
                  --project-no-yaml-LN\
@@ -95,7 +95,7 @@ SIERRA_BASE_CMD="sierra-cli \
                  --exp-setup=${EXP_SETUP}\
                  --with-robot-leds\
                  --log-level=DEBUG \
-                 --skip-verify-results"
+                 --df-skip-verify"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
     # 4 controllers, 3 scenarios
@@ -119,9 +119,10 @@ else
 
     SIERRA_CMD="$SIERRA_BASE_CMD\
                   --exec-env=hpc.local\
-                  --physics-n-engines=8 \
+                  --physics-n-engines=16 \
                   --exec-resume \
-                  --pipeline 1 2
+                  --exec-no-devnull \
+                  --pipeline 1
                   "
 fi
 

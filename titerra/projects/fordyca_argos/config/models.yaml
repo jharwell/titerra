@@ -1,5 +1,5 @@
 models:
-  - pyfile: '2021_IJCAI'
+  - pyfile: 'AURO2022'
     wander_mean_speed: '0.09' # m/s, from input file
     homing_mean_speed: '0.08' # m/s, from input file
   # - pyfile: 'homing_time'

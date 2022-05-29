@@ -145,12 +145,12 @@ class IntraExp_BlockAcqRate_NRobots():
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
+        time_params = ts.ExpSetup.extract_time_params(exp_def)
 
         alpha_b = self._kernel(N=n_robots,
                                wander_speed=float(
                                    self.config['wander_mean_speed']),
-                               ticks_per_sec=time_params['ticks_per_sec'],
+                               ticks_per_sec=time_params['n_ticks_per_sec'],
                                avg_acq_dist=avg_acq_dist,
                                scenario=cmdopts['scenario'])
 
@@ -212,7 +212,7 @@ class IntraExp_BlockCollectionRate_NRobots():
                          main_config: types.YAMLDict,
                          config: types.YAMLDict):
         block_manip_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                                    'block-manipulation.csv'))
+                                                                             'block-manipulation.csv'))
 
         # Calculate acquisition rate
         alpha_bN = IntraExp_BlockAcqRate_NRobots(main_config, config).run(criteria,
@@ -254,7 +254,7 @@ class IntraExp_BlockCollectionRate_NRobots():
             exp_num: int,
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
         rate_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                             'block-manipulation.csv'))
+                                                                      'block-manipulation.csv'))
 
         # We calculate 1 data point for each interval
         res_df = pd.DataFrame(columns=['model'], index=rate_df.index)

@@ -29,7 +29,7 @@ from functools import reduce
 # 3rd party packages
 import implements
 import pandas as pd
-from sierra.core import types, config, utils
+from sierra.core import types, config, utils, storage
 import sierra.core.models.interface
 import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment.spec import ExperimentSpec
@@ -124,13 +124,13 @@ class IntraExp_ODE_1Robot():
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
         fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
-                                                       'fsm-interference-counts.csv'))
+                                                                            'fsm-interference-counts.csv'))
 
         # T,n_datapoints are directly from simulation inputs
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
-        T = time_params['T_in_secs'] * time_params['ticks_per_sec']
+        time_params = ts.ExpSetup.extract_time_params(exp_def)
+        T = time_params['T_in_secs'] * time_params['n_ticks_per_sec']
 
         n_datapoints = len(fsm_counts_df.index)
 
@@ -241,15 +241,15 @@ class IntraExp_ODE_NRobots():
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
         fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                         'fsm-interference-counts.csv'))
+                                                                            'fsm-interference-counts.csv'))
 
         # N,T,n_datapoints are directly from simulation inputs
         N = criteria.populations(cmdopts)[exp_num]
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ARGoSExpSetup.extract_time_params(exp_def)
-        T = time_params['T_in_secs'] * time_params['ticks_per_sec']
+        time_params = ts.ExpSetup.extract_time_params(exp_def)
+        T = time_params['T_in_secs'] * time_params['n_ticks_per_sec']
         n_datapoints = len(fsm_counts_df.index)
 
         # This is OK to read from experimental data, per the paper.
@@ -264,9 +264,9 @@ class IntraExp_ODE_NRobots():
         # FIXME: N_av1 COULD be computed a priori, but I don't have time to do it right now, so I
         # just read it from simulation results.
         fsm_counts1_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
-                                                          'fsm-interference-counts.csv'))
+                                                                             'fsm-interference-counts.csv'))
         fsm_countsN_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                          'fsm-interference-counts.csv'))
+                                                                             'fsm-interference-counts.csv'))
 
         N_av1 = fsm_counts1_df['int_avg_exp_interference'].iloc[-1]
         N_avN = fsm_countsN_df['cum_avg_exp_interference'].iloc[-1]
@@ -277,7 +277,7 @@ class IntraExp_ODE_NRobots():
         crwD = diffusion.crwD_for_avoiding(N=N,
                                            wander_speed=float(
                                                self.config['wander_mean_speed']),
-                                           ticks_per_sec=time_params['ticks_per_sec'],
+                                           ticks_per_sec=time_params['n_ticks_per_sec'],
                                            scenario=cmdopts['scenario'])
 
         params = {
@@ -371,7 +371,7 @@ class InterExp_ODE_NRobots():
                 cmdopts["batch_stat_root"], dirs[0])
 
             utils.dir_create_checked(cmdopts2['exp_model_root'],
-                                       exist_ok=True)
+                                     exist_ok=True)
 
             intra_dfs = IntraExp_ODE_NRobots(self.main_config,
                                              self.config).run(criteria,
@@ -400,7 +400,7 @@ class InterExp_ODEWrapper_NRobots():
     .. IMPORTANT::
         This model does not have a kernel() function which computes the
         calculation, because it is a summary model, built on simpler
-        inter-experiment models. 
+        inter-experiment models.
 
     From :xref:`Harwell2021b`.
 
