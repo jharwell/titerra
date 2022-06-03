@@ -78,17 +78,17 @@ class Calculator:
 
         if 'SS' in self.scenario:
             center = clusters_l[0].extent.center
-            # TODO: What are these dimensions?
+            # These dimensions represent where the nest center is (this was updated for each scenario manually) 
             dist = math.sqrt((center.x - 3.2)**2 + (center.y - 8)**2)
             return (dist / diagonal)*(1/arena.area())
 
         elif 'DS' in self.scenario:
-            # TODO: What are these dimensions?
+            # These dimensions represent where the nest center is (this was updated for each scenario manually) 
             leftx, lefty = (16, 8)
             c0_center = clusters_l[0].extent.center
             c1_center = clusters_l[1].extent.center
 
-            # TODO: Why isn't there a matching substraction for Y?
+            # We are assuming that the nest along the y axis should be the same (since the clusters are span both extremes of the y-axis) 
             left_calc = math.sqrt((c0_center.x - leftx) ** 2 + c0_center.y ** 2)
             right_calc = math.sqrt((c1_center.x + leftx) ** 2 + c1_center.y ** 2)
             return (((left_calc + right_calc) / 2) / diagonal)*(2 / arena.area())
