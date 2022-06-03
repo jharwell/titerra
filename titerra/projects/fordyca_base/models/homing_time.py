@@ -97,7 +97,8 @@ class IntraExp_HomingTime_1Robot():
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         # Calculate nest extent
-        nest = rep.Nest(cmdopts, criteria, exp_num)
+        spec = ExperimentSpec(criteria, exp_num, cmdopts)
+        nest = rep.Nest(cmdopts, spec)
 
         # We calculate per-sim, rather than using the averaged block cluster
         # results, because for power law distributions different simulations
@@ -123,8 +124,7 @@ class IntraExp_HomingTime_1Robot():
         res_df['model'] = 0.0
 
         for result in result_opaths:
-            self._calc_for_result(
-                criteria, exp_num, cmdopts, result, nest, res_df)
+            self._calc_for_result(spec, cmdopts, result, nest, res_df)
 
         # Average our results
         res_df['model'] /= len(result_opaths)
@@ -133,8 +133,7 @@ class IntraExp_HomingTime_1Robot():
         return [res_df]
 
     def _calc_for_result(self,
-                         criteria: bc.IConcreteBatchCriteria,
-                         exp_num: int,
+                         spec: ExperimentSpec,
                          cmdopts: types.Cmdopts,
                          result_opath: str,
                          nest: rep.Nest,
@@ -142,11 +141,11 @@ class IntraExp_HomingTime_1Robot():
 
         avg_dist = ExpectedAcqDist()(cmdopts, result_opath, nest)
 
-        # After getting the average distance to ANY block in ANY cluster in the arena, we can
-        # compute the average time, in SECONDS, that robots spend returning to the nest.
+        # After getting the average distance to ANY block in ANY cluster in the
+        # arena, we can compute the average time, in SECONDS, that robots spend
+        # returning to the nest.
         avg_homing_sec = avg_dist / float(self.config['homing_mean_speed'])
 
-        spec = ExperimentSpec(criteria, exp_num, cmdopts)
         exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
         time_params = ts.ExpSetup.extract_time_params(exp_def)
 

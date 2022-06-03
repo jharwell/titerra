@@ -20,12 +20,12 @@ import math
 # 3rd party packages
 
 # Project packages
-import sierra.plugins.platform.argos.variables.exp_setup as ts
 
 
 def crwD_for_searching(N: float,
                        wander_speed: float,
                        ticks_per_sec: int,
+                       scenario_hetero: float,
                        scenario: str) -> float:
     """
     Approximates the diffusion constant in a swarm of N CRW robots for bounded
@@ -37,62 +37,64 @@ def crwD_for_searching(N: float,
 
     # 0.055 is what you get if you solve the Codling2010 integral with a range
     # of [-5,5] degrees rather than [-pi,pi].
-    drift_xy = wander_speed ** 2 / (4 * tick_len) * 1.0 / 0.055
+    dtheta = 0.055
+    drift_xy = wander_speed ** 2 / (4 * tick_len) * 1.0 / dtheta
 
     if 'RN' in scenario:
         # ODE-3 small const-rho,var-rho
-        L_s = 0.055 * 1.5 * (math.sqrt(2.0))
+        L_s = dtheta * 1.5 * (math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        # L_s = 0.055 * (3.75 * math.sqrt(2.0))
+        # L_s = dtheta * (3.75 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
-        # L_s = 0.055 * (3.5 * math.sqrt(2.0))
+        # L_s = dtheta * (3.5 * math.sqrt(2.0))
     elif 'PL' in scenario:
         # ODE-3 small const-rho
-        # L_s = 0.055 / (math.sqrt(2.0))
+        # L_s = dtheta / (math.sqrt(2.0))
 
         # ODE-3 small var-rho
-        L_s = 0.055 / (3.75 * math.sqrt(2.0))
+        L_s = dtheta / (3.75 * math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        # L_s = 0.055 * (4.0 * math.sqrt(2.0))
+        # L_s = dtheta * (4.0 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
-        # L_s = 0.055 * (3.0 * math.sqrt(2.0))
+        # L_s = dtheta * (3.0 * math.sqrt(2.0))
     elif 'DS' in scenario:
         # ODE-3 small const-rho
-        L_s = 0.055 * (1.5 * math.sqrt(2.0))
+        L_s = dtheta * (1.5 * math.sqrt(2.0))
 
         # ODE-3 small var-rho
-        # L_s = 0.055 * (math.sqrt(2.0))
+        # L_s = dtheta * (math.sqrt(2.0))
 
         # ODE-3 large const-rho
-        # L_s = 0.055 * (2.75 * math.sqrt(2.0))
+        # L_s = dtheta * (2.75 * math.sqrt(2.0))
 
         # ODE-3 large var-rho
-        # L_s = 0.055 * 2.5 * (math.sqrt(2.0))
+        # L_s = dtheta * 2.5 * (math.sqrt(2.0))
 
     elif 'SS' in scenario:
         # ODE-3 small const-rho
-        L_s = 0.055 * 2 * math.sqrt(2.0)
+        L_s = dtheta * 2 * math.sqrt(2.0)
 
         # ODE-3 small var-rho
-        # L_s = 0.055 * math.sqrt(2.0)
+        # L_s = dtheta * math.sqrt(2.0)
 
         # ODE-3 large const-rho
-        # L_s = 0.055 * 2.5 * math.sqrt(2.0)
+        # L_s = dtheta * 2.5 * math.sqrt(2.0)
 
         # ODE-3 large var-rho
-        # L_s = 0.055 * 2.0 * math.sqrt(2.0)
+        # L_s = dtheta * 2.0 * math.sqrt(2.0)
 
-    F_N = N * drift_xy * L_s
+    F_N = N * drift_xy * L_s * scenario_hetero
     return F_N
 
 
 def crwD_for_avoiding(N: float,
                       wander_speed: float,
                       ticks_per_sec: int,
+                      scenario_hetero: float,
                       scenario: str) -> float:
     """
     Approximates the diffusion constant in a swarm of N CRW robots for bounded
@@ -100,7 +102,12 @@ def crwD_for_avoiding(N: float,
     by the results in :xref:`Codling2010`.
 
     """
-    D = crwD_for_searching(N, wander_speed, ticks_per_sec, scenario) * 1.0 / 0.055
+    dtheta = 0.055
+    D = crwD_for_searching(N,
+                           wander_speed,
+                           ticks_per_sec,
+                           scenario_hetero,
+                           scenario) * 1.0 / dtheta
 
     if 'PL' in scenario:
         # ODE-3 small const-rho
