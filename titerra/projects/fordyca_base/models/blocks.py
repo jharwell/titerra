@@ -39,7 +39,8 @@ import sierra.plugins.platform.argos.variables.exp_setup as ts
 
 from titerra.projects.fordyca_base.models.density import BlockAcqDensity
 from titerra.projects.fordyca_base.models.dist_measure import DistanceMeasure2D
-import titerra.projects.fordyca_base.models.diffusion as diffusion
+from titerra.projects.fordyca_base.models import diffusion
+from titerra.projects.fordyca_base.models import scenario_heterogeneity as sh
 
 
 def available_models(category: str):
@@ -75,6 +76,7 @@ class IntraExp_BlockAcqRate_NRobots():
     def _kernel(N: float,
                 wander_speed: float,
                 ticks_per_sec: int,
+                scenario_hetero: float,
                 avg_acq_dist: float,
                 scenario: str) -> float:
         """
@@ -83,6 +85,7 @@ class IntraExp_BlockAcqRate_NRobots():
         """
         D = diffusion.crwD_for_searching(N=N,
                                          wander_speed=wander_speed,
+                                         scenario_hetero=scenario_hetero,
                                          ticks_per_sec=ticks_per_sec,
                                          scenario=scenario)
 
@@ -115,16 +118,49 @@ class IntraExp_BlockAcqRate_NRobots():
             exp_num: int,
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
-        result_opath = os.path.join(cmdopts['exp_stat_root'])
+        spec = ExperimentSpec(criteria, exp_num, cmdopts)
 
-        # We calculate per-sim, rather than using the averaged block cluster
+        # Calculate average scenario heterogeneity
+        calculator = sh.Calculator(cmdopts['scenario'])
+        avg_hetero = calculator.from_results(self.main_config, cmdopts, spec)
+
+        # Calculator average block acquisition distance
+        avg_acq_dist = self._avg_acq_dist(cmdopts, spec)
+
+        # Compute additional parameters for kernel calculation
+        n_robots = criteria.populations(cmdopts)[exp_num]
+        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
+        time_params = ts.ExpSetup.extract_time_params(exp_def)
+
+        alpha_b = self._kernel(N=n_robots,
+                               wander_speed=float(self.config['wander_mean_speed']),
+                               ticks_per_sec=time_params['n_ticks_per_sec'],
+                               scenario_hetero=avg_hetero,
+                               avg_acq_dist=avg_acq_dist,
+                               scenario=cmdopts['scenario'])
+
+        result_opath = os.path.join(cmdopts['exp_stat_root'])
+        reader = storage.DataFrameReader('storage.csv')
+        rate_df = reader(os.path.join(result_opath, 'block-manipulation.csv'))
+
+        # We calculate 1 data point for each interval
+        res_df = pd.DataFrame(columns=['model'], index=rate_df.index)
+        res_df['model'] = alpha_b
+
+        # All done!
+        return [res_df]
+
+    def _avg_acq_dist(self,
+                      cmdopts: types.Cmdopts,
+                      spec: ExperimentSpec) -> float:
+        # We calculate per-run, rather than using the averaged block cluster
         # results, because for power law distributions different simulations
         # have different cluster locations, which affects the distribution via
         # locality.
         #
         # For all other block distributions, we can operate on the averaged
         # results, because the position of block clusters is the same in all
-        # simulations.
+        # runs.
         if 'PL' in cmdopts['scenario']:
             result_opaths = [os.path.join(cmdopts['exp_output_root'],
                                           d,
@@ -133,36 +169,17 @@ class IntraExp_BlockAcqRate_NRobots():
         else:
             result_opaths = [os.path.join(cmdopts['exp_stat_root'])]
 
-        nest = rep.Nest(cmdopts, criteria, exp_num)
+        nest = rep.Nest(cmdopts, spec)
 
         dist = 0.0
+
         for result in result_opaths:
             dist += ExpectedAcqDist()(cmdopts, result, nest)
 
         # Average our results
         avg_acq_dist = dist / len(result_opaths)
-        n_robots = criteria.populations(cmdopts)[exp_num]
 
-        spec = ExperimentSpec(criteria, exp_num, cmdopts)
-        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
-        time_params = ts.ExpSetup.extract_time_params(exp_def)
-
-        alpha_b = self._kernel(N=n_robots,
-                               wander_speed=float(
-                                   self.config['wander_mean_speed']),
-                               ticks_per_sec=time_params['n_ticks_per_sec'],
-                               avg_acq_dist=avg_acq_dist,
-                               scenario=cmdopts['scenario'])
-
-        rate_df = storage.DataFrameReader('storage.csv')(
-            os.path.join(result_opath, 'block-manipulation.csv'))
-
-        # We calculate 1 data point for each interval
-        res_df = pd.DataFrame(columns=['model'], index=rate_df.index)
-        res_df['model'] = alpha_b
-
-        # All done!
-        return [res_df]
+        return avg_acq_dist
 
 
 @implements.implements(sierra.core.models.interface.IConcreteIntraExpModel1D)
@@ -411,7 +428,10 @@ class InterExp_BlockCollectionRate_NRobots():
 
 
 class ExpectedAcqDist():
-    def __call__(self, cmdopts: types.Cmdopts, result_opath: str, nest: rep.Nest) -> float:
+    def __call__(self,
+                 cmdopts: types.Cmdopts,
+                 result_opath: str,
+                 nest: rep.Nest) -> float:
 
         # Get clusters in the arena
         clusters = rep.BlockClusterSet(cmdopts, nest, result_opath)
@@ -430,8 +450,9 @@ class ExpectedAcqDist():
                          scenario: str) -> float:
         dist_measure = DistanceMeasure2D(scenario, nest=nest)
 
-        density = BlockAcqDensity(
-            nest=nest, cluster=cluster, dist_measure=dist_measure)
+        density = BlockAcqDensity(nest=nest,
+                                  cluster=cluster,
+                                  dist_measure=dist_measure)
 
         # Compute expected value of X coordinate of average distance from nest to acquisition
         # location.

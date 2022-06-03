@@ -67,9 +67,8 @@ class BlockCluster():
 
 
 class Nest():
-    def __init__(self, cmdopts: types.Cmdopts, criteria: bc.IConcreteBatchCriteria, exp_num: int):
+    def __init__(self, cmdopts: types.Cmdopts, spec: ExperimentSpec):
         # Get nest position
-        spec = ExperimentSpec(criteria, exp_num, cmdopts)
         res = sgp.ScenarioGeneratorParser().to_dict(cmdopts['scenario'])
         pose = nest.Nest(src='arena',
                          dist_type=res['scenario_tag'],

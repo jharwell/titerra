@@ -94,7 +94,7 @@ CD_SIZEINC_LARGE=I72
 CD_CRITERIA_LARGE=population_constant_density.${CD_LARGE}.${CD_SIZEINC_LARGE}.${CD_CARDINALITY_LARGE}
 VD_CRITERIA_LARGE=population_variable_density.${VD_MIN_LARGE}.${VD_MAX_LARGE}.${VD_CARDINALITY_LARGE}
 
-# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2)
+# SCENARIOS_LIST_CD=(DS.16x8x2)
 SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
 # SCENARIOS_LIST_VD_LARGE=(RN.256x256x2)
@@ -109,7 +109,7 @@ SIERRA_BASE_CMD="sierra-cli \
                   --n-runs=$NSIMS\
                   --controller=d0.CRW\
                   --project=fordyca_argos\
-                  --pipeline 4\
+                  --pipeline 1\
                   --project-no-yaml-LN --exec-jobs-per-node=12 --exec-resume\
                   --dist-stats=conf95 \
                   --with-robot-leds\
@@ -151,7 +151,8 @@ if [ "$TASK" == "small" ] || [ "$TASK" == "exp" ]; then
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${VD_CRITERIA_SMALL}\
                     --exp-setup=${TIME_SMALL}\
-                    --physics-n-engines=1
+                    --physics-n-engines=8 
+
 
     done
 
@@ -160,7 +161,7 @@ if [ "$TASK" == "small" ] || [ "$TASK" == "exp" ]; then
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${CD_CRITERIA_SMALL}\
                     --exp-setup=${TIME_SMALL}\
-                    --physics-n-engines=1
+                    --physics-n-engines=8
 
     done
 fi
@@ -172,7 +173,7 @@ if [ "$TASK" == "large" ] || [ "$TASK" == "exp" ]; then
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${VD_CRITERIA_LARGE}\
                     --exp-setup=${TIME_LARGE}\
-`3`                    --physics-n-engines=2
+                    --physics-n-engines=8 
     done
 
     for s in "${SCENARIOS_CD[@]}"
@@ -180,7 +181,7 @@ if [ "$TASK" == "large" ] || [ "$TASK" == "exp" ]; then
         $SIERRA_CMD --scenario=$s \
                     --batch-criteria ${CD_CRITERIA_LARGE}\
                     --exp-setup=${TIME_LARGE}\
-                    --physics-n-engines=2
+                    --physics-n-engines=8
 
     done
 fi
@@ -197,13 +198,13 @@ if [ "$TASK" == "comp" ]; then
                   --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT"
 
-    $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-                --scenarios-list=SS.16x8x2,DS.16x8x2 \
-                --scenarios-legend="SS","DS"
+    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
+    #             --scenarios-list=SS.16x8x2,DS.16x8x2 \
+    #             --scenarios-legend="SS.16x8","DS.16x8"
 
     # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-    #             --scenarios-list=RN.8x8x2\
-    #             --scenarios-legend="RN"
+    #             --scenarios-list=RN.8x8x2,PL.8x8x2\
+    #             --scenarios-legend="RN","PL"
 
     # $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
     #             --scenarios-list=SS.32x16x2,DS.32x16x2\
@@ -213,28 +214,28 @@ if [ "$TASK" == "comp" ]; then
     #             --scenarios-list=RN.16x16x2,PL.16x16x2\
     #             --scenarios-legend="RN","PL"
 
-    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
-    #             --scenarios-list=SS.16x8x2,DS.16x8x2\
-    #             --plot-enumerated-xscale\
-    #             --plot-log-yscale\
-    #             --scenarios-legend="SS","DS"
+    $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
+                --scenarios-list=SS.16x8x2,DS.16x8x2\
+                --plot-enumerated-xscale\
+                --plot-log-yscale\
+                --scenarios-legend="SS","DS"
 
-    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
-    #             --scenarios-list=RN.8x8x2,PL.8x8x2\
-    #             --plot-enumerated-xscale\
-    #             --plot-log-yscale\
-    #             --scenarios-legend="RN","PL"
+    $STAGE5_CMD --batch-criteria $CD_CRITERIA_LARGE\
+                --scenarios-list=RN.8x8x2,PL.8x8x2\
+                --plot-enumerated-xscale\
+                --plot-log-yscale\
+                --scenarios-legend="RN","PL"
 
-    # # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
-    #             --scenarios-list=SS.256x128x2,DS.256x128x2\
-    #             --plot-enumerated-xscale\
-    #             --plot-log-yscale\
-    #             --scenarios-legend="SS","DS"
+    $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
+                --scenarios-list=SS.256x128x2,DS.256x128x2\
+                --plot-enumerated-xscale\
+                --plot-log-yscale\
+                --scenarios-legend="SS","DS"
 
-    # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
-    #             --scenarios-list=RN.256x256x2,PL.256x256x2\
-    #             --plot-enumerated-xscale\
-    #             --plot-log-yscale\
-    #             --scenarios-legend="RN","PL"
+    $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
+                --scenarios-list=RN.256x256x2,PL.256x256x2\
+                --plot-enumerated-xscale\
+                --plot-log-yscale\
+                --scenarios-legend="RN","PL"
 
 fi

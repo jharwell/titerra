@@ -45,6 +45,7 @@ import titerra.projects.fordyca_base.models.ode_solver as ode
 from titerra.projects.fordyca_base.models.blocks import IntraExp_BlockAcqRate_NRobots
 from titerra.projects.fordyca_base.models.perf_measures import InterExp_RawPerf_NRobots, InterExp_Scalability_NRobots, InterExp_SelfOrg_NRobots
 import titerra.projects.fordyca_base.models.diffusion as diffusion
+from titerra.projects.fordyca_base.models import scenario_heterogeneity as sh
 
 
 def available_models(category: str):
@@ -95,8 +96,9 @@ class IntraExp_ODE_1Robot():
             cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         model_params = self._ode_params_calc(criteria, exp_num, cmdopts)
+        spec = ExperimentSpec(criteria, exp_num, cmdopts)
 
-        nest = rep.Nest(cmdopts, criteria, exp_num)
+        nest = rep.Nest(cmdopts, spec)
         clusters = rep.BlockClusterSet(cmdopts, nest, cmdopts['exp0_stat_root'])
         n_blocks = reduce(lambda accum, cluster: accum +
                           cluster.avg_blocks, clusters, 0)
@@ -123,8 +125,9 @@ class IntraExp_ODE_1Robot():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
-                                                                            'fsm-interference-counts.csv'))
+        reader = storage.DataFrameReader('storage.csv')
+        fsm_counts_df = reader(os.path.join(cmdopts['exp0_stat_root'],
+                                            'fsm-interference-counts.csv'))
 
         # T,n_datapoints are directly from simulation inputs
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
@@ -213,7 +216,9 @@ class IntraExp_ODE_NRobots():
         model_params = model1_robot._ode_params_calc(criteria, 0, cmdopts)
         model_params.update(self._ode_params_calc(criteria, exp_num, cmdopts))
 
-        nest = rep.Nest(cmdopts, criteria, exp_num)
+        spec = ExperimentSpec(criteria, exp_num, cmdopts)
+
+        nest = rep.Nest(cmdopts, spec)
         clusters = rep.BlockClusterSet(cmdopts, nest, cmdopts['exp_stat_root'])
         n_blocks = reduce(lambda accum, cluster: accum +
                           cluster.avg_blocks, clusters, 0)
@@ -240,8 +245,9 @@ class IntraExp_ODE_NRobots():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                                            'fsm-interference-counts.csv'))
+        reader = storage.DataFrameReader('storage.csv')
+        fsm_counts_df = reader(os.path.join(cmdopts['exp_stat_root'],
+                                            'fsm-interference-counts.csv'))
 
         # N,T,n_datapoints are directly from simulation inputs
         N = criteria.populations(cmdopts)[exp_num]
@@ -261,12 +267,13 @@ class IntraExp_ODE_NRobots():
                                                                                 exp_num,
                                                                                 cmdopts)[0]
 
-        # FIXME: N_av1 COULD be computed a priori, but I don't have time to do it right now, so I
-        # just read it from simulation results.
-        fsm_counts1_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
-                                                                             'fsm-interference-counts.csv'))
-        fsm_countsN_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                                             'fsm-interference-counts.csv'))
+        # FIXME: N_av1 COULD be computed a priori, but I don't have time to do
+        # it right now, so I just read it from simulation results.
+        reader = storage.DataFrameReader('storage.csv')
+        fsm_counts1_df = reader(os.path.join(cmdopts['exp0_stat_root'],
+                                             'fsm-interference-counts.csv'))
+        fsm_countsN_df = reader(os.path.join(cmdopts['exp_stat_root'],
+                                             'fsm-interference-counts.csv'))
 
         N_av1 = fsm_counts1_df['int_avg_exp_interference'].iloc[-1]
         N_avN = fsm_countsN_df['cum_avg_exp_interference'].iloc[-1]
@@ -274,10 +281,17 @@ class IntraExp_ODE_NRobots():
         # crwD calculated directly from simulation inputs/configuration
         acq = IntraExp_BlockAcqRate_NRobots(self.main_config, self.config)
         alpha_bN = acq.run(criteria, exp_num, cmdopts)[0]
+
+        spec = ExperimentSpec(criteria, exp_num, cmdopts)
+        H_m = sh.Calculator(cmdopts['scenario']).from_results(self.main_config,
+                                                              cmdopts,
+                                                              spec)
+
         crwD = diffusion.crwD_for_avoiding(N=N,
                                            wander_speed=float(
                                                self.config['wander_mean_speed']),
                                            ticks_per_sec=time_params['n_ticks_per_sec'],
+                                           scenario_hetero=H_m,
                                            scenario=cmdopts['scenario'])
 
         params = {
@@ -293,7 +307,7 @@ class IntraExp_ODE_NRobots():
         }
 
         print("--------------------------------------------------------------------------------")
-        print("Calculated ODE params for N robots:")
+        print("Calculated ODE params for N={0} robots:".format(N))
         print(params)
         print("--------------------------------------------------------------------------------")
 

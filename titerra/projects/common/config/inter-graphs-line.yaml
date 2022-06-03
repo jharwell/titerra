@@ -1,13 +1,13 @@
 LN_spatial_interference:
   graphs:
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-in-int-avg
       col: int_avg_exp_interference
       title: 'Average Robots Experiencing Interference (interval)'
       xlabel: 'Interval'
       ylabel: '\# Robots'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-in-cum-avg
       col: cum_avg_exp_interference
       title: 'Average Robots Experiencing Interference (cumulative)'
@@ -15,56 +15,56 @@ LN_spatial_interference:
       ylabel: '\# Robots'
       batch: True
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-entered-int-avg
       col: int_avg_entered_interference
       title: 'Average Robots Entering Interference (interval)'
       xlabel: 'Interval'
       ylabel: '\# Robots'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-entered-cum-avg
       col: cum_avg_entered_interference
       title: 'Average Robots Entering Interference (cumulative)'
       xlabel: 'Interval'
       ylabel: '\# Robots'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-exited-int-avg
       col: int_avg_exited_interference
       title: 'Average Robots Exiting Interference (interval)'
       xlabel: 'Interval'
       ylabel: '\# Robots'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-exited-cum-avg
       col: cum_avg_exited_interference
       title: 'Average Robots Exiting Interference (cumulative)'
       xlabel: 'Interval'
       ylabel: '\# Robots'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-episodes-int-avg
       col: int_avg_episodes
       title: 'Average Interference Episodes (interval)'
       xlabel: 'Interval'
       ylabel: '\# Episodes'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-in-cum-avg
       col: cum_avg_episodes
       title: 'Average Interference Episodes (cumulative)'
       xlabel: 'Interval'
       ylabel: '\# Episodes'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-duration-int-avg
       col: int_avg_interference_duration
       title: 'Average Interference Duration (interval)'
       xlabel: 'Interval'
       ylabel: '\# Timesteps'
 
-    - src_stem: spatial-interference-counts
+    - src_stem: fsm-interference-counts
       dest_stem: interference-duration-cum-avg
       col: cum_avg_interference_duration
       title: 'Average Interference Duration (cumulative)'
@@ -74,56 +74,56 @@ LN_spatial_interference:
 
 LN_spatial_movement:
   graphs:
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: distance-int-avg-all
       col: int_avg_distance_all
       title: 'Per-robot Distance Traveled (interval)'
       xlabel: 'Interval'
       ylabel: Distance (m)
 
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: distance-cum-avg-all
       col: cum_avg_distance_all
       title: 'Per-robot Distance Traveled (cumulative)'
       xlabel: 'Interval'
       ylabel: 'Distance (m)'
 
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: velocity-int-avg-all
       col: int_avg_velocity_all
       title: 'Per-robot Velocity (interval)'
       xlabel: 'Interval'
       ylabel: 'Velocity (m/s)'
 
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: velocity-cum-avg-all
       col: cum_avg_velocity_all
       title: 'Per-robot Velocity (cumulative)'
       xlabel: 'Interval'
       ylabel: 'Velocity (m/s)'
 
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: distance-int-avg-homing
       col: int_avg_distance_homing
       title: 'Per-robot Homing Distance Traveled (interval)'
       xlabel: 'Interval'
       ylabel: Distance (m)
 
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: distance-cum-avg-homing
       col: cum_avg_distance_homing
       title: 'Per-robot Homing Distance Traveled (cumulative)'
       xlabel: 'Interval'
       ylabel: 'Distance (m)'
 
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: velocity-int-avg-homing
       col: int_avg_velocity_homing
       title: 'Per-robot Homing Velocity (interval)'
       xlabel: 'Interval'
       ylabel: 'Velocity (m/s)'
 
-    - src_stem: spatial-movement
+    - src_stem: fsm-movement
       dest_stem: velocity-cum-avg-homing
       col: cum_avg_velocity_homing
       title: 'Per-robot Homing Velocity (cumulative)'

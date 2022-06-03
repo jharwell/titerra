@@ -119,7 +119,7 @@ else
 
     SIERRA_CMD="$SIERRA_BASE_CMD\
                   --exec-env=hpc.local\
-                  --physics-n-engines=16 \
+                  --physics-n-engines=8 \
                   --exec-resume \
                   --exec-no-devnull \
                   --pipeline 1

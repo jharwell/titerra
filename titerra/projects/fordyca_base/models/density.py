@@ -22,11 +22,12 @@ import typing as tp
 import scipy.integrate as si
 
 # Project packages
-import sierra.core.utils
+from sierra.core import utils
 from sierra.core.vector import Vector3D
 
 import titerra.projects.fordyca_base.models.representation as rep
 from titerra.projects.fordyca_base.models.dist_measure import DistanceMeasure2D
+from titerra.projects.fordyca_base.models.scenario_heterogeneity import Calculator
 
 
 class BaseDensity():
@@ -150,34 +151,40 @@ class BlockAcqDensity(BaseDensity):
         self.nest = nest
         self.dist_measure = dist_measure
         self.cluster = cluster
+
         cd = ClusterBlockDensity(cluster=cluster, nest=nest)
 
-        # Cluster density can be 0 for PL if the cluster is small and no blocks were ever
-        # distributed to it during simulation.
-        # self.rho = -math.log((1.0 / 2.0) ** cd.rho_b) if cd.rho_b > 0.0 else None
+        # Cluster density can be 0 for PL if the cluster is small and no blocks
+        # were ever distributed to it during simulation.
+        #
+        # self.rho = -math.log((1.0 / 2.0) ** cd.rho_b) if cd.rho_b > 0.0 else
+        # None
         self.rho = -math.log(math.pow(cd.rho_b, cd.rho_b / 2.0)
                              ) if cd.rho_b > 0.0 else None
 
-        # We normalize our density function within the cluster we are attached to, NOT across all
-        # clusters. When calculating expected value we need to integrate across all possible values
-        # of X/Y, and if we have normalized our density function across multiple clusters, then
-        # calculating the expected acquisition location for a single cluster will be incorrect.
+        # We normalize our density function within the cluster we are attached
+        # to, NOT across all clusters. When calculating expected value we need
+        # to integrate across all possible values of X/Y, and if we have
+        # normalized our density function across multiple clusters, then
+        # calculating the expected acquisition location for a single cluster
+        # will be incorrect.
         self.norm_factor = 1.0
         total = self.for_region(ll=cluster.extent.ll, ur=cluster.extent.ur)
 
-        # Can be 0 for PL if the cluster is small and no blocks were ever distributed to it during
-        # simulation.
+        # Can be 0 for PL if the cluster is small and no blocks were ever
+        # distributed to it during simulation.
         self.norm_factor = 1.0 / total if total > 0 else 0.0
 
     def at_point(self, x: tp.Optional[float] = None, y: tp.Optional[float] = None):
-        r"""
-        Calculate the block acquisition probability density at an (X,Y) point within the arena.
+        r"""Calculate the block acquisition probability density at an (X,Y) point within
+        the arena.
 
         .. math::
            \frac{1}{{\sqrt{z + -\log{\rho_b ^ {\rho_b / 2}}}}
 
-        where :math:`z` is the distance of the (X,Y) point to the center of the nest, and
-        :math:`\rho_b` is the block density at (X,Y).
+        where :math:`z` is the distance of the (X,Y) point to the center of the
+        nest, and :math:`\rho_b` is the block density at (X,Y).
+
         """
 
         if x is None and y is not None:  # Calculating marginal PDF of X
@@ -188,11 +195,13 @@ class BlockAcqDensity(BaseDensity):
             assert x is not None and y is not None
             pt = Vector3D(x, y)
 
-        # No acquisitions possible if the cluster never had any blocks in it during simulation.
+        # No acquisitions possible if the cluster never had any blocks in it
+        # during simulation.
         if self.rho is None:
             return 0.0
 
         z = self.dist_measure.to_nest(pt)
-        if z < 0:
-            z = 0
+
+        z = max(z, 0)
+
         return 1.0 / ((math.sqrt(z) + self.rho) ** 2) * self.norm_factor
