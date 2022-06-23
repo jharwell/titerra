@@ -30,9 +30,10 @@ from sierra.plugins.platform.argos.generators.platform_generators import Platfor
 import sierra.core.utils as scutils
 
 # Project packages
-from titerra.projects.common.variables import block_distribution, arena, block_quantity, exp_setup
-from titerra.projects.common.variables.nest import Nest
+from titerra.platform.argos.variables import block_distribution, arena, block_quantity
+from titerra.platform.argos.variables.nest import Nest
 from titerra.projects.common.generators import utils as tiutils
+from titerra.projects.common.variables import exp_setup
 
 
 class BaseScenarioGenerator(PlatformExpDefGenerator):

@@ -38,17 +38,16 @@ import logging
 import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
-from sierra.core.variables import batch_criteria as bc
 from sierra.plugins.platform.argos.variables import population_size
-from sierra.plugins.platform.argos.variables import population_constant_density as pcd
-from sierra.plugins.platform.argos.variables import population_variable_density as pvd
 import sierra.core.utils
 import sierra.core.config
 from sierra.core import types
 
 # Project packages
-
+from titerra.variables import batch_criteria as bc
 import titerra.projects.common.perf_measures.common as pmcommon
+from titerra.platform.argos.variables import population_constant_density as pcd
+from titerra.platform.argos.variables import population_variable_density as pvd
 
 ################################################################################
 # Base Classes
@@ -341,8 +340,10 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         populations = criteria.populations(cmdopts)
         sc_dfs = {}
@@ -412,8 +413,10 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
         populations = criteria.populations(cmdopts)
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
         sc_dfs = {}
 
         for i in range(axis == 0, xsize):

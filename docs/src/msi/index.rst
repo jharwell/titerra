@@ -1,10 +1,9 @@
-========================================
-Minnesota Supercomputing Institute (MSI)
-========================================
+=======================================================
+Running On The Minnesota Supercomputing Institute (MSI)
+=======================================================
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
 
    setup.rst
    runtime.rst

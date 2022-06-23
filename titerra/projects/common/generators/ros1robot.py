@@ -15,7 +15,7 @@
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
 """Extensions to
-:class:`~sierra.plugins.platform.rosrobot.platform_generators.PlatformExpDefGenerator`
+:class:`~sierra.plugins.platform.ros1robot.platform_generators.PlatformExpDefGenerator`
 common to all TITAN scenarios which use ROS with real robots.
 
 """
@@ -24,8 +24,8 @@ import re
 
 # 3rd party packages
 from sierra.core.xml import XMLLuigi
-from sierra.plugins.platform.rosgazebo.generators.platform_generators import PlatformExpDefGenerator
-from sierra.plugins.platform.rosgazebo.generators.platform_generators import PlatformExpRunDefUniqueGenerator
+from sierra.plugins.platform.ros1robot.generators.platform_generators import PlatformExpDefGenerator
+from sierra.plugins.platform.ros1robot.generators.platform_generators import PlatformExpRunDefUniqueGenerator
 from sierra.core import utils
 
 # Project packages

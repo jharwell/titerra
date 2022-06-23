@@ -27,7 +27,7 @@ sys.path.append(os.path.abspath('_ext'))
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '4.4.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -40,9 +40,12 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.mathjax',
               'sphinx.ext.ifconfig',
               'sphinx.ext.viewcode',
+              'sphinx.ext.graphviz',
+              'sphinx_tabs.tabs',
               'sphinx.ext.inheritance_diagram',
               'sphinxarg.ext',
               'xref',
+              'sphinx_last_updated_by_git',
               'sphinx_rtd_theme',
               'sphinxcontrib.napoleon',
               'autoapi.sphinx',
@@ -69,8 +72,13 @@ author = 'John Harwell'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
+ver_ns = {}
+ver_path = os.path.join('..', 'titerra', 'version.py')
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), ver_ns)
+
 # The short X.Y version.
-# version = '0.3.0.0'
+version = ver_ns['__version__']
 # The full version, including alpha/beta/rc tags.
 # release = '0.3.0.0'
 
@@ -113,24 +121,38 @@ nitpick_ignore = [
     ('py:class', 'xml.etree.ElementTree'),
     ('py:class', 'multiprocessing.context.BaseContext.Queue')
 ]
+autoapi_options = {
+    'special-members': False,
+    'show-inheritance-diagram': True
+}
 autoapi_modules = {
-    'titerra.projects.fordyca_argos': {'output': 'api/projects/fordyca_argos'},
-    'titerra.projects.fordyca_rosrobot':
-    {
-        'output': 'api/projects/fordyca_rosrobot'
-    },
-    'titerra.projects.fordyca_rosgazebo':
-    {
-        'output': 'api/projects/fordyca_rosgazebo'
-    },
-    'titerra.projects.common': {'output': 'api/projects/common'}
+    'titerra.projects': {'output': 'api'},
+    'titerra.tools': {'output': 'api'},
+    'titerra.platform': {'output': 'api'},
+    'titerra.variables': {'output': 'api'},
+
 }
 
 autoapi_ignore = ['*flycheck*']
 xref_links = {
-    "Harwell2021b": ("Harwell2021b", "STUB for ODE paper"),
-    "TITAN": ("TITAN", "STUB for TITAN docs"),
-    "SIERRA": ("SIERRA", "https://swarm-robotics-sierra.readthedocs.io"),
+    "Harwell2021a-metrics": ("Improved Swarm Engineering: Aligning Intuition and Analysis",
+                             "https://arxiv.org/pdf/2012.04144.pdf"),
+    "Harwell2022a-ode": ("Characterizing The Limits of Linear Modeling of Non-Linear Swarm Behaviors",
+                         "https://arxiv.org/abs/2110.12307"),
+    "Harwell2020a-demystify": ("Demystifying Emergent Intelligence and Its Effect on Performance in Large Swarms",
+                               "http://ifaamas.org/Proceedings/aamas2020/pdfs/p474.pdf"),
+    "Harwell2019a-metrics": ("Swarm Engineering Through Quantitative Measurement in a 10,000 Robot Swarm",
+                             "https://www.ijcai.org/Proceedings/2019/0048.pdf"),
+    "White2019-social": ("Socially Inspired Communication in Swarm Robotics",
+                         "https://arxiv.org/abs/1906.01108"),
+    "Chen2019-battery": ("Maximizing Energy Efficiency in Swarm Robotics",
+                         "https://arxiv.org/abs/1906.01957"),
+    "Hecker2015": ("Hecker2015",
+                   "https://www.cs.unm.edu/~wjust/CS523/S2018/Readings/Hecker_Beyond_Pheromones_Swarm_Intelligence.pdf"),
+    "Rosenfeld2006": ("Rosenfeld2006",
+                      "http://users.umiacs.umd.edu/~sarit/data/articles/rosenfeldetalbook06.pdf"),
+    "SIERRA": ("https://swarm-robotics-fordyca.readthedocs.io",
+               "https://swarm-robotics-fordyca.readthedocs.io"),
     "FORDYCA": ("FORDYCA", "https://swarm-robotics-fordyca.readthedocs.io"),
     "PRISM": ("PRISM", "https://swarm-robotics-prism.readthedocs.io"),
     "COSM": ("COSM", "https://swarm-robotics-cosm.readthedocs.io"),
@@ -140,7 +162,8 @@ xref_links = {
     "TITERRA_DOCS": ("https://swarm-robotics-titerra.readthedocs.io",
                      "https://swarm-robotics-titerra.readthedocs.io"),
     "TITERRA_GITHUB": ("https://github.com/swarm-robotics/titerra.git",
-                       "https://github.com/swarm-robotics/titerra.git")
+                       "https://github.com/swarm-robotics/titerra.git"),
+    "TITAN": ("TITAN", "STUB for TITAN docs")
 }
 
 # -- Options for HTML output ----------------------------------------------
@@ -159,7 +182,9 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
+
+html_last_updated_fmt = "%b %d, %Y"
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -173,11 +198,11 @@ html_sidebars = {
     ]
 }
 
-html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # override wide tables in RTD theme
-    ],
-}
+# html_context = {
+#     'css_files': [
+#         '_static/theme_overrides.css',  # override wide tables in RTD theme
+#     ],
+# }
 
 # -- Options for HTMLHelp output ------------------------------------------
 

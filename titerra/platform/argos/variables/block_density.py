@@ -30,12 +30,13 @@ from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 import sierra.core.plugin_manager as pm
 from sierra.core import types, utils, config
-import sierra.core.variables.batch_criteria as bc
 
 # Project packages
+import titerra.variables.batch_criteria as bc
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
+@implements.implements(bc.IPMQueryableBatchCriteria)
 class BlockConstantDensity(cd.ConstantDensity):
     """
     A univariate range specifiying the block density (ratio of block count to
@@ -81,12 +82,14 @@ class BlockConstantDensity(cd.ConstantDensity):
                         n_blocks = max(2, extent.area() *
                                        (self.target_density / 100.0))
 
-                        changeset.add(XMLAttrChange(".//arena_map/blocks/distribution/manifest",
-                                                    "n_cube",
-                                                    "{0}".format(int(n_blocks / 2.0))))
-                        changeset.add(XMLAttrChange(".//arena_map/blocks/distribution/manifest",
-                                                    "n_ramp",
-                                                    "{0}".format(int(n_blocks / 2.0))))
+                        changeset.add(
+                            XMLAttrChange(".//arena_map/blocks/distribution/manifest",
+                                          "n_cube",
+                                          "{0}".format(int(n_blocks / 2.0))))
+                        changeset.add(
+                            XMLAttrChange(".//arena_map/blocks/distribution/manifest",
+                                          "n_ramp",
+                                          "{0}".format(int(n_blocks / 2.0))))
                         break
             self.already_added = True
 

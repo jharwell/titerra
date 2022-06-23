@@ -30,7 +30,6 @@ import implements
 import pandas as pd
 import sierra.core.models.interface
 import sierra.plugins.platform.argos.variables.exp_setup as ts
-import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core.xml import XMLAttrChangeSet
@@ -42,6 +41,7 @@ from titerra.projects.fordyca_base.models.density import BlockAcqDensity
 from titerra.projects.fordyca_base.models.dist_measure import DistanceMeasure2D
 from titerra.projects.fordyca_base.models.interference import IntraExp_RobotInterferenceRate_NRobots, IntraExp_RobotInterferenceTime_NRobots
 from titerra.projects.fordyca_base.models.blocks import ExpectedAcqDist
+import titerra.variables.batch_criteria as bc
 
 
 def available_models(category: str):
@@ -71,7 +71,7 @@ class IntraExp_HomingTime_1Robot():
        it does not require ANY experimental data, and can be computed from first principles, so it
        is always OK to :method:`run()` it.
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
 
     """
 
@@ -164,7 +164,7 @@ class IntraExp_HomingTime_NRobots():
     nest after it has picked up an object during foraging during a single experiment within a
     batch.
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
 
     """
     @staticmethod
@@ -269,7 +269,7 @@ class InterExp_HomingTime_NRobots():
        This model does not have a kernel() function which computes the calculation, because
        it is a summary model, built on simpler intra-experiment models.
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
     """
 
     def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict) -> None:

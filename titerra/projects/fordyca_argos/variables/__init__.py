@@ -19,16 +19,17 @@ import sys
 
 # 3rd party packages
 
-# Common TITAN packages to lift into 'fordyca_argos.variables' namespace for use in the
-# SIERRA project for FORDYCA.
-from titerra.projects.common.variables import arena
-from titerra.projects.common.variables import block_density
-from titerra.projects.common.variables import block_distribution
-from titerra.projects.common.variables import block_motion_dynamics
-from titerra.projects.common.variables import block_quantity
-from titerra.projects.common.variables import nest
+# Common TITAN packages to lift into 'fordyca_argos.variables' namespace for use
+# in the SIERRA project for FORDYCA.
+from titerra.platform.argos.variables import arena
+from titerra.platform.argos.variables import block_density
+from titerra.platform.argos.variables import block_distribution
+from titerra.platform.argos.variables import block_motion_dynamics
+from titerra.platform.argos.variables import block_quantity
+from titerra.platform.argos.variables import nest
+from titerra.platform.argos.variables import population_size
+from titerra.platform.argos.variables import saa_noise
 from titerra.projects.common.variables import oracle
-from titerra.projects.common.variables import population_size
 from titerra.projects.common.variables import ta_policy_set
 from titerra.projects.common.variables import temporal_variance
 from titerra.projects.common.variables import temporal_variance_parser
@@ -41,6 +42,7 @@ sys.modules['fordyca_argos.variables.block_distribution'] = block_distribution
 sys.modules['fordyca_argos.variables.block_motion_dynamics'] = block_motion_dynamics
 sys.modules['fordyca_argos.variables.block_quantity'] = block_quantity
 sys.modules['fordyca_argos.variables.nest'] = nest
+sys.modules['fordyca_argos.variables.saa_noise'] = saa_noise
 sys.modules['fordyca_argos.variables.oracle'] = oracle
 sys.modules['fordyca_argos.variables.population_size'] = population_size
 sys.modules['fordyca_argos.variables.ta_policy_set'] = ta_policy_set

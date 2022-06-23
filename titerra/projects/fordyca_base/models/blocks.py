@@ -26,20 +26,19 @@ import math
 # 3rd party packages
 import implements
 import pandas as pd
-
-# Project packages
 import sierra.core.models.interface
 from sierra.core.experiment.spec import ExperimentSpec
 import titerra.projects.fordyca_base.models.representation as rep
-import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core.xml import XMLAttrChangeSet
 from sierra.core import types, storage, utils
 import sierra.plugins.platform.argos.variables.exp_setup as ts
 
+# Project packages
 from titerra.projects.fordyca_base.models.density import BlockAcqDensity
 from titerra.projects.fordyca_base.models.dist_measure import DistanceMeasure2D
 import titerra.projects.fordyca_base.models.diffusion as diffusion
+import titerra.variables.batch_criteria as bc
 
 
 def available_models(category: str):
@@ -68,7 +67,7 @@ class IntraExp_BlockAcqRate_NRobots():
        be computed from first principles, so it is always OK to :method:`run()`
        it.
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
 
     """
     @staticmethod
@@ -78,7 +77,7 @@ class IntraExp_BlockAcqRate_NRobots():
                 avg_acq_dist: float,
                 scenario: str) -> float:
         """
-        Calculates the CRW Diffusion constant in :xref:`Harwell2021b` for
+        Calculates the CRW Diffusion constant in :xref:`Harwell2022a-ode` for
         bounded arena geometry, inspired by the results in :xref:`Codling2010`.
         """
         D = diffusion.crwD_for_searching(N=N,

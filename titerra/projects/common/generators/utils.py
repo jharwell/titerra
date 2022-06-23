@@ -14,8 +14,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 """
-Extensions to the :class:`~sierra.core.generators.ExpCreator` and
-:class:`sierra.core.generators.SimDefUniqueGenerator` for the TITAN project.
+Utils to support generator extensions for the the TITAN project.
 """
 
 # Core packages

@@ -42,17 +42,14 @@ import pandas as pd
 
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
-from sierra.core.variables import batch_criteria as bc
 from sierra.plugins.platform.argos.variables import population_size
-from sierra.plugins.platform.argos.variables import population_constant_density as pcd
-from sierra.plugins.platform.argos.variables import population_variable_density as pvd
-import sierra.core.utils
-import sierra.core.config
-from sierra.core import types
+from sierra.core import types, utils, config
 
 # Project packages
-
+from titerra.variables import batch_criteria as bc
 import titerra.projects.common.perf_measures.common as pmcommon
+from titerra.platform.argos.variables import population_constant_density as pcd
+from titerra.platform.argos.variables import population_variable_density as pvd
 
 ################################################################################
 # Base Classes
@@ -106,7 +103,7 @@ class BaseSteadyStateFLMarginal():
 
         if normalize:
             if normalize_method == 'sigmoid':
-                return sierra.core.utils.Sigmoid(theta)() - sierra.core.utils.Sigmoid(-theta)()
+                return utils.Sigmoid(theta)() - utils.Sigmoid(-theta)()
             else:
                 return None
         else:
@@ -150,7 +147,7 @@ class BaseSteadyStateFLInteractive():
 
         if normalize:
             if normalize_method == 'sigmoid':
-                return sierra.core.utils.Sigmoid(theta)() - sierra.core.utils.Sigmoid(-theta)()
+                return utils.Sigmoid(theta)() - utils.Sigmoid(-theta)()
             else:
                 return None
         else:
@@ -202,7 +199,7 @@ class BaseSteadyStatePGMarginal():
 
         if normalize:
             if normalize_method == 'sigmoid':
-                return sierra.core.utils.Sigmoid(theta)() - sierra.core.utils.Sigmoid(-theta)()
+                return utils.Sigmoid(theta)() - utils.Sigmoid(-theta)()
             else:
                 return None
         else:
@@ -245,7 +242,7 @@ class BaseSteadyStatePGInteractive():
 
         if normalize:
             if normalize_method == 'sigmoid':
-                return sierra.core.utils.Sigmoid(theta)() - sierra.core.utils.Sigmoid(-theta)()
+                return utils.Sigmoid(theta)() - utils.Sigmoid(-theta)()
             else:
                 return None
         else:
@@ -298,7 +295,6 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
                 fl_x = expx_fl_df.loc[expx_fl_df.index[-1], sim]
                 fl_xminus1 = exp_xminus1_fl_df.loc[exp_xminus1_fl_df.index[-1], sim]
 
-
                 self_org = BaseSteadyStateFLMarginal.kernel(fl_i=fl_x,
                                                             fl_iminus1=fl_xminus1,
                                                             n_robots_i=n_robots_x,
@@ -348,7 +344,7 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
                          output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + sierra.core.config.kImageExt),
+                                                   self.kLeaf + config.kImageExt),
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Self-Organization via Marginal Sub-Linear Performance Losses",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -446,7 +442,7 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
                          output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + sierra.core.config.kImageExt),
+                                                   self.kLeaf + config.kImageExt),
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Self-Organization via Sub-Linear Performance Losses Through Interaction",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -533,7 +529,7 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
                          output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + sierra.core.config.kImageExt),
+                                                   self.kLeaf + config.kImageExt),
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Self-Organization via Marginal Performance Gains",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -619,7 +615,7 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
                          output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + sierra.core.config.kImageExt),
+                                                   self.kLeaf + config.kImageExt),
                          model_root=self.cmdopts['batch_model_root'],
 
                          title="Swarm Self-Organization via Performance Gains Through Interaction",
@@ -697,8 +693,10 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
         populations = criteria.populations(cmdopts)
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
         so_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -770,11 +768,11 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
         # We need to know which of the 2 variables was swarm size, in order to determine
         # the correct dimension along which to compute the metric, which depends on
         # performance between adjacent swarm sizes.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [population_size.PopulationSize,
-                                                   pcd.PopulationConstantDensity,
-                                                   pvd.PopulationVariableDensity],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [population_size.PopulationSize,
+                                       pcd.PopulationConstantDensity,
+                                       pvd.PopulationVariableDensity],
+                                      self.cmdopts)
 
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, fl)
 
@@ -783,9 +781,9 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
+                             self.kLeaf + config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,
@@ -816,8 +814,10 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
         populations = criteria.populations(cmdopts)
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         so_dfs = {}
 
@@ -883,11 +883,11 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
         # We need to know which of the 2 variables was swarm size, in order to
         # determine the correct dimension along which to compute the metric,
         # which depends on performance between adjacent swarm sizes.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [population_size.PopulationSize,
-                                                   pcd.PopulationConstantDensity,
-                                                   pvd.PopulationVariableDensity],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [population_size.PopulationSize,
+                                       pcd.PopulationConstantDensity,
+                                       pvd.PopulationVariableDensity],
+                                      self.cmdopts)
 
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, fl)
 
@@ -896,9 +896,9 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
+                             self.kLeaf + config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,
@@ -931,8 +931,10 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
         populations = criteria.populations(cmdopts)
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         so_dfs = {}
 
@@ -992,11 +994,11 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
         # We need to know which of the 2 variables was swarm size, in order to determine
         # the correct dimension along which to compute the metric, which depends on
         # performance between adjacent swarm sizes.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [population_size.PopulationSize,
-                                                   pcd.PopulationConstantDensity,
-                                                   pvd.PopulationVariableDensity],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [population_size.PopulationSize,
+                                       pcd.PopulationConstantDensity,
+                                       pvd.PopulationVariableDensity],
+                                      self.cmdopts)
 
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, dfs)
 
@@ -1009,7 +1011,7 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
 
         Heatmap(input_fpath=so_opath + '.csv',
                 output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                          self.kLeaf + sierra.core.config.kImageExt),
+                                          self.kLeaf + config.kImageExt),
                 title="Swarm Self-Organization via Marginal Performance Gains",
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
@@ -1039,8 +1041,10 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
         populations = criteria.populations(cmdopts)
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         so_dfs = {}
 
@@ -1089,11 +1093,11 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
         # We need to know which of the 2 variables was swarm size, in order to determine
         # the correct dimension along which to compute the metric, which depends on
         # performance between adjacent swarm sizes.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [population_size.PopulationSize,
-                                                   pcd.PopulationConstantDensity,
-                                                   pvd.PopulationVariableDensity],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [population_size.PopulationSize,
+                                       pcd.PopulationConstantDensity,
+                                       pvd.PopulationVariableDensity],
+                                      self.cmdopts)
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, dfs)
 
         # Calculate summary statistics for the performance measure
@@ -1101,9 +1105,9 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
+                             self.kLeaf + config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,

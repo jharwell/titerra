@@ -1,6 +1,6 @@
-**************
-Batch Criteria
-**************
+================
+ Batch Criteria
+================
 
 - :ref:`Block Density <ln-bc-block-density>`
 - :ref:`Swarm Population Dynamics <ln-bc-population-dynamics>`
@@ -257,7 +257,7 @@ sizes/weights, etc.
 .. _ln-bc-tv-cmdline:
 
 Cmdline Syntax
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 ``temporal_variance.{variance_type}{waveform_type}[step_time][.Z{population}]``
 
@@ -300,7 +300,7 @@ list - 1).
 .. _ln-bc-tv-yaml-config:
 
 YAML Config
-^^^^^^^^^^^
+~~~~~~~~~~~
 
 .. code-block:: YAML
 
@@ -341,7 +341,7 @@ YAML Config
          - ...
 
 Experiment Definitions
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~
 
 - exp0 - Ideal conditions, which is a ``Constant`` waveform with amplitude
   ``BC_amp[0]``, ``BM_amp[0]``, ``M_amp[0]`` depending.

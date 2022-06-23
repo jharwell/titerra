@@ -27,5 +27,5 @@ from titerra.projects.common.pipeline.stage4 import inter_exp_graph_generator
 from titerra.projects.fordyca_base.pipeline.stage4 import yaml_config_loader
 
 # Do the lifts
-sys.modules['fordyca_rosrobot.pipeline.stage4.inter_exp_graph_generator'] = inter_exp_graph_generator
-sys.modules['fordyca_rosrobot.pipeline.stage4.yaml_config_loader'] = yaml_config_loader
+sys.modules['fordyca_ros1robot.pipeline.stage4.inter_exp_graph_generator'] = inter_exp_graph_generator
+sys.modules['fordyca_ros1robot.pipeline.stage4.yaml_config_loader'] = yaml_config_loader

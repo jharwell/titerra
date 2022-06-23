@@ -27,10 +27,10 @@ import typing as tp
 import implements
 import pandas as pd
 import sierra.core.models.interface
-import sierra.core.variables.batch_criteria as bc
 from sierra.core import types, utils, storage
 
 # Project packages
+import titerra.variables.batch_criteria as bc
 
 
 def available_models(category: str):
@@ -74,7 +74,7 @@ class IntraExp_WallInterferenceRate_1Robot():
        - :math:`\tau_{av}^1`
        - :math:`\tau_{ca}^1`
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
 
     """
     @staticmethod
@@ -106,7 +106,7 @@ class IntraExp_WallInterferenceRate_1Robot():
     @staticmethod
     def calc_kernel_args(exp_stat_root: str) -> tp.Dict[str, pd.DataFrame]:
         fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(exp_stat_root,
-                                                                   'fsm-interference-counts.csv'))
+                                                                            'fsm-interference-counts.csv'))
         return {
             'N_av1': fsm_counts_df['cum_avg_exp_interference'],
             'tau_av1': fsm_counts_df['cum_avg_interference_duration']
@@ -175,7 +175,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
        - :math:`\tau_{av}^N`
        - :math:`\tau_{ca}^N`
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
 
     """
     @staticmethod
@@ -231,7 +231,7 @@ class IntraExp_RobotInterferenceRate_NRobots():
         # Add additional args for N robot case
         resultN_opath = os.path.join(cmdopts['exp_stat_root'])
         fsm_countsN_df = storage.DataFrameReader('storage.csv')(os.path.join(resultN_opath,
-                                                                    'fsm-interference-counts.csv'))
+                                                                             'fsm-interference-counts.csv'))
 
         kargs['N_avN'] = fsm_countsN_df['cum_avg_exp_interference']
         kargs['tau_avN'] = fsm_countsN_df['cum_avg_interference_duration']

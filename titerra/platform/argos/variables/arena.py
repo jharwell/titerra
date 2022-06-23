@@ -26,7 +26,7 @@ from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLTagRmList, XMLTagAddList
 
 # Project packages
-from titerra.projects.common.variables.nest import Nest
+from titerra.platform.argos.variables.nest import Nest
 
 
 @implements.implements(IBaseVariable)
@@ -82,15 +82,16 @@ class RectangularArena():
         correctly set up the simulation with the specified area size/shape.
         """
         if not self.attr_changes:
-            grid_changes = [XMLAttrChangeSet(XMLAttrChange(".//arena_map/grid2D",
-                                                           "dims",
-                                                           "{0}, {1}, 2".format(extent.xsize(),
-                                                                                extent.ysize())),
-                                             XMLAttrChange(".//perception/grid2D", "dims",
-                                                           "{0}, {1}, 2".format(extent.xsize(),
-                                                                                extent.ysize())),
-                                             )
-                            for extent in self.extents]
+            grid_changes = [XMLAttrChangeSet(
+                XMLAttrChange(".//arena_map/grid2D",
+                              "dims",
+                              "{0}, {1}, 2".format(extent.xsize(),
+                                                   extent.ysize())),
+                XMLAttrChange(".//perception/grid2D", "dims",
+                              "{0}, {1}, 2".format(extent.xsize(),
+                                                   extent.ysize())),
+            )
+                for extent in self.extents]
             shape_changes = self.shapes.gen_attr_changelist()
             self.attr_changes = [XMLAttrChangeSet() for extent in self.extents]
             for achgs in self.attr_changes:

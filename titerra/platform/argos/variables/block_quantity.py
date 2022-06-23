@@ -27,16 +27,15 @@ import os
 
 # 3rd party packages
 import implements
-from sierra.core.variables import batch_criteria as bc
-import sierra.core.utils
+from sierra.core import types, config
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
-from sierra.core import types
-import sierra.core.config
 
 # Project packages
+from titerra.variables import batch_criteria as bc
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
+@implements.implements(bc.IPMQueryableBatchCriteria)
 class BlockQuantity(bc.UnivarBatchCriteria):
     """
     A univariate range of block counts used to define batched experiments. This
@@ -88,7 +87,7 @@ class BlockQuantity(bc.UnivarBatchCriteria):
         for d in exp_dirs:
             pkl_path = os.path.join(self.batch_input_root,
                                     d,
-                                    sierra.core.config.kPickleLeaf)
+                                    config.kPickleLeaf)
             exp_def = XMLAttrChangeSet.unpickle(pkl_path)
             for path, attr, value in exp_def:
                 if path == ".//arena_map/blocks/distribution/manifest" and attr == "n_" + self.block_type:

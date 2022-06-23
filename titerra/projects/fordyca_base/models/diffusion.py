@@ -29,7 +29,7 @@ def crwD_for_searching(N: float,
                        scenario: str) -> float:
     """
     Approximates the diffusion constant in a swarm of N CRW robots for bounded
-    arena geometry for when searching. From :xref:`Harwell2021b`, inspired by
+    arena geometry for when searching. From :xref:`Harwell2022a-ode`, inspired by
     the results in :xref:`Codling2010`.
 
     """
@@ -96,7 +96,7 @@ def crwD_for_avoiding(N: float,
                       scenario: str) -> float:
     """
     Approximates the diffusion constant in a swarm of N CRW robots for bounded
-    arena geometry for collision avoidance. From :xref:`Harwell2021b`, inspired
+    arena geometry for collision avoidance. From :xref:`Harwell2022a-ode`, inspired
     by the results in :xref:`Codling2010`.
 
     """

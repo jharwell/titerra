@@ -26,14 +26,15 @@ import typing as tp
 import implements
 from sierra.plugins.platform.argos.variables import population_size
 from sierra.core.variables.population_size import Parser
-from sierra.core.variables import batch_criteria as bc
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 from sierra.core import types
 
 # Project packages
+from titerra.variables import batch_criteria as bc
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
+@implements.implements(bc.IPMQueryableBatchCriteria)
 class PopulationSizeWithDynamics(population_size.PopulationSize):
     """
     A univariate range of swarm sizes used to define batched experiments. This
@@ -70,6 +71,9 @@ class PopulationSizeWithDynamics(population_size.PopulationSize):
             self.attr_changes = PopulationSizeWithDynamics.gen_attr_changelist_from_list(
                 self.size_list)
         return self.attr_changes
+
+    def pm_query(self, pm: str) -> bool:
+        return pm in ['raw', 'scalability', 'self-org']
 
 
 def factory(cli_arg: str,

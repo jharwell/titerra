@@ -19,24 +19,24 @@
 # 3rd party packages
 
 # Project packages
-from titerra.projects.common.generators import rosgazebo
+from titerra.projects.common.generators import ros1gazebo
 
 
-class SSGenerator(rosgazebo.ForagingScenarioGenerator):
+class SSGenerator(ros1gazebo.ForagingScenarioGenerator):
     pass
 
 
-class DSGenerator(rosgazebo.ForagingScenarioGenerator):
+class DSGenerator(ros1gazebo.ForagingScenarioGenerator):
     pass
 
 
-class RNGenerator(rosgazebo.ForagingScenarioGenerator):
+class RNGenerator(ros1gazebo.ForagingScenarioGenerator):
     pass
 
 
-class PLGenerator(rosgazebo.ForagingScenarioGenerator):
+class PLGenerator(ros1gazebo.ForagingScenarioGenerator):
     pass
 
 
 def gen_generator_name(scenario_name: str) -> str:
-    return rosgazebo.gen_generator_name(scenario_name)
+    return ros1gazebo.gen_generator_name(scenario_name)

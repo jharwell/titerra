@@ -24,7 +24,6 @@ import os
 
 # 3rd party packages
 import implements
-from sierra.core.variables import batch_criteria as bc
 import sierra.core.utils
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLLuigi
 import sierra.core.config
@@ -33,9 +32,11 @@ from sierra.core import types
 
 # Project packages
 import titerra.projects.common.variables.dynamics_parser as dp
+from titerra.variables import batch_criteria as bc
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
+@implements.implements(bc.IPMQueryableBatchCriteria)
 class PopulationDynamics(bc.UnivarBatchCriteria):
     """A univariate range of population dynamics used to define batched
     experiments. This class is a base class which should (almost) never be used

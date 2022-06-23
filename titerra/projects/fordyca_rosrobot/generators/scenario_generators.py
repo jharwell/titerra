@@ -19,24 +19,24 @@
 # 3rd party packages
 
 # Project packages
-from titerra.projects.common.generators import rosrobot
+from titerra.projects.common.generators import ros1robot
 
 
-class SSGenerator(rosrobot.ForagingScenarioGenerator):
+class SSGenerator(ros1robot.ForagingScenarioGenerator):
     pass
 
 
-class DSGenerator(rosrobot.ForagingScenarioGenerator):
+class DSGenerator(ros1robot.ForagingScenarioGenerator):
     pass
 
 
-class RNGenerator(rosrobot.ForagingScenarioGenerator):
+class RNGenerator(ros1robot.ForagingScenarioGenerator):
     pass
 
 
-class PLGenerator(rosrobot.ForagingScenarioGenerator):
+class PLGenerator(ros1robot.ForagingScenarioGenerator):
     pass
 
 
 def gen_generator_name(scenario_name: str) -> str:
-    return rosrobot.gen_generator_name(scenario_name)
+    return ros1robot.gen_generator_name(scenario_name)

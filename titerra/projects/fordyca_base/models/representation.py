@@ -21,14 +21,14 @@ import typing as tp
 # 3rd party packages
 import pandas as pd
 from sierra.core import utils, storage, types
-import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
 
 # Project packages
 import titerra.projects.common.generators.scenario_generator_parser as sgp
-import titerra.projects.common.variables.nest as nest
+from titerra.platform.argos.variables import nest
+import titerra.variables.batch_criteria as bc
 
 
 class BlockCluster():

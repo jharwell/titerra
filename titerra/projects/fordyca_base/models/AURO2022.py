@@ -16,7 +16,7 @@
 
 r"""
 Models of the steady state collective foraging behavior of a swarm of
-:math:`\mathcal{N}` CRW robots. Used in the :xref:`Harwell2021b` paper.
+:math:`\mathcal{N}` CRW robots. Used in the :xref:`Harwell2022a-ode` paper.
 
 """
 
@@ -31,7 +31,6 @@ import implements
 import pandas as pd
 from sierra.core import types, config, utils, storage
 import sierra.core.models.interface
-import sierra.core.variables.batch_criteria as bc
 from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core.xml import XMLAttrChangeSet
 import sierra.plugins.platform.argos.variables.exp_setup as ts
@@ -45,6 +44,7 @@ import titerra.projects.fordyca_base.models.ode_solver as ode
 from titerra.projects.fordyca_base.models.blocks import IntraExp_BlockAcqRate_NRobots
 from titerra.projects.fordyca_base.models.perf_measures import InterExp_RawPerf_NRobots, InterExp_Scalability_NRobots, InterExp_SelfOrg_NRobots
 import titerra.projects.fordyca_base.models.diffusion as diffusion
+import titerra.variables.batch_criteria as bc
 
 
 def available_models(category: str):
@@ -315,7 +315,7 @@ class InterExp_ODE_NRobots():
        calculation, because it is a summary model, built on simpler
        intra-experiment models.
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
     """
 
     def __init__(self, main_config: types.YAMLDict, config: types.YAMLDict) -> None:
@@ -402,7 +402,7 @@ class InterExp_ODEWrapper_NRobots():
         calculation, because it is a summary model, built on simpler
         inter-experiment models.
 
-    From :xref:`Harwell2021b`.
+    From :xref:`Harwell2022a-ode`.
 
     """
 

@@ -24,7 +24,6 @@ import os
 
 # 3rd party packages
 import implements
-from sierra.core.variables import batch_criteria as bc
 import sierra.core.utils
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
 from sierra.core import types
@@ -32,19 +31,24 @@ import sierra.core.config
 
 # Project packages
 import titerra.projects.common.variables.dynamics_parser as dp
+from titerra.variables import batch_criteria as bc
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
+@implements.implements(bc.IPMQueryableBatchCriteria)
 class BlockMotionDynamics(bc.UnivarBatchCriteria):
-    """
-    A univariate range of block motion dynamics used to define batched experiments. This class is a
-    base class which should (almost) never be used on its own. Instead, the ``factory()`` function
-    should be used to dynamically create derived classes expressing the user's desired dynamics
+    """A univariate range of block motion dynamics used to define batched
+    experiments. This class is a base class which should (almost) never be used
+    on its own. Instead, the ``factory()`` function should be used to
+    dynamically create derived classes expressing the user's desired dynamics
     distribution.
 
     Attributes:
+
         dynamics_type: The type of motion dynamics.
-        dynamics: List of tuples specifying XML changes for each variation of motion dynamics.
+
+        dynamics: List of tuples specifying XML changes for each variation of
+                   motion dynamics.
 
     """
 

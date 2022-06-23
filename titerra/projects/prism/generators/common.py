@@ -22,13 +22,12 @@ import logging
 import typing as tp
 
 # 3rd party packages
-
-# Project packages
 from sierra.core.xml import XMLLuigi
 import sierra.core.generators.scenario_generator as sg
 from sierra.core import utils as scutils
 
-from titerra.projects.common.variables import block_distribution, arena
+# Project packages
+from titerra.platform.argos.variables import block_distribution, arena
 import titerra.projects.prism.variables.ct_set as ctset
 from titerra.projects.common.generators.argos import ForagingScenarioGenerator
 
@@ -78,12 +77,12 @@ class ConstructionScenarioGenerator(ForagingScenarioGenerator):
                 # is needed, but it is a reasonable first attempt at mixing
                 # 2D/3D engines.
                 extents_3D = [scutils.ArenaExtent(dims=(self.spec.arena_dim.xsize() * 0.25,
-                                                      self.spec.arena_dim.ysize(),
-                                                      zmax))]
+                                                        self.spec.arena_dim.ysize(),
+                                                        zmax))]
                 extents_2D = [scutils.ArenaExtent(dims=(self.spec.arena_dim.xsize() * 0.75,
-                                                self.spec.arena_dim.ysize(),
-                                                zmax),
-                                          offset=(self.spec.arena_dim.xsize() * 0.25, 0, 0))]
+                                                        self.spec.arena_dim.ysize(),
+                                                        zmax),
+                                                  offset=(self.spec.arena_dim.xsize() * 0.25, 0, 0))]
             elif block_dist == 'dual_source':
                 # Construction area needs 3D physics, 2D OK for everything
                 # else. Allocating the middle 26% of the arena in X is more than
@@ -92,19 +91,19 @@ class ConstructionScenarioGenerator(ForagingScenarioGenerator):
                 # in the middle of the arena, with 74 / 2 = 37.5 % of the arena
                 # with 2D physics on either side.
                 extents_3D = [scutils.ArenaExtent(dims=(self.spec.xsize() * 0.26,
-                                                self.spec.ysize(),
-                                                zmax),
-                                          offset=(self.spec.xsize() * 0.37,
-                                                  0.0,
-                                                  0.0))]
+                                                        self.spec.ysize(),
+                                                        zmax),
+                                                  offset=(self.spec.xsize() * 0.37,
+                                                          0.0,
+                                                          0.0))]
 
                 extent_2D1 = scutils.ArenaExtent(dims=(self.spec.xsize() * 0.37,
-                                               self.spec.ysize(),
-                                               zmax))
+                                                       self.spec.ysize(),
+                                                       zmax))
                 extent_2D2 = scutils.ArenaExtent(dims=(self.spec.xsize() * 0.37,
-                                               self.spec.ysize(),
-                                               zmax),
-                                         offset=(self.spec.xsize() * 0.63, 0.0, 0.0))
+                                                       self.spec.ysize(),
+                                                       zmax),
+                                                 offset=(self.spec.xsize() * 0.63, 0.0, 0.0))
                 extents_2D = [extent_2D1, extent_2D2]
             else:
                 # The square arenas with the nest in the center will be trickier

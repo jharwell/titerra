@@ -29,7 +29,6 @@ import pandas as pd
 import sierra.core.models.interface
 import sierra.core.utils
 import sierra.core.config
-import sierra.core.variables.batch_criteria as bc
 from sierra.core.vector import Vector3D
 from sierra.core import types
 import sierra.core.stat_kernels
@@ -43,6 +42,7 @@ import titerra.projects.fordyca_base.models.representation as rep
 from titerra.projects.fordyca_base.models.density import BlockAcqDensity
 from titerra.projects.fordyca_base.models.dist_measure import DistanceMeasure2D
 from titerra.projects.fordyca_base.models.blocks import IntraExp_BlockAcqRate_NRobots
+import titerra.variables.batch_criteria as bc
 
 
 def available_models(category: str):

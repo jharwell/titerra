@@ -27,7 +27,6 @@ import typing as tp
 import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
-import sierra.core.variables.batch_criteria as bc
 import sierra.core.utils
 import sierra.core.config
 import sierra.core.stat_kernels
@@ -35,6 +34,7 @@ from sierra.core import types
 
 # Project packages
 import titerra.projects.common.perf_measures.common as pmcommon
+import titerra.variables.batch_criteria as bc
 
 
 class BaseSteadyStateRaw:

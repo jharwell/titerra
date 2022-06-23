@@ -109,7 +109,7 @@ SIERRA_BASE_CMD="sierra-cli \
                   --n-runs=$NSIMS\
                   --controller=d0.CRW\
                   --project=fordyca_argos\
-                  --pipeline 4\
+                  --pipeline 1\
                   --project-no-yaml-LN --exec-jobs-per-node=12 --exec-resume\
                   --dist-stats=conf95 \
                   --with-robot-leds\

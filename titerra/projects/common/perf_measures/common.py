@@ -26,13 +26,13 @@ import logging
 # 3rd party packages
 import pandas as pd
 from sierra.plugins.platform.argos.variables import population_size
-from sierra.core.variables import batch_criteria as bc
 from sierra.core.xml import XMLAttrChangeSet
-from sierra.plugins.platform.argos.variables import population_constant_density as pcd
-from sierra.plugins.platform.argos.variables import population_variable_density as pvd
 from sierra.core import utils, types, config, storage, stat_kernels
 
 # Project packages
+from titerra.variables import batch_criteria as bc
+from titerra.platform.argos.variables import population_constant_density as pcd
+from titerra.platform.argos.variables import population_variable_density as pvd
 
 ################################################################################
 # Base Classes
@@ -294,8 +294,10 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
                   collated_perf: tp.Dict[str, pd.DataFrame],
                   collated_interference: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.get_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.get_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.get_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.get_tag_addlist())
 
         populations = criteria.populations(cmdopts)
         plost_dfs = {}
@@ -364,8 +366,10 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
                   collated_plost: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.get_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.get_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.get_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.get_tag_addlist())
 
         fl_dfs = {}
 
@@ -423,7 +427,6 @@ def univar_distribution_prepare(cmdopts: types.Cmdopts,
                                 oleaf: str,
                                 pm_dfs: tp.Dict[str, pd.DataFrame],
                                 exclude_exp0: bool) -> None:
-
 
     if cmdopts['dist_stats'] in ['none', 'all']:
         dist_dfs = stat_kernels.mean.from_pm(pm_dfs)

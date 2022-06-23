@@ -20,8 +20,8 @@ Workflow
    Seriously--**READ THEM**.
 
 #. Now that you have read the MSI docs, copy and modify ``scripts/example.sh``
-   script in the SIERRA repo for your experiment/batch experiment, and modify as
-   needed:
+   script in the TITERRA repo for your experiment/batch experiment, and modify
+   as needed:
 
    SLURM parameters you **DO** need to change:
 

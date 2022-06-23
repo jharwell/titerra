@@ -26,15 +26,16 @@ import itertools
 
 # 3rd party packages
 import implements
-import sierra.core.variables.batch_criteria as bc
 from sierra.plugins.platform.argos.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
 from sierra.core import types
 
 # Project packages
+import titerra.variables.batch_criteria as bc
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
+@implements.implements(bc.IPMQueryableBatchCriteria)
 class Oracle(bc.UnivarBatchCriteria):
     """
     A univariate range specifiying the types of oracular information to

@@ -1,14 +1,11 @@
 .. _ln-main-config:
 
-========================
-Additional Configuration
-========================
+=============================
+Main Configuration Extensions
+=============================
 
-TITERRA defines some additional configuration options besides those
-available/required by SIERRA, as shown below.
-
-Summary Performance Measures Configuration File
-===============================================
+Summary Performance Measures
+============================
 
 Within the pointed-to .yaml file for ``perf`` configuration, the structure is:
 
@@ -60,6 +57,6 @@ Within the pointed-to .yaml file for ``perf`` configuration, the structure is:
      tv_population_csv: 'tv-population.csv'
 
 ``perf.robustness`` sub-dictionary
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==================================
 
-See :ref:`SAA noise config <ln-bc-saa-noise-yaml-config>`.
+See :ref:`SAA noise config <ln-platform-argos-bc-saa-noise-yaml-config>`.

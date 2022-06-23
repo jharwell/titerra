@@ -25,7 +25,6 @@ import logging
 
 # 3rd party packages
 import implements
-import sierra.core.variables.batch_criteria as bc
 from sierra.plugins.platform.argos.variables.population_size import PopulationSize
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 from sierra.core import types
@@ -33,9 +32,11 @@ from sierra.core import types
 # Project packages
 from titerra.projects.common.perf_measures import vcs
 from titerra.projects.common.variables.temporal_variance_parser import TemporalVarianceParser
+import titerra.variables.batch_criteria as bc
 
 
 @implements.implements(bc.IConcreteBatchCriteria)
+@implements.implements(bc.IPMQueryableBatchCriteria)
 class TemporalVariance(bc.UnivarBatchCriteria):
     """
     A univariate range specifiying the set of temporal variances (and possibly

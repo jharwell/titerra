@@ -1,28 +1,23 @@
-########
-PROJECTS
-########
-
-*******
-FORDYCA
-*******
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Contents:
-
-   fordyca-synopsis.rst
-   fordyca-bc.rst
-   fordyca-cli.rst
+========
+Projects
+========
 
 
-*******
-PRISM
-*******
+SIERRA :term:`Projects <Project>` within TITERRA
+================================================
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
 
-   prism-synopsis.rst
-   prism-bc.rst
-   prism-cli.rst
+   fordyca/index.rst
+   prism/index.rst
+
+Extra Project Configuration
+===========================
+
+TITERRA defines some additional configuration options besides those
+available/required by SIERRA, as shown below.
+
+.. toctree::
+
+   main_config.rst

@@ -25,7 +25,6 @@ import typing as tp
 
 # 3rd party packages
 import sierra.core.pipeline.stage4 as stage4
-from sierra.core.variables import batch_criteria as bc
 from sierra.core import types
 
 # Project packages
@@ -34,6 +33,7 @@ import titerra.projects.common.perf_measures.raw as pmraw
 import titerra.projects.common.perf_measures.robustness as pmb
 import titerra.projects.common.perf_measures.flexibility as pmf
 import titerra.projects.common.perf_measures.scalability as pms
+from titerra.variables import batch_criteria as bc
 
 
 class InterExpGraphGenerator(stage4.inter_exp_graph_generator.InterExpGraphGenerator):
@@ -90,6 +90,9 @@ class UnivarPerfMeasuresGenerator:
         raw_title = self.main_config['sierra']['perf']['raw_perf_title']
         raw_ylabel = self.main_config['sierra']['perf']['raw_perf_ylabel']
 
+        assert isinstance(criteria, bc.IPMQueryableBatchCriteria), \
+            "Batch criteria must implement IPMQueryableBatchCriteria"
+
         if criteria.pm_query('raw'):
             pmraw.SteadyStateRawUnivar(self.cmdopts, perf_csv, perf_col).from_batch(criteria,
                                                                                     title=raw_title,
@@ -141,6 +144,9 @@ class BivarPerfMeasuresGenerator:
         interference_csv = self.main_config['sierra']['perf']['intra_interference_csv']
         interference_col = self.main_config['sierra']['perf']['intra_interference_col']
         raw_title = self.main_config['sierra']['perf']['raw_perf_title']
+
+        assert isinstance(criteria, bc.IPMQueryableBatchCriteria), \
+            "Batch criteria must implement IPMQueryableBatchCriteria"
 
         if criteria.pm_query('raw'):
             pmraw.SteadyStateRawBivar(self.cmdopts,

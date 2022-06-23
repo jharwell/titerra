@@ -23,18 +23,18 @@ import typing as tp
 import pandas as pd
 from sierra.core import types, utils, storage
 import sierra.core.models.interface
-import sierra.core.variables.batch_criteria as bc
 
 # Project packages
+import titerra.variables.batch_criteria as bc
 
 
 class Model2DError():
-    """
-    Runs the specified :class:`models.interface.IConcreteIntraExpModel2D` for each experiment in the
-    batch, computing the average error between model prediction and empirical data as a single
-    data point.
+    """Runs the specified :class:`models.interface.IConcreteIntraExpModel2D` for
+    each experiment in the batch, computing the average error between model
+    prediction and empirical data as a single data point.
 
     Returns a 1D data frame for the batch.
+
     """
 
     def __init__(self,

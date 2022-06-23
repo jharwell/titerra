@@ -20,27 +20,26 @@ import typing as tp
 
 # 3rd party packages
 import implements
-
-# Project packages
-from sierra.core.variables import batch_criteria as bc
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.utils import ArenaExtent
 from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
 
+# Project packages
+from titerra.variables import batch_criteria as bc
+
 
 @implements.implements(bc.IConcreteBatchCriteria)
 class Convergence():
-
-    """
-    Maps a list of desired arena dimensions to a list of sets of XML changes to set up convergence
-    XML configuration for the TITARRA project. This includes setup for the following C++ TITARRA
-    components:
+    """Maps a list of desired arena dimensions to a list of sets of XML changes to
+    set up convergence XML configuration for the TITARRA project. This includes
+    setup for the following C++ TITARRA components:
 
     - cpp:class:`~cosm::convergence::convergence_calculator`.
 
     Attributes:
         extents: List of :class:`~sierra.core.utils.ArenaExtent` arena dimensions.
         attr_changes: List of sets of XML changes to apply to a template input file.
+
     """
 
     def __init__(self, extents: tp.List[ArenaExtent]) -> None:

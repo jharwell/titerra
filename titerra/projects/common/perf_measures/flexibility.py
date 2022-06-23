@@ -27,16 +27,14 @@ import typing as tp
 import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
-import sierra.core.variables.batch_criteria as bc
-import sierra.core.utils
-import sierra.core.config
-from sierra.core import types
+from sierra.core import utils, config, types
 
 # Project packages
 
 import titerra.projects.common.variables.temporal_variance as tv
 import titerra.projects.common.perf_measures.common as pmcommon
 from titerra.projects.common.perf_measures import vcs
+import titerra.variables.batch_criteria as bc
 
 
 class BaseSteadyStateReactivity:
@@ -52,9 +50,9 @@ class BaseSteadyStateAdaptability:
 
 
 class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
-    """
-    Calculates the reactivity of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated .csv data.
+    """Calculates the reactivity of the swarm configuration across a univariate
+    batched set of experiments within the same scenario from collated .csv data.
+
     """
 
     @staticmethod
@@ -110,7 +108,7 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -128,9 +126,9 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
 
 
 class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
-    """
-    Calculates the adaptability of the swarm configuration across a univariate batched set of
-    experiments within the same scenario from collated .csv data.
+    """Calculates the adaptability of the swarm configuration across a univariate
+    batched set of experiments within the same scenario from collated .csv data.
+
     """
     @staticmethod
     def df_kernel(criteria: bc.IConcreteBatchCriteria,
@@ -169,9 +167,9 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
         self.perf_col = perf_col
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
-        """
-        Calculate the adaptability metric for a given controller within a specific scenario, and
-        generate a graph of the result.
+        """Calculate the adaptability metric for a given controller within a specific
+        scenario, and generate a graph of the result.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -184,7 +182,7 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -232,9 +230,8 @@ class FlexibilityUnivarGenerator:
 
 
 class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
-    """
-    Calculates the reactivity of the swarm configuration across a bivariate batched set of
-    experiments within the same scenario from collated .csv data.
+    """Calculates the reactivity of the swarm configuration across a bivariate
+    batched set of experiments within the same scenario from collated .csv data.
 
     """
 
@@ -246,8 +243,10 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         exp_dirs = criteria.gen_exp_dirnames(cmdopts)
         rt_dfs = {}
@@ -307,10 +306,11 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
         self.perf_col = perf_col
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
-        """
-        Generate a reactivity graph for a given controller in a given scenario by computing the
-        value of the reactivity metric for each experiment within the batch, and plot
-        a :class:`~sierra.core.graphs.heatmap.Heatmap` of the reactivity variable vs. the other one.
+        """Generate a reactivity graph for a given controller in a given scenario by
+        computing the value of the reactivity metric for each experiment within
+        the batch, and plot a :class:`~graphs.heatmap.Heatmap` of the reactivity
+        variable vs. the other one.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -318,9 +318,9 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
                                                self.perf_col)
         # We need to know which of the 2 variables was temporal variance, in order to
         # determine the correct dimension along which to compute the metric.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [tv.TemporalVariance],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [tv.TemporalVariance],
+                                      self.cmdopts)
 
         pm_dfs = self.df_kernel(
             criteria, self.main_config, self.cmdopts, axis, dfs)
@@ -330,11 +330,11 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
+                             self.kLeaf + config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
-        axis = sierra.core.utils.get_primary_axis(
+        axis = utils.get_primary_axis(
             criteria, [tv.TemporalVariance], self.cmdopts)
 
         Heatmap(input_fpath=ipath,
@@ -361,8 +361,10 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         exp_dirs = criteria.gen_exp_dirnames(cmdopts)
         ad_dfs = {}
@@ -410,10 +412,11 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
         self.perf_col = perf_col
 
     def from_batch(self, criteria: bc.IConcreteBatchCriteria) -> None:
-        """
-        Generate a adaptability graph for a given controller in a given scenario by computing the
-        value of the adaptability metric for each experiment within the batch, and plot
-        a: class: `~sierra.core.graphs.heatmap.Heatmap` of the adaptability variable vs. the other one.
+        """Generate a adaptability graph for a given controller in a given scenario by
+        computing the value of the adaptability metric for each experiment
+        within the batch, and plot a: class: `~graphs.heatmap.Heatmap` of the
+        adaptability variable vs. the other one.
+
         """
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
                                                criteria,
@@ -421,9 +424,9 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
                                                self.perf_col)
         # We need to know which of the 2 variables was temporal variance, in order to
         # determine the correct dimension along which to compute the metric.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [tv.TemporalVariance],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [tv.TemporalVariance],
+                                      self.cmdopts)
 
         pm_dfs = self.df_kernel(
             criteria, self.main_config, self.cmdopts, axis, dfs)
@@ -433,9 +436,9 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
+                             self.kLeaf + config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,

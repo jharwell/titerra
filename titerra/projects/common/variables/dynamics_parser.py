@@ -16,7 +16,6 @@
 
 # Core packages
 import re
-import typing as tp
 
 # 3rd party packages
 from sierra.core import types

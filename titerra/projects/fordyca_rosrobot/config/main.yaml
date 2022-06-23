@@ -1,7 +1,6 @@
 sierra:
   run:
     run_metrics_leaf: 'metrics'
-    library_name: 'libfordyca'
 
   perf: 'perf.yaml'
 

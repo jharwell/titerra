@@ -22,8 +22,8 @@ import sys
 # Common TITAN packages to lift into 'fordyca.generators' namespace for use in the the
 # SIERRA project for FORDYCA.
 from titerra.projects.common.generators import scenario_generator_parser
-from titerra.projects.common.generators import rosrobot
+from titerra.projects.common.generators import ros1robot
 
 # Do the lifts
-sys.modules['fordyca_rosrobot.generators.scenario_generator_parser'] = scenario_generator_parser
-sys.modules['fordyca_rosrobot.generators.exp_generators'] = rosrobot
+sys.modules['fordyca_ros1robot.generators.scenario_generator_parser'] = scenario_generator_parser
+sys.modules['fordyca_ros1robot.generators.exp_generators'] = ros1robot

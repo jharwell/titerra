@@ -23,10 +23,11 @@ import logging
 # 3rd party packages
 import implements
 
-# Project packages
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.utils import ArenaExtent
 from sierra.core.xml import XMLAttrChangeSet, XMLTagRmList, XMLTagAddList, XMLTagRm, XMLTagAdd, XMLAttrChange
+
+# Project packages
 
 
 @implements.implements(IBaseVariable)
@@ -44,14 +45,16 @@ class BaseDistribution():
         self.logger = logging.getLogger(__name__)
 
     def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
-        """
-        Generate a list of sets of changes necessary to make to the input file to correctly set up
-        the simulation with the specified block distribution
+        """Generate a list of sets of changes necessary to make to the input file to
+        correctly set up the simulation with the specified block distribution
+
         """
         if not self.attr_changes:
-            self.attr_changes = [XMLAttrChangeSet(XMLAttrChange(".//arena_map/blocks/distribution",
-                                                                "dist_type",
-                                                                "{0}".format(self.dist_type)))]
+            self.attr_changes = [XMLAttrChangeSet(
+                XMLAttrChange(".//arena_map/blocks/distribution",
+                              "dist_type",
+                              "{0}".format(self.dist_type))
+            )]
         return self.attr_changes
 
     def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
@@ -109,7 +112,8 @@ class PowerLawDistribution(BaseDistribution):
         pwr_min = math.ceil(math.pow(self.arena_dim.xsize(), 0.25)) + 1
         pwr_max = math.ceil(math.pow(self.arena_dim.xsize(), 1.0 / 3.0)) + 1
         n_clusters = math.ceil(math.pow(self.arena_dim.xsize(), 0.8))
-        self.logger.debug("pwr_min=%s,pwr_max=%s,n_clusters=%s", pwr_min, pwr_max, n_clusters)
+        self.logger.debug("pwr_min=%s,pwr_max=%s,n_clusters=%s",
+                          pwr_min, pwr_max, n_clusters)
 
         for c in changes:
             c |= XMLAttrChangeSet(XMLAttrChange(".//arena_map/blocks/distribution/powerlaw",

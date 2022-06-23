@@ -23,12 +23,12 @@ import typing as tp
 
 # 3rd party packages
 import sierra.core.pipeline.stage4 as stage4
-import sierra.core.variables.batch_criteria as bc
 from sierra.core import types
 
 # Project packages
 from titerra.projects.common.pipeline.stage4.flexibility_plots import FlexibilityPlotsCSVGenerator
 from titerra.projects.common.pipeline.stage4.flexibility_plots import FlexibilityPlotsDefinitionsGenerator
+import titerra.variables.batch_criteria as bc
 
 
 class IntraExpGraphGenerator(stage4.intra_exp_graph_generator.IntraExpGraphGenerator):

@@ -25,16 +25,13 @@ import typing as tp
 # 3rd party packages
 import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
-import sierra.core.variables.batch_criteria as bc
 from sierra.core.graphs.heatmap import Heatmap
 import sierra.plugins.platform.argos.variables.saa_noise as saan
-import sierra.core.utils
+from sierra.core import utils, types, config
 from sierra.core.xml import XMLAttrChangeSet
-from sierra.core import types
-import sierra.core.config
 
 # Project packages
-
+import titerra.variables.batch_criteria as bc
 from titerra.projects.common.perf_measures import vcs
 import titerra.projects.common.perf_measures.common as pmcommon
 from titerra.projects.common.variables.population_dynamics import PopulationDynamics
@@ -80,7 +77,7 @@ class BaseSteadyStateRobustnessPD:
 
         if normalize:
             if normalize_method == 'sigmoid':
-                return sierra.core.utils.Sigmoid(theta)() - sierra.core.utils.Sigmoid(-theta)()
+                return utils.Sigmoid(theta)() - utils.Sigmoid(-theta)()
             else:
                 return None
         else:
@@ -152,7 +149,7 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -186,7 +183,7 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
         exp0_perf_df = collated_perf[exp0]
         exp0_def = XMLAttrChangeSet.unpickle(os.path.join(cmdopts['batch_input_root'],
                                                           exp_dirs[0],
-                                                          sierra.core.config.kPickleLeaf))
+                                                          config.kPickleLeaf))
         T_Sbar0 = PopulationDynamics.calc_untasked_swarm_system_time(exp0_def)
 
         for i in range(0, criteria.n_exp()):
@@ -197,7 +194,7 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
 
             expN_def = XMLAttrChangeSet.unpickle(os.path.join(cmdopts['batch_input_root'],
                                                               exp_dirs[i],
-                                                              sierra.core.config.kPickleLeaf))
+                                                              config.kPickleLeaf))
             for sim in expx_perf_df.columns:
                 T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(
                     expN_def)
@@ -243,7 +240,7 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -309,11 +306,13 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
                   main_config: types.YAMLDict,
                   cmdopts: types.Cmdopts,
                   axis: int,
-                  collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str,pd.DataFrame]:
+                  collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         saa_dfs = {}
 
@@ -360,9 +359,9 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
 
         # We need to know which of the 2 variables was SAA noise, in order to determine the correct
         # dimension along which to compute the metric.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [saan.SAANoise],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [saan.SAANoise],
+                                      self.cmdopts)
 
         pm_dfs = self.df_kernel(
             criteria, self.main_config, self.cmdopts, axis, dfs)
@@ -372,9 +371,9 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
+                             self.kLeaf + config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,
@@ -399,8 +398,10 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
 
         # Exactly one of these will be non-zero; verified during stage 1
-        xsize = len(criteria.criteria1.gen_attr_changelist()) + len(criteria.criteria1.gen_tag_addlist())
-        ysize = len(criteria.criteria2.gen_attr_changelist()) + len(criteria.criteria2.gen_tag_addlist())
+        xsize = len(criteria.criteria1.gen_attr_changelist()) + \
+            len(criteria.criteria1.gen_tag_addlist())
+        ysize = len(criteria.criteria2.gen_attr_changelist()) + \
+            len(criteria.criteria2.gen_tag_addlist())
 
         exp_dirs = criteria.gen_exp_dirnames(cmdopts)
         pd_dfs = {}
@@ -414,7 +415,7 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
 
                 expx_pkl_path = os.path.join(cmdopts['batch_input_root'],
                                              exp_dirs[i * ysize + j],
-                                             sierra.core.config.kPickleLeaf)
+                                             config.kPickleLeaf)
                 expx_def = XMLAttrChangeSet.unpickle(expx_pkl_path)
                 T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(
                     expx_def)
@@ -424,13 +425,13 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
                     exp0 = list(collated_perf.keys())[j]
                     exp0_pkl_path = os.path.join(cmdopts['batch_input_root'],
                                                  exp_dirs[j],
-                                                 sierra.core.config.kPickleLeaf)
+                                                 config.kPickleLeaf)
                 else:
                     # exp0 in first col with j=0
                     exp0 = list(collated_perf.keys())[i * ysize]
                     exp0_pkl_path = os.path.join(cmdopts['batch_input_root'],
                                                  exp_dirs[i * ysize],
-                                                 sierra.core.config.kPickleLeaf)
+                                                 config.kPickleLeaf)
 
                 exp0_perf_df = collated_perf[exp0]
                 exp0_def = XMLAttrChangeSet.unpickle(exp0_pkl_path)
@@ -465,9 +466,9 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
                                                self.perf_col)
         # We need to know which of the 2 variables was population dynamics, in order to determine
         # the correct dimension along which to compute the metric.
-        axis = sierra.core.utils.get_primary_axis(criteria,
-                                                  [PopulationDynamics],
-                                                  self.cmdopts)
+        axis = utils.get_primary_axis(criteria,
+                                      [PopulationDynamics],
+                                      self.cmdopts)
 
         pm_dfs = self.df_kernel(criteria, self.cmdopts, axis, dfs)
 
@@ -476,9 +477,9 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
         ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
+                             self.kLeaf + config.kStatsExtensions['mean'])
         opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
-                             self.kLeaf + sierra.core.config.kImageExt)
+                             self.kLeaf + config.kImageExt)
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,
                 title='Swarm Robustness (Fluctuating Populations)',

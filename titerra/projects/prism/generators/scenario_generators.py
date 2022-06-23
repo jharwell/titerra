@@ -20,7 +20,7 @@
 
 # Project packages
 import titerra.projects.common.generators.common as ticom
-from titerra.projects.common.variables import arena, block_distribution
+from titerra.platform.argos.variables import arena, block_distribution
 import titerra.projects.prism.generators.common as sicom
 
 

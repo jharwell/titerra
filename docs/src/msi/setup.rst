@@ -5,8 +5,8 @@ MSI Setup
 .. IMPORTANT::
    Prior to executing these steps you should have:
 
-   #. Completed the :ref:`ln-hpc-local-setup` guide.
-   #. Read through :ref:`ln-usage` guide.
+   #. Completed the :ref:`ln-sierra-tutorials-hpc-local-setup` guide.
+   #. Read through :ref:`ln-sierra-usage`.
    #. Gotten **CORRECT** results on some small scale experiments of interest on
       your local machine.
 
