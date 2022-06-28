@@ -7,37 +7,37 @@ intra_scenario:
       title: ''
       label: 'Avg. Object Collection Rate'
       primary_axis: 0
-      include_exp: '2:'
+#      include_exp: '2:'
 
-    # scalability
-    - src_stem: PM-ss-scalability-parallel-frac
-      dest_stem: cc-PM-ss-scalability-parallel-frac
-      title: ''
-      label: 'Scalability Value'
-      primary_axis: 0
-      include_exp: '2:'
+    # # scalability
+    # - src_stem: PM-ss-scalability-parallel-frac
+    #   dest_stem: cc-PM-ss-scalability-parallel-frac
+    #   title: ''
+    #   label: 'Scalability Value'
+    #   primary_axis: 0
+    #   include_exp: '2:'
 
-      # self-organization
-    - src_stem: PM-ss-self-org-ifl
-      dest_stem: cc-PM-ss-self-org-ifl
-      title: ''
-      label: 'Self-Organization Value'
-      primary_axis: 0
-      include_exp: '2:'
+    #   # self-organization
+    # - src_stem: PM-ss-self-org-ifl
+    #   dest_stem: cc-PM-ss-self-org-ifl
+    #   title: ''
+    #   label: 'Self-Organization Value'
+    #   primary_axis: 0
+    #   include_exp: '2:'
 
-    - src_stem: PM-ss-self-org-mfl
-      dest_stem: cc-PM-ss-self-org-mfl
-      title: ''
-      label: 'Self-Organization Value'
-      primary_axis: 0
-      include_exp: '2:'
+    # - src_stem: PM-ss-self-org-mfl
+    #   dest_stem: cc-PM-ss-self-org-mfl
+    #   title: ''
+    #   label: 'Self-Organization Value'
+    #   primary_axis: 0
+    #   include_exp: '2:'
 
-    - src_stem: PM-ss-self-org-mpg
-      dest_stem: cc-PM-ss-self-org-mpg
-      title: ''
-      label: 'Self-Organization Value'
-      primary_axis: 0
-      include_exp: '2:'
+    # - src_stem: PM-ss-self-org-mpg
+    #   dest_stem: cc-PM-ss-self-org-mpg
+    #   title: ''
+    #   label: 'Self-Organization Value'
+    #   primary_axis: 0
+    #   include_exp: '2:'
 
     #   # flexibility
     # - src_stem: PM-ss-reactivity

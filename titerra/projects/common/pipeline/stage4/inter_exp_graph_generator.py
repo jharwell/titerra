@@ -24,7 +24,7 @@ import copy
 import typing as tp
 
 # 3rd party packages
-import sierra.core.pipeline.stage4 as stage4
+from sierra.core.pipeline import stage4
 from sierra.core import types
 
 # Project packages
@@ -64,21 +64,21 @@ class InterExpGraphGenerator(stage4.inter_exp_graph_generator.InterExpGraphGener
 
 
 class UnivarPerfMeasuresGenerator:
-    """
-    Generates performance measures from collated .csv data across a batch of experiments. Which
-    measures are generated is controlled by the batch criteria used for the experiment. Univariate
-    batch criteria only.
+    """Generates performance measures from collated .csv data across a batch of
+    experiments. Which measures are generated is controlled by the batch
+    criteria used for the experiment. Univariate batch criteria only.
 
     Attributes:
+
         cmdopts: Dictionary of parsed cmdline options.
+
         main_config: Dictionary of parsed main YAML config.
+
     """
 
     def __init__(self,
                  main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts) -> None:
-        # Copy because we are modifying it and don't want to mess up the arguments for graphs that
-        # are generated after us
         self.cmdopts = copy.deepcopy(cmdopts)
         self.main_config = main_config
 
@@ -89,9 +89,6 @@ class UnivarPerfMeasuresGenerator:
         interference_col = self.main_config['sierra']['perf']['intra_interference_col']
         raw_title = self.main_config['sierra']['perf']['raw_perf_title']
         raw_ylabel = self.main_config['sierra']['perf']['raw_perf_ylabel']
-
-        assert isinstance(criteria, bc.IPMQueryableBatchCriteria), \
-            "Batch criteria must implement IPMQueryableBatchCriteria"
 
         if criteria.pm_query('raw'):
             pmraw.SteadyStateRawUnivar(self.cmdopts, perf_csv, perf_col).from_batch(criteria,
@@ -126,15 +123,15 @@ class BivarPerfMeasuresGenerator:
     batch criteria only.
 
     Attributes:
+
         cmdopts: Dictionary of parsed cmdline options.
+
         main_config: Dictionary of parsed main YAML config.
     """
 
     def __init__(self,
                  main_config: types.YAMLDict,
                  cmdopts: types.Cmdopts) -> None:
-        # Copy because we are modifying it and don't want to mess up the arguments for graphs that
-        # are generated after us
         self.cmdopts = copy.deepcopy(cmdopts)
         self.main_config = main_config
 
@@ -144,9 +141,6 @@ class BivarPerfMeasuresGenerator:
         interference_csv = self.main_config['sierra']['perf']['intra_interference_csv']
         interference_col = self.main_config['sierra']['perf']['intra_interference_col']
         raw_title = self.main_config['sierra']['perf']['raw_perf_title']
-
-        assert isinstance(criteria, bc.IPMQueryableBatchCriteria), \
-            "Batch criteria must implement IPMQueryableBatchCriteria"
 
         if criteria.pm_query('raw'):
             pmraw.SteadyStateRawBivar(self.cmdopts,

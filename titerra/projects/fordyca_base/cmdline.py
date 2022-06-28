@@ -24,7 +24,7 @@ import typing as tp
 import argparse
 
 # 3rd party packages
-from sierra.core import types, ros
+from sierra.core import types, ros11
 
 # Project packages
 from titerra.projects.common import cmdline
@@ -33,7 +33,7 @@ from titerra.projects.common import cmdline
 class Cmdline(cmdline.CommonCmdline):
     """
     Defines FORDYCA extensions to the core command line arguments defined in
-    :class:`~sierra.core.cmdline.CoreCmdline` for running ROS on real robots.
+    :class:`~sierra.core.cmdline.CoreCmdline` for running ROS1 on real robots.
     """
 
     def __init__(self, parents: tp.List[argparse.ArgumentParser],
@@ -85,7 +85,7 @@ class Cmdline(cmdline.CommonCmdline):
         cmdopts.update(updates)
 
 
-class CmdlineValidator(ros.cmdline.ROSCmdlineValidator):
+class CmdlineValidator(ros1.cmdline.ROSCmdlineValidator):
     pass
 
 

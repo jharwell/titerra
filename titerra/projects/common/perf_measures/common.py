@@ -295,9 +295,9 @@ class SteadyStatePerfLostInteractiveSwarmBivar(BaseSteadyStatePerfLostInteractiv
                   collated_interference: tp.Dict[str, pd.DataFrame]) -> tp.Dict[str, pd.DataFrame]:
         # Exactly one of these will be non-zero; verified during stage 1
         xsize = len(criteria.criteria1.gen_attr_changelist()) + \
-            len(criteria.criteria1.get_tag_addlist())
+            len(criteria.criteria1.gen_tag_addlist())
         ysize = len(criteria.criteria2.gen_attr_changelist()) + \
-            len(criteria.criteria2.get_tag_addlist())
+            len(criteria.criteria2.gen_tag_addlist())
 
         populations = criteria.populations(cmdopts)
         plost_dfs = {}
@@ -367,9 +367,9 @@ class SteadyStateFLBivar(BaseSteadyStateFL):
 
         # Exactly one of these will be non-zero; verified during stage 1
         xsize = len(criteria.criteria1.gen_attr_changelist()) + \
-            len(criteria.criteria1.get_tag_addlist())
+            len(criteria.criteria1.gen_tag_addlist())
         ysize = len(criteria.criteria2.gen_attr_changelist()) + \
-            len(criteria.criteria2.get_tag_addlist())
+            len(criteria.criteria2.gen_tag_addlist())
 
         fl_dfs = {}
 

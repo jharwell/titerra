@@ -26,7 +26,6 @@ import typing as tp
 import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
-import sierra.plugins.platform.argos.variables.saa_noise as saan
 from sierra.core import utils, types, config
 from sierra.core.xml import XMLAttrChangeSet
 
@@ -35,6 +34,7 @@ import titerra.variables.batch_criteria as bc
 from titerra.projects.common.perf_measures import vcs
 import titerra.projects.common.perf_measures.common as pmcommon
 from titerra.projects.common.variables.population_dynamics import PopulationDynamics
+import titerra.platform.argos.variables.saa_noise as saan
 
 kIDEAL_SAA_ROBUSTNESS = 0.0
 

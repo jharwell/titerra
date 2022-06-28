@@ -53,6 +53,7 @@ class BivarBatchCriteria(bc.BivarBatchCriteria):
     """
 
     def __init__(self, *args, **kwargs) -> None:
+
         bc.BivarBatchCriteria.__init__(self, *args, **kwargs)
 
     def pm_query(self, pm: str) -> bool:

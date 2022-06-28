@@ -8,7 +8,7 @@
 #SBATCH --mail-user=harwe006@umn.edu
 #SBATCH --output=R-%x.%j.out
 #SBATCH --error=R-%x.%j.err
-#SBATCH -J 2020-aamas-d0-constant-rho10-1
+#SBATCH -J 2020-aamas-d0-constant-rho10-2
 
 ################################################################################
 # Setup Simulation Environment                                                 #
@@ -64,19 +64,17 @@ export PARALLEL="--workdir . \
 ################################################################################
 # Begin Experiments                                                            #
 ################################################################################
-OUTPUT_ROOT=$HOME/exp/2020-aamas-constant-rho10-1
+OUTPUT_ROOT=$HOME/exp/2020-aamas-constant-rho10-2
 EXP_SETUP=exp_setup.T1000
 
 CONTROLLERS_LIST=(d1.BITD_DPO d1.BITD_ODPO d2.BIRTD_DPO d2.BIRTD_ODPO)
-SCENARIOS_LIST=(SS.36x18x1 DS.36x18x1 QS.36x36x1)
-# CONTROLLERS_LIST=(d1.BITD_ODPO)
-# SCENARIOS_LIST=(QS.36x36x1)
+SCENARIOS_LIST=(SS.36x18x1 DS.36x18x1)
 
 TASK="exp"
 CARDINALITY=C8
-NRUNS=3
+NRUNS=16
 
-BLOCK_COUNT=1000
+BLOCK_COUNT=3000
 
 # With the configured density, I12 increment, and specified starting
 # arena sizes, we get 1024 max swarm size.
@@ -90,11 +88,11 @@ SIERRA_BASE_CMD="sierra-cli \
                  --project-no-yaml-LN\
                  --platform=platform.argos \
                  --project=fordyca_argos\
-                 --dist-stats=conf95\
+                 --dist-stats=bw\
                  --exp-overwrite \
                  --exp-setup=${EXP_SETUP}\
                  --with-robot-leds\
-                 --log-level=DEBUG \
+                 --log-level=TRACE \
                  --df-skip-verify"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
@@ -122,7 +120,7 @@ else
                   --physics-n-engines=16 \
                   --exec-resume \
                   --exec-no-devnull \
-                  --pipeline 1
+                  --pipeline 4
                   "
 fi
 
@@ -147,16 +145,18 @@ if [ "$TASK" == "comp" ]; then
                   --project=fordyca_argos\
                   --pipeline 5\
                   --controller-comparison\
-                  --dist-stats=conf95\
+                  --dist-stats=bw\
                   --bc-bivar\
                   --plot-large-text\
                   --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT\
-                  --comparison-type=HMraw"
+                  --plot-primary-axis=1\
+                  --comparison-type=LNraw"
+
     for s in "${SCENARIOS[@]}"
     do
         $STAGE5_CMD --batch-criteria population_constant_density.${DENSITY}.I12.C10 ta_policy_set.all \
-                    --controllers-list=d0.DPO,d0.DPO \
+                    --controllers-list=d1.BITD_DPO,d2.BIRTD_DPO \
                     --scenario=${s} \
                     --controllers-legend="Average Cross-Clique Centrality=1","Average Cross-Clique Centrality=1.2"
         done
