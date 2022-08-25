@@ -24,7 +24,7 @@ import implements
 # Project packages
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.utils import ArenaExtent as ArenaExtent
-from sierra.core.xml import XMLAttrChangeSet, XMLTagRmList, XMLTagAddList, XMLTagRm, XMLTagAdd, XMLAttrChange
+from sierra.core.experiment import xml
 
 
 @implements.implements(IBaseVariable)
@@ -48,16 +48,16 @@ class Nest():
         self.arena = arena
         self.tag_adds = []  # type: tp.List
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         return []
 
-    def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
-        return [XMLTagRmList(XMLTagRm(".//arena_map", "nests"))]
+    def gen_tag_rmlist(self) -> tp.List[xml.TagRmList]:
+        return [xml.TagRmList(xml.TagRm(".//arena_map", "nests"))]
 
     def gen_files(self) -> None:
         pass
 
-    def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
+    def gen_tag_addlist(self) -> tp.List[xml.TagAddList]:
         """
         Generate list of new tags changes necessary to make to the input file to correctly set up
         the simulation for the specified block distribution/nest.
@@ -67,7 +67,7 @@ class Nest():
             return [self.tag_adds]
 
         if self.src == 'arena':
-            root = XMLTagAdd(".//arena_map", "nests", {}, False)
+            root = xml.TagAdd(".//arena_map", "nests", {}, False)
             self.tag_adds = self.gen_adds_from_arena()
             self.tag_adds.prepend(root)
         else:
@@ -75,7 +75,7 @@ class Nest():
 
         return [self.tag_adds]
 
-    def gen_adds_from_arena(self) -> XMLTagAddList:
+    def gen_adds_from_arena(self) -> xml.TagAddList:
         if self.dist_type == 'SS':
             attr = {
                 "dims": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.1,
@@ -83,9 +83,9 @@ class Nest():
                 "center": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.1,
                                                     self.arena.ur.y / 2.0)
             }
-            return XMLTagAddList(
-                XMLTagAdd(".//arena_map/nests", "nest", attr, False),
-                XMLTagAdd(".//params", "nest", attr, False)
+            return xml.TagAddList(
+                xml.TagAdd(".//arena_map/nests", "nest", attr, False),
+                xml.TagAdd(".//params", "nest", attr, False)
             )
 
         if self.dist_type == 'DS':
@@ -95,9 +95,9 @@ class Nest():
                 "center": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.5,
                                                     self.arena.ur.y * 0.5),
             }
-            return XMLTagAddList(
-                XMLTagAdd(".//arena_map/nests", "nest", attr, False),
-                XMLTagAdd(".//params", "nest", attr, False)
+            return xml.TagAddList(
+                xml.TagAdd(".//arena_map/nests", "nest", attr, False),
+                xml.TagAdd(".//params", "nest", attr, False)
             )
         if (self.dist_type == 'PL' or self.dist_type == 'RN' or self.dist_type == 'QS'):
             attr = {
@@ -106,9 +106,9 @@ class Nest():
                 "center": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.5,
                                                     self.arena.ur.y * 0.5),
             }
-            return XMLTagAddList(
-                XMLTagAdd(".//arena_map/nests", "nest", attr, False),
-                XMLTagAdd(".//params", "nest", attr, False)
+            return xml.TagAddList(
+                xml.TagAdd(".//arena_map/nests", "nest", attr, False),
+                xml.TagAdd(".//params", "nest", attr, False)
             )
 
         # Eventually, I might want to have definitions for the other block distribution

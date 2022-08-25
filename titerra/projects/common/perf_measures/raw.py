@@ -19,7 +19,7 @@ their configured measure in univariate and bivariate batched experiments.
 
 """
 # Core packages
-import os
+import pathlib
 import logging
 import typing as tp
 
@@ -59,20 +59,26 @@ class SteadyStateRawUnivar(BaseSteadyStateRaw):
     Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph`
     from the raw performance count of the swarm configuration across a
     univariate batched set of experiments within the same scenario from collated
-    ``.csv`` data.
+    CSV data.
 
     """
 
-    def __init__(self, cmdopts: types.Cmdopts, perf_csv: str, perf_col: str) -> None:
+    def __init__(self,
+                 cmdopts: types.Cmdopts,
+                 perf_csv: str,
+                 perf_col: str) -> None:
         self.cmdopts = cmdopts
         self.perf_leaf = perf_csv.split('.')[0]
         self.perf_col = perf_col
         self.logger = logging.getLogger(__name__)
 
-    def from_batch(self, criteria: bc.IConcreteBatchCriteria, title: str, ylabel: str) -> None:
+    def from_batch(self,
+                   criteria: bc.IConcreteBatchCriteria,
+                   title: str,
+                   ylabel: str) -> None:
         self.logger.info("From %s", self.cmdopts["batch_stat_collate_root"])
 
-        img_opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        img_opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                                  self.kLeaf + sierra.core.config.kImageExt)
 
         dfs = pmcommon.gather_collated_sim_dfs(self.cmdopts,
@@ -82,8 +88,11 @@ class SteadyStateRawUnivar(BaseSteadyStateRaw):
         pm_dfs = self.df_kernel(dfs)
 
         # Calculate summary statistics for the performance measure
-        pmcommon.univar_distribution_prepare(
-            self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
+        pmcommon.univar_distribution_prepare(self.cmdopts,
+                                             criteria,
+                                             self.kLeaf,
+                                             pm_dfs,
+                                             False)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
@@ -101,7 +110,7 @@ class SteadyStateRawUnivar(BaseSteadyStateRaw):
 class SteadyStateRawBivar(BaseSteadyStateRaw):
     """Generates a :class:`sierra.core.graphs.heatmap.Heatmap` from the raw
     performance count of the swarm configuration across a bivariate batched set
-    of experiments within the same scenario from collated ``.csv`` data.
+    of experiments within the same scenario from collated CSV data.
 
     """
 
@@ -114,7 +123,7 @@ class SteadyStateRawBivar(BaseSteadyStateRaw):
     def from_batch(self, criteria: bc.IConcreteBatchCriteria, title: str) -> None:
         self.logger.info("From %s", self.cmdopts["batch_stat_collate_root"])
 
-        img_opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        img_opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                                  self.kLeaf + sierra.core.config.kImageExt)
 
         dfs = pmcommon.gather_collated_sim_dfs(
@@ -125,9 +134,9 @@ class SteadyStateRawBivar(BaseSteadyStateRaw):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
 
-        stat_opath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                                  self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
-        img_opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        stat_opath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                                  self.kLeaf + sierra.core.config.kStats['mean'].exts['mean'])
+        img_opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                                  self.kLeaf + sierra.core.config.kImageExt)
 
         Heatmap(input_fpath=stat_opath,

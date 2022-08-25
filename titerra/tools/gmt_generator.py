@@ -16,8 +16,8 @@
 
 # Core packages
 import argparse
-import os
 import logging  # type: ignore
+import pathlib
 
 # 3rd party packages
 import networkx as nx
@@ -67,9 +67,8 @@ class GMTGenerator():
                                        args.ct_paradigm,
                                        "")
             for i, _ in enumerate(target_set.targets):
-                opath = os.path.join(args.output_dir,
-                                     args.output_file[i])
-                os.makedirs(os.path.dirname(opath), exist_ok=True)
+                opath = pathlib.Path(args.output_dir, args.output_file[i])
+                opath.mkdir(exist_ok=True)
                 self.logger.info("Processing target '%s' -> '%s'",
                                  args.ct_specs[i],
                                  opath)
@@ -99,15 +98,15 @@ class PaperFigureGenerator():
         self._incoherent_cube_overhangs(args)
 
     def _blocks(self, args: argparse.Namespace) -> None:
+        stem = pathlib.Path(args.output_dir)
+
         # Cube block
         target = ctset.factory(["ct_specs.prism.beam1.1x1x1@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
                                "").targets[0]
         graph = target.gen_graph()
-        target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "beam1.graphml"))
+        target.write_graphml(graph, stem / "beam1.graphml")
 
         # Beam2 block
         target = ctset.factory(["ct_specs.prism.beam2.2x1x1@0,0,0"],
@@ -115,9 +114,7 @@ class PaperFigureGenerator():
                                args.ct_paradigm,
                                "").targets[0]
         graph = target.gen_graph()
-        target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "beam2.graphml"))
+        target.write_graphml(graph, stem / "beam2.graphml")
 
         # Beam3 block
         target = ctset.factory(["ct_specs.prism.beam3.3x1x1@0,0,0"],
@@ -125,9 +122,7 @@ class PaperFigureGenerator():
                                args.ct_paradigm,
                                "").targets[0]
         graph = target.gen_graph()
-        target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "beam3.graphml"))
+        target.write_graphml(graph, stem / "beam3.graphml")
 
     def _coherent_cube(self, args: argparse.Namespace) -> None:
         self.logger.info("Processing coherent cube")
@@ -137,8 +132,7 @@ class PaperFigureGenerator():
                                "").targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "coherent-cube.graphml"))
+                             stem / "coherent-cube.graphml")
 
     def _coherent_pyramid(self, args: argparse.Namespace) -> None:
         self.logger.info("Processing coherent pyramid")
@@ -149,8 +143,7 @@ class PaperFigureGenerator():
                                "").targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "coherent-pyramid.graphml"))
+                             stem / "coherent-pyramid.graphml")
 
     def _coherent_cube_horizontal_hole(self, args: argparse.Namespace) -> None:
         self.logger.info("Processing coherent cube (horizontal hole)")
@@ -186,9 +179,9 @@ class PaperFigureGenerator():
                                    Vector3D(0, j, 2),
                                    Orientation("0"))
 
+        stem = pathlib.Path(args.output_dir)
         target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "coherent-cube-horizontal-hole.graphml"))
+                             stem / "coherent-cube-horizontal-hole.graphml")
 
     def _shells(self, args: argparse.Namespace) -> None:
         self.logger.info("Processing shell")
@@ -209,15 +202,14 @@ class PaperFigureGenerator():
                                Vector3D(2, 1, 2),
                                Orientation("0"))
 
+        stem = pathlib.Path(args.output_dir)
         with_virtual_shell = target.graph_virtual_shell_add(graph)
         target.write_graphml(with_virtual_shell,
-                             os.path.join(args.output_dir,
-                                          "podium-virtual-shell.graphml"))
+                             stem / "podium-virtual-shell.graphml")
 
         with_complement_shell = target.graph_complement_shell_add(graph)
         target.write_graphml(with_complement_shell,
-                             os.path.join(args.output_dir,
-                                          "podium-complement-shell.graphml"))
+                             stem / "podium-complement-shell.graphml")
 
     def _incoherent_cube_overhangs(self, args: argparse.Namespace) -> None:
         self.logger.info("Processing incoherent cube (overhangs)")
@@ -247,9 +239,9 @@ class PaperFigureGenerator():
                                        Vector3D(i, j, 1),
                                        Orientation("PI"))
 
+        stem = pathlib.Path(args.output_dir)
         target.write_graphml(graph,
-                             os.path.join(args.output_dir,
-                                          "incoherent-cube-overhangs.graphml"))
+                             stem / "incoherent-cube-overhangs.graphml")
 
 
 def main() -> None:

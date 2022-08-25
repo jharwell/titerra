@@ -25,7 +25,7 @@ import implements
 
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.utils import ArenaExtent
-from sierra.core.xml import XMLAttrChangeSet, XMLTagRmList, XMLTagAddList, XMLTagRm, XMLTagAdd, XMLAttrChange
+from sierra.core.experiment import xml
 
 # Project packages
 
@@ -44,23 +44,23 @@ class BaseDistribution():
         self.attr_changes = []  # type: tp.List
         self.logger = logging.getLogger(__name__)
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """Generate a list of sets of changes necessary to make to the input file to
         correctly set up the simulation with the specified block distribution
 
         """
         if not self.attr_changes:
-            self.attr_changes = [XMLAttrChangeSet(
-                XMLAttrChange(".//arena_map/blocks/distribution",
-                              "dist_type",
-                              "{0}".format(self.dist_type))
+            self.attr_changes = [xml.AttrChangeSet(
+                xml.AttrChange(".//arena_map/blocks/distribution",
+                               "dist_type",
+                               "{0}".format(self.dist_type))
             )]
         return self.attr_changes
 
-    def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
+    def gen_tag_rmlist(self) -> tp.List[xml.TagRmList]:
         return []
 
-    def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
+    def gen_tag_addlist(self) -> tp.List[xml.TagAddList]:
         return []
 
     def gen_files(self) -> None:
@@ -116,15 +116,15 @@ class PowerLawDistribution(BaseDistribution):
                           pwr_min, pwr_max, n_clusters)
 
         for c in changes:
-            c |= XMLAttrChangeSet(XMLAttrChange(".//arena_map/blocks/distribution/powerlaw",
-                                                "pwr_min",
-                                                "{0}".format(pwr_min)),
-                                  XMLAttrChange(".//arena_map/blocks/distribution/powerlaw",
-                                                "pwr_max",
-                                                "{0}".format(pwr_max)),
-                                  XMLAttrChange(".//arena_map/blocks/distribution/powerlaw",
-                                                "n_clusters",
-                                                "{0}".format(n_clusters)))
+            c |= xml.AttrChangeSet(xml.AttrChange(".//arena_map/blocks/distribution/powerlaw",
+                                                  "pwr_min",
+                                                  "{0}".format(pwr_min)),
+                                   xml.AttrChange(".//arena_map/blocks/distribution/powerlaw",
+                                                  "pwr_max",
+                                                  "{0}".format(pwr_max)),
+                                   xml.AttrChange(".//arena_map/blocks/distribution/powerlaw",
+                                                  "n_clusters",
+                                                  "{0}".format(n_clusters)))
         return changes
 
 

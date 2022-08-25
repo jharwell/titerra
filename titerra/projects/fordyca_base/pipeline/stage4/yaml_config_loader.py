@@ -15,7 +15,7 @@
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
 # Core packages
-import os
+import pathlib
 import typing as tp
 import logging
 
@@ -24,25 +24,23 @@ import yaml
 
 # Project packages
 import titerra.projects.common.pipeline.stage4.yaml_config_loader as ycl
-from sierra.core import utils
+from sierra.core import utils, types
 
 
 class YAMLConfigLoader(ycl.YAMLConfigLoader):
     def __init__(self) -> None:
         super().__init__()
 
-    def __call__(self, cmdopts: tp.Dict[str, tp.Any]) -> tp.Dict[str, tp.Dict[str, str]]:
+    def __call__(self, cmdopts: types.Cmdopts) -> tp.Dict[str, types.YAMLDict]:
         joint_config = super().__call__(cmdopts)
 
         # Replace logger for more accurate messages
         self.logger = logging.getLogger(__name__)
 
-        fordyca_inter_LN = os.path.join(cmdopts['project_config_root'],
-                                        'inter-graphs-line.yaml')
-        fordyca_intra_LN = os.path.join(cmdopts['project_config_root'],
-                                        'intra-graphs-line.yaml')
-        fordyca_intra_HM = os.path.join(cmdopts['project_config_root'],
-                                        'intra-graphs-hm.yaml')
+        root = pathlib.Path(cmdopts['project_config_root'])
+        fordyca_inter_LN = root / 'inter-graphs-line.yaml'
+        fordyca_intra_LN = root / 'intra-graphs-line.yaml'
+        fordyca_intra_HM = root / 'intra-graphs-hm.yaml'
 
         # Load FORDYCA config
         if utils.path_exists(fordyca_intra_LN):

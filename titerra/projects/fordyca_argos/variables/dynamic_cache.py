@@ -23,7 +23,7 @@ import implements
 # Project packages
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.utils import ArenaExtent
-from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange, XMLTagRmList, XMLTagAddList
+from sierra.core.experiment import xml
 
 
 @implements.implements(IBaseVariable)
@@ -44,7 +44,7 @@ class DynamicCache():
         self.extents = extents
         self.attr_changes = None
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes necessary to make to the input file to correctly set up the
         simulation for the list of dynamic cache sizes specified in constructor.
@@ -53,70 +53,70 @@ class DynamicCache():
         - Enables dynamic caches
         """
         if self.attr_changes is None:
-            self.attr_changes = [XMLAttrChangeSet(
-                XMLAttrChange(".//loop_functions/caches/dynamic",
-                              "enable",
-                              "true"),
-                XMLAttrChange(".//loop_functions/caches/static",
-                              "enable",
-                              "false"),
-                XMLAttrChange(".//loop_functions/caches/dynamic",
-                              "min_dist",
-                              "{0:.9f}".format(min(e.ur.x * self.kCacheDimFrac,
-                                                   e.ur.y * self.kCacheDimFrac))),
+            self.attr_changes = [xml.AttrChangeSet(
+                xml.AttrChange(".//loop_functions/caches/dynamic",
+                               "enable",
+                               "true"),
+                xml.AttrChange(".//loop_functions/caches/static",
+                               "enable",
+                               "false"),
+                xml.AttrChange(".//loop_functions/caches/dynamic",
+                               "min_dist",
+                               "{0:.9f}".format(min(e.ur.x * self.kCacheDimFrac,
+                                                    e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//loop_functions/caches",
-                              "dimension",
-                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                   e.ur.y * self.kCacheDimFrac))),
+                xml.AttrChange(".//loop_functions/caches",
+                               "dimension",
+                               "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                    e.ur.y * self.kCacheDimFrac))),
 
                 # Set to dimensions of cache to ensure that caches will not be
                 # created such that they overlap
-                XMLAttrChange(".//cache_sel_matrix",
-                              "cache_prox_dist",
-                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                   e.ur.y * self.kCacheDimFrac))),
+                xml.AttrChange(".//cache_sel_matrix",
+                               "cache_prox_dist",
+                               "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                    e.ur.y * self.kCacheDimFrac))),
                 # Set to slightly less than dimensions of cache to give robots
                 # more flexibility/less congestion when they try to create
                 # caches.
-                XMLAttrChange(".//cache_sel_matrix",
-                              "new_cache_tol",
-                              "{0:.9f}".format(max(e.ur.x * 0.75 * self.kCacheDimFrac,
-                                                   e.ur.y * 0.75 * self.kCacheDimFrac))),
-                XMLAttrChange(".//cache_sel_matrix",
-                              "nest_prox_dist",
-                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                   e.ur.y * self.kCacheDimFrac))),
+                xml.AttrChange(".//cache_sel_matrix",
+                               "new_cache_tol",
+                               "{0:.9f}".format(max(e.ur.x * 0.75 * self.kCacheDimFrac,
+                                                    e.ur.y * 0.75 * self.kCacheDimFrac))),
+                xml.AttrChange(".//cache_sel_matrix",
+                               "nest_prox_dist",
+                               "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                    e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//cache_sel_matrix",
-                              "block_prox_dist",
-                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                   e.ur.y * self.kCacheDimFrac))),
+                xml.AttrChange(".//cache_sel_matrix",
+                               "block_prox_dist",
+                               "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                    e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//block_sel_matrix/pickup_policy",
-                              "prox_dist",
-                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                   e.ur.y * self.kCacheDimFrac))),
+                xml.AttrChange(".//block_sel_matrix/pickup_policy",
+                               "prox_dist",
+                               "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                    e.ur.y * self.kCacheDimFrac))),
 
-                XMLAttrChange(".//cache_sel_matrix",
-                              "site_xrange",
-                              "{0}:{1:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                       e.ur.y * self.kCacheDimFrac) / 2.0,
-                                                   e.ur.x - max(e.ur.x * self.kCacheDimFrac,
-                                                                e.ur.y * self.kCacheDimFrac) / 2.0)),
-                XMLAttrChange(".//cache_sel_matrix",
-                              "site_yrange",
-                              "{0}:{1:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                       e.ur.y * self.kCacheDimFrac) / 2.0,
-                                                   e.ur.y - max(e.ur.x * self.kCacheDimFrac,
-                                                                e.ur.y * self.kCacheDimFrac) / 2.0)),
+                xml.AttrChange(".//cache_sel_matrix",
+                               "site_xrange",
+                               "{0}:{1:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                        e.ur.y * self.kCacheDimFrac) / 2.0,
+                                                    e.ur.x - max(e.ur.x * self.kCacheDimFrac,
+                                                                 e.ur.y * self.kCacheDimFrac) / 2.0)),
+                xml.AttrChange(".//cache_sel_matrix",
+                               "site_yrange",
+                               "{0}:{1:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                        e.ur.y * self.kCacheDimFrac) / 2.0,
+                                                    e.ur.y - max(e.ur.x * self.kCacheDimFrac,
+                                                                 e.ur.y * self.kCacheDimFrac) / 2.0)),
             ) for e in self.extents]
         return self.attr_changes
 
-    def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
+    def gen_tag_rmlist(self) -> tp.List[xml.TagRmList]:
         return []
 
-    def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
+    def gen_tag_addlist(self) -> tp.List[xml.TagAddList]:
         return []
 
     def gen_files(self) -> None:

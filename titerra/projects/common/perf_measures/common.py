@@ -18,7 +18,7 @@ Common calculations used by multiple performance measures.
 """
 
 # Core packages
-import os
+import pathlib
 import math
 import typing as tp
 import logging
@@ -26,7 +26,7 @@ import logging
 # 3rd party packages
 import pandas as pd
 from sierra.plugins.platform.argos.variables import population_size
-from sierra.core.xml import XMLAttrChangeSet
+from sierra.core.experiment import xml
 from sierra.core import utils, types, config, storage, stat_kernels
 
 # Project packages
@@ -119,10 +119,11 @@ class BaseSteadyStateFL:
 
         # Just need to get # timesteps per simulation which is the same for all
         # simulations/experiments, so we pick exp0 for simplicity to calculate
-        exp_def = XMLAttrChangeSet.unpickle(os.path.join(cmdopts["batch_input_root"],
-                                                         criteria.gen_exp_dirnames(
-                                                             self.cmdopts)[0],
-                                                         config.kPickleLeaf))
+        exp0 = criteria.gen_exp_names(self.cmdopts)[0]
+        path = pathlib.Path(cmdopts["batch_input_root"],
+                            exp0,
+                            config.kPickleLeaf)
+        exp_def = xml.ChangeSet.unpickle(path)
 
         # Integers always seem to be pickled as floats, so you can't convert
         # directly without an exception.
@@ -412,13 +413,16 @@ def gather_collated_sim_dfs(cmdopts: types.Cmdopts,
                             criteria: bc.IConcreteBatchCriteria,
                             csv_leaf: str,
                             csv_col: str) -> tp.Dict[str, pd.DataFrame]:
-    # exp_dirs = criteria.gen_exp_dirnames(cmdopts)
-    exp_dirs = utils.exp_range_calc(cmdopts, '', criteria)
+    exp_dirs = utils.exp_range_calc(cmdopts,
+                                    cmdopts['batch_stat_collate_root'],
+                                    criteria)
     dfs = {}
+
+    reader = storage.DataFrameReader('storage.csv')
     for d in exp_dirs:
-        csv_ipath = os.path.join(cmdopts["batch_stat_collate_root"],
-                                 d + '-' + csv_leaf + '-' + csv_col + '.csv')
-        dfs[d] = storage.DataFrameReader('storage.csv')(csv_ipath)
+        csv_ipath = pathlib.Path(cmdopts["batch_stat_collate_root"],
+                                 f'{d.name}-{csv_leaf}-{csv_col}' + config.kStorageExt['csv'])
+        dfs[d.name] = reader(csv_ipath)
     return dfs
 
 
@@ -430,9 +434,11 @@ def univar_distribution_prepare(cmdopts: types.Cmdopts,
 
     if cmdopts['dist_stats'] in ['none', 'all']:
         dist_dfs = stat_kernels.mean.from_pm(pm_dfs)
-    elif cmdopts['dist_stats'] in ['conf95', 'all']:
+
+    if cmdopts['dist_stats'] in ['conf95', 'all']:
         dist_dfs = stat_kernels.conf95.from_pm(pm_dfs)
-    elif cmdopts['dist_stats'] in ['bw', 'all']:
+
+    if cmdopts['dist_stats'] in ['bw', 'all']:
         dist_dfs = stat_kernels.bw.from_pm(pm_dfs)
 
     _univar_distribution_do_prepare(
@@ -468,27 +474,30 @@ def _univar_distribution_do_prepare(cmdopts: types.Cmdopts,
     joined = univar_distribution_prepare_join(
         cmdopts, criteria, dist_dfs, exclude_exp0)
 
+    reader = storage.DataFrameWriter('storage.csv')
     for stat in dist_dfs[list(dist_dfs.keys())[0]]:
-        stat_opath = os.path.join(cmdopts["batch_stat_collate_root"],
+        stat_opath = pathlib.Path(cmdopts["batch_stat_collate_root"],
                                   oleaf + stat)
-        storage.DataFrameWriter('storage.csv')(joined[stat], stat_opath, index=False)
+        reader(joined[stat], stat_opath, index=False)
 
 
 def univar_distribution_prepare_join(cmdopts: types.Cmdopts,
                                      criteria: bc.IConcreteBatchCriteria,
                                      dist_dfs: tp.Dict[str, pd.DataFrame],
                                      exclude_exp0: bool) -> tp.Dict[str, pd.DataFrame]:
-    # exp_dirs = criteria.gen_exp_dirnames(cmdopts)
-    exp_dirs = utils.exp_range_calc(cmdopts, '', criteria)
+    exp_dirs = utils.exp_range_calc(cmdopts,
+                                    cmdopts['batch_stat_collate_root'],
+                                    criteria)
 
     # For batch criteria only defined for exp > 0 for some graphs
     if exclude_exp0:
         exp_dirs = exp_dirs[1:]
 
     ret = {}
+    exp_names = [d.name for d in exp_dirs]
     for stat in dist_dfs[list(dist_dfs.keys())[0]]:
-        df = pd.DataFrame(columns=exp_dirs, index=[0])
-        for exp in exp_dirs:
+        df = pd.DataFrame(columns=exp_names, index=[0])
+        for exp in exp_names:
             df.loc[0, exp] = dist_dfs[exp][stat]
 
         ret[stat] = df
@@ -503,23 +512,26 @@ def _bivar_distribution_do_prepare(cmdopts: types.Cmdopts,
                                    exclude_exp0: bool,
                                    axis: tp.Optional[int] = None) -> None:
 
-    exp_dirs = criteria.gen_exp_dirnames(cmdopts)
-
+    exp_names = criteria.gen_exp_names(cmdopts)
+    exp_dirs = [pathlib.Path(cmdopts['batch_stat_collate_root'], n)
+                for n in exp_names]
     xlabels, ylabels = utils.bivar_exp_labels_calc(exp_dirs)
+
     if exclude_exp0:
         xlabels = xlabels[axis == 0:]
         ylabels = ylabels[axis == 1:]
 
     for stat in dist_dfs[list(dist_dfs.keys())[0]]:
-        stat_opath = os.path.join(cmdopts["batch_stat_collate_root"],
+        stat_opath = pathlib.Path(cmdopts["batch_stat_collate_root"],
                                   oleaf + stat)
         df = pd.DataFrame(columns=ylabels, index=xlabels)
 
-        for exp in exp_dirs:
+        for exp in exp_names:
             xlabel, ylabel = exp.split('+')
             if xlabel in xlabels and ylabel in ylabels:
-                df.iloc[xlabels.index(xlabel), ylabels.index(
-                    ylabel)] = dist_dfs[exp][stat]
+                i = xlabels.index(xlabel)
+                j = ylabels.index(ylabel)
+                df.iloc[i, j] = dist_dfs[exp][stat]
 
         storage.DataFrameWriter('storage.csv')(df, stat_opath, index=False)
 

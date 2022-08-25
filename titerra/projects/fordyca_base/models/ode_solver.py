@@ -19,7 +19,6 @@ ODE solvers for swarm behavior in different scenarios.
 """
 # Core packages
 import typing as tp
-import math
 
 # 3rd party packages
 import numpy as np

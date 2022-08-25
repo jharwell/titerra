@@ -15,12 +15,12 @@
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
 # Core packages
-import os
+import pathlib
 import typing as tp
 
 # 3rd party packages
 import pandas as pd
-from sierra.core import utils, storage, types
+from sierra.core import storage, types
 from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
@@ -44,9 +44,10 @@ class BlockCluster():
         ymin = clusters_df.filter(regex=col_stem + '_ymin').iloc[-1].values[0]
         ymax = clusters_df.filter(regex=col_stem + '_ymax').iloc[-1].values[0]
 
-        # We approximate the # blocks in a cluster (which changes dynamically) as a steady state
-        # quantity, where each cluster always contains the fraction of total blocks in the arena
-        # corresponding to how much of the overall distributable area it contains.
+        # We approximate the # blocks in a cluster (which changes dynamically)
+        # as a steady state quantity, where each cluster always contains the
+        # fraction of total blocks in the arena corresponding to how much of the
+        # overall distributable area it contains.
         total_blocks = clusters_df.filter(
             regex='int_avg_cluster[0-9]*_block_count').iloc[-1].sum()
         total_area = clusters_df.filter(
@@ -91,27 +92,32 @@ class BlockClusterSet():
     :class:`BlockCluster`s for all clusters within the arena.
 
     Arguments:
+
        main_config: Main YAML configuration for project.
+
        cmdopts: Parsed cmdline parameters.
-       sim_opath: Directory path in which the ``block-clusters.csv`` can be found.
+
+       clusters_fpath: Directory to the ``block-clusters.XXX`` can be
+                       found.
     """
 
     def __init__(self,
                  cmdopts: types.Cmdopts,
                  nest: Nest,
-                 sim_opath: str) -> None:
+                 clusters_fpath: pathlib.Path) -> None:
 
-        clusters_df = storage.DataFrameReader('storage.csv')(
-            os.path.join(sim_opath, 'block-clusters.csv'))
+        reader = storage.DataFrameReader('storage.csv')
+        clusters_df = reader(clusters_fpath)
         n_clusters = len([c for c in clusters_df.columns if 'xmin' in c])
 
         # Create extents from clusters
         self.clusters = set()
 
-        # RN block distribution has a single cluster, but the nest is in the middle of it, which
-        # makes density calculations much trickier when integrating across/up to the nest (modeled
-        # as a single point). We break it into an equivalent set of 4 smaller clusters ringing the
-        # nest to avoid computational issues.
+        # RN block distribution has a single cluster, but the nest is in the
+        # middle of it, which makes density calculations much trickier when
+        # integrating across/up to the nest (modeled as a single point). We
+        # break it into an equivalent set of 4 smaller clusters ringing the nest
+        # to avoid computational issues.
 
         if 'RN' in cmdopts['scenario']:
             cluster = BlockCluster.from_df(clusters_df, 0)

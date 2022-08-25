@@ -21,13 +21,13 @@ for usage documentation.
 
 # Core packages
 import typing as tp
-import os
+import pathlib
 
 # 3rd party packages
 import implements
 from sierra.plugins.platform.argos.variables import constant_density as cd
 from sierra.core.vector import Vector3D
-from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.experiment import xml
 import sierra.core.plugin_manager as pm
 from sierra.core import types, utils, config
 
@@ -49,8 +49,8 @@ class BlockConstantDensity(cd.ConstantDensity):
 
     def __init__(self,
                  cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  target_density: float,
                  dimensions: tp.List[utils.ArenaExtent],
                  dist_type: str) -> None:
@@ -63,7 +63,7 @@ class BlockConstantDensity(cd.ConstantDensity):
                                     dist_type)
         self.already_added = False
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes to input file to set the # blocks for a
         set of arena sizes such that the blocks density is constant. Blocks are
@@ -83,42 +83,40 @@ class BlockConstantDensity(cd.ConstantDensity):
                                        (self.target_density / 100.0))
 
                         changeset.add(
-                            XMLAttrChange(".//arena_map/blocks/distribution/manifest",
-                                          "n_cube",
-                                          "{0}".format(int(n_blocks / 2.0))))
+                            xml.AttrChange(".//arena_map/blocks/distribution/manifest",
+                                           "n_cube",
+                                           "{0}".format(int(n_blocks / 2.0))))
                         changeset.add(
-                            XMLAttrChange(".//arena_map/blocks/distribution/manifest",
-                                          "n_ramp",
-                                          "{0}".format(int(n_blocks / 2.0))))
+                            xml.AttrChange(".//arena_map/blocks/distribution/manifest",
+                                           "n_ramp",
+                                           "{0}".format(int(n_blocks / 2.0))))
                         break
             self.already_added = True
 
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: dict) -> tp.List[str]:
+    def gen_exp_names(self, cmdopts: dict) -> tp.List[str]:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
-        if exp_dirs is None:
-            exp_dirs = self.gen_exp_dirnames(cmdopts)
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+        if exp_names is None:
+            exp_names = self.gen_exp_names(cmdopts)
 
         areas = []
-        for d in exp_dirs:
-            pkl_path = os.path.join(self.batch_input_root,
-                                    d,
-                                    config.kPickleLeaf)
-            exp_def = XMLAttrChangeSet.unpickle(pkl_path)
+        for d in exp_names:
+            pkl_path = self.batch_input_root / d / config.kPickleLeaf
+            exp_def = xml.AttrChangeSet.unpickle(pkl_path)
             areas.append(utils.extract_arena_dims(exp_def).area())
 
         return areas
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
-        return [str(x) + r' $m^2$' for x in self.graph_xticks(cmdopts, exp_dirs)]
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+        return [str(x) + r' $m^2$' for x in self.graph_xticks(cmdopts, exp_names)]
 
     def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return r"Block Density ({0}\%)".format(self.target_density)
@@ -128,8 +126,8 @@ class BlockConstantDensity(cd.ConstantDensity):
 
 
 def factory(cli_arg: str,
-            main_config: tp.Dict[str, str],
-            batch_input_root: str,
+            main_config: types.YAMLDict,
+            batch_input_root: pathlib.Path,
             **kwargs) -> BlockConstantDensity:
     """
     Factory to create :class:`BlockConstantDensity` derived classes from the

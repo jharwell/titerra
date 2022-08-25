@@ -23,11 +23,12 @@ documentation.
 import typing as tp
 import re
 import itertools
+import pathlib
 
 # 3rd party packages
 import implements
 from sierra.plugins.platform.argos.variables.population_size import PopulationSize
-from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
+from sierra.core.experiment import xml
 from sierra.core import types
 
 # Project packages
@@ -55,8 +56,8 @@ class Oracle(bc.UnivarBatchCriteria):
     kInfoTypes = {'entities': ['caches', 'blocks']}
 
     def __init__(self, cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  tuples: tp.List[tuple],
                  population: int) -> None:
         bc.UnivarBatchCriteria.__init__(self,
@@ -68,18 +69,18 @@ class Oracle(bc.UnivarBatchCriteria):
         self.population = population
         self.attr_changes = []  # type: tp.List
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChange]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChange]:
         if not self.attr_changes:
             # Swarm size is optional. It can be (1) controlled via this
             # variable, (2) controlled by another variable in a bivariate batch
             # criteria, (3) not controlled at all. For (2), (3), the swarm size
             # can be None.
             for oracle, features in self.tuples:
-                s = XMLAttrChangeSet()
+                s = xml.AttrChangeSet()
                 for t in features:
-                    s.add(XMLAttrChange(".//oracle_manager/{0}".format(str(oracle)),
-                                        "{0}".format(t[0]),
-                                        "{0}".format(t[1])))
+                    s.add(xml.AttrChange(".//oracle_manager/{0}".format(str(oracle)),
+                                         "{0}".format(t[0]),
+                                         "{0}".format(t[1])))
                 self.attr_changes.append(s)
 
             if self.population is not None:
@@ -92,21 +93,21 @@ class Oracle(bc.UnivarBatchCriteria):
 
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> tp.List[str]:
+    def gen_exp_names(self, cmdopts: types.Cmdopts) -> tp.List[str]:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
-        if exp_dirs is None:
-            exp_dirs = self.gen_exp_dirnames(cmdopts)
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+        if exp_names is None:
+            exp_names = self.gen_exp_names(cmdopts)
 
-        return list(map(float, range(0, len(exp_dirs))))
+        return list(map(float, range(0, len(exp_names))))
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         raise NotImplementedError
 
     def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:

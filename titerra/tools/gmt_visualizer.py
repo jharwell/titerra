@@ -21,9 +21,8 @@ you hand to the swarm to build is what you think it is.
 # Core packages
 import argparse
 import typing as tp
-import os
-import sys
 import logging
+import pathlib
 
 # 3rd party packages
 from mpl_toolkits.mplot3d import Axes3D
@@ -101,12 +100,12 @@ class GMTVisualizer():
         sierra.core.logging.initialize('INFO')
         self.logger = logging.getLogger(__name__)
 
-        self.graph_type = os.path.basename(args.input_file).split('.')[0]
+        self.graph_type = pathlib.Path(args.input_file).name
         self.graph = nx.read_graphml(args.input_file,
                                      node_type=int)
 
-        self.output_dir = args.output_dir
-        os.makedirs(self.output_dir, exist_ok=True)
+        self.output_dir = pathlib.Path(args.output_dir)
+        self.output_dir.mkdir(exist_ok=True)
 
         self.do_prismatic = args.prismatic
         self.do_graph = args.graph
@@ -152,7 +151,7 @@ class GMTVisualizer():
                                     angle,
                                     sierra.core.config.kImageExt)
 
-        fig.savefig(os.path.join(self.output_dir, fname),
+        fig.savefig(self.output_dir / fname,
                     bbox_inches='tight',
                     dpi=sierra.core.config.kGraphDPI,
                     pad_inches=0)

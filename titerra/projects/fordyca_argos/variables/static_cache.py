@@ -23,7 +23,7 @@ import implements
 # Project packages
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.utils import ArenaExtent as ArenaExtent
-from sierra.core.xml import XMLAttrChangeSet, XMLTagRmList, XMLTagAddList, XMLTagRm, XMLTagAdd, XMLAttrChange
+from sierra.core.experiment import xml
 
 
 @implements.implements(IBaseVariable)
@@ -44,7 +44,7 @@ class StaticCache():
         self.extents = extents
         self.attr_changes = None
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes necessary to make to the input file to
         correctly set up the simulation for the list of static cache sizes
@@ -60,28 +60,28 @@ class StaticCache():
         """
         if self.attr_changes is None:
 
-            self.attr_changes = [XMLAttrChangeSet(
-                XMLAttrChange(".//loop_functions/caches/dynamic",
-                              "enable",
-                              "false"),
-                XMLAttrChange(".//loop_functions/caches/static",
-                              "enable",
-                              "true"),
-                XMLAttrChange(".//loop_functions/caches/static",
-                              "size",
-                              "{0:.9f}".format(s)),
-                XMLAttrChange(".//loop_functions/caches",
-                              "dimension",
-                              "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
-                                                   e.ur.y * self.kCacheDimFrac)))
+            self.attr_changes = [xml.AttrChangeSet(
+                xml.AttrChange(".//loop_functions/caches/dynamic",
+                               "enable",
+                               "false"),
+                xml.AttrChange(".//loop_functions/caches/static",
+                               "enable",
+                               "true"),
+                xml.AttrChange(".//loop_functions/caches/static",
+                               "size",
+                               "{0:.9f}".format(s)),
+                xml.AttrChange(".//loop_functions/caches",
+                               "dimension",
+                               "{0:.9f}".format(max(e.ur.x * self.kCacheDimFrac,
+                                                    e.ur.y * self.kCacheDimFrac)))
             ) for e in self.extents for s in self.sizes]
 
         return self.attr_changes
 
-    def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
+    def gen_tag_rmlist(self) -> tp.List[xml.TagRmList]:
         return []
 
-    def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
+    def gen_tag_addlist(self) -> tp.List[xml.TagAddList]:
         return []
 
     def gen_files(self) -> None:

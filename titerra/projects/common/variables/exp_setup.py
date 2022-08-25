@@ -24,7 +24,7 @@ import typing as tp
 # 3rd party packages
 import implements
 from sierra.core.variables.base_variable import IBaseVariable
-from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange, XMLTagRmList, XMLTagAddList
+from sierra.core.experiment import xml
 from sierra.core.variables import exp_setup as exp
 from sierra.core import config
 
@@ -46,32 +46,32 @@ class TimeSetup():
         self.metric_interval = metric_interval
         self.attr_changes = []
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         if not self.attr_changes:
-            self.attr_changes = [XMLAttrChangeSet(
+            self.attr_changes = [xml.AttrChangeSet(
                 # 2022/4/7: Network metrics are streamed to the master every
                 # timestep for simplicity; this may be revisited in the future
                 # if needed. It seemed better to make this change here than to
                 # have the C++ code ignore what is set here and always do 1.
-                XMLAttrChange(".//output/metrics/sinks/network/stream",
-                              "output_interval",
-                              "{0}".format(1)),
-                XMLAttrChange(".//output/metrics/sinks/file/append",
-                              "output_interval",
-                              "{0}".format(self.metric_interval)),
-                XMLAttrChange(".//output/metrics/sinks/file/truncate",
-                              "output_interval",
-                              "{0}".format(self.metric_interval)),
-                XMLAttrChange(".//output/metrics/sinks/file/create",
-                              "output_interval",
-                              "{0}".format(max(1, self.metric_interval / kND_DATA_DIVISOR_DEFAULT))))]
+                xml.AttrChange(".//output/metrics/sinks/network/stream",
+                               "output_interval",
+                               "{0}".format(1)),
+                xml.AttrChange(".//output/metrics/sinks/file/append",
+                               "output_interval",
+                               "{0}".format(self.metric_interval)),
+                xml.AttrChange(".//output/metrics/sinks/file/truncate",
+                               "output_interval",
+                               "{0}".format(self.metric_interval)),
+                xml.AttrChange(".//output/metrics/sinks/file/create",
+                               "output_interval",
+                               "{0}".format(max(1, self.metric_interval / kND_DATA_DIVISOR_DEFAULT))))]
 
         return self.attr_changes
 
-    def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
+    def gen_tag_rmlist(self) -> tp.List[xml.TagRmList]:
         return []
 
-    def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
+    def gen_tag_addlist(self) -> tp.List[xml.TagAddList]:
         return []
 
     def gen_files(self) -> None:

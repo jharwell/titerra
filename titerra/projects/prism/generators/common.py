@@ -19,11 +19,9 @@ Common functionality/configuration for all PRISM scenarios.
 """
 # Core packages
 import logging
-import typing as tp
 
 # 3rd party packages
-from sierra.core.xml import XMLLuigi
-import sierra.core.generators.scenario_generator as sg
+from sierra.core.experiment import definition
 from sierra.core import utils as scutils
 
 # Project packages
@@ -45,11 +43,12 @@ class ConstructionScenarioGenerator(ForagingScenarioGenerator):
         return exp_def
 
     def generate_mixed_physics(self,
-                               exp_def: XMLLuigi,
+                               exp_def: definition.XMLExpDef,
                                block_dist: str) -> None:
-        """
-        Generate mixed 2D/3D physics engine definitions for the arena, according to the specified block
-        distribution configuration, maximum structure height, and # physics engines.
+        """Generate mixed 2D/3D physics engine definitions for the arena, according to
+        the specified block distribution configuration, maximum structure
+        height, and # physics engines.
+
         """
         zmax = 0
         target_set = ctset.factory(self.cmdopts['ct_specs'],
@@ -125,7 +124,7 @@ class ConstructionScenarioGenerator(ForagingScenarioGenerator):
                               False)
 
     def generate_construct_targets(self,
-                                   exp_def: XMLLuigi) -> None:
+                                   exp_def: definition.XMLExpDef) -> None:
         target_set = ctset.factory(self.cmdopts['ct_specs'],
                                    self.cmdopts['ct_orientations'],
                                    self.spec.exp_input_root)

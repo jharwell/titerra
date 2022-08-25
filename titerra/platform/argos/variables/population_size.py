@@ -26,7 +26,7 @@ import typing as tp
 import implements
 from sierra.plugins.platform.argos.variables import population_size
 from sierra.core.variables.population_size import Parser
-from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.experiment import xml
 from sierra.core import types
 
 # Project packages
@@ -45,7 +45,7 @@ class PopulationSizeWithDynamics(population_size.PopulationSize):
     """
 
     @staticmethod
-    def gen_attr_changelist_from_list(sizes: tp.List[int]) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist_from_list(sizes: tp.List[int]) -> tp.List[xml.AttrChangeSet]:
         """
         We give the maximum population size due to population dynamics a value
         of 4N, where N is the initial quantity of robots for the simulation, in
@@ -56,12 +56,12 @@ class PopulationSizeWithDynamics(population_size.PopulationSize):
         chgsets = population_size.PopulationSize.gen_attr_changelist_from_list(
             sizes)
         for i, chgset in enumerate(chgsets):
-            chgset |= XMLAttrChangeSet(XMLAttrChange(".//population_dynamics",
-                                                     "max_size",
-                                                     str(4 * sizes[i])))
+            chgset |= xml.AttrChangeSet(xml.AttrChange(".//population_dynamics",
+                                                       "max_size",
+                                                       str(4 * sizes[i])))
         return chgsets
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes for swarm sizes to define a batch
         experiment.

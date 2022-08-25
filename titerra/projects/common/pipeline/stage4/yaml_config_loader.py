@@ -15,8 +15,8 @@
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
 # Core packages
-import os
 import typing as tp
+import pathlib
 
 # 3rd party packages
 import yaml
@@ -39,16 +39,13 @@ class YAMLConfigLoader(ycl.YAMLConfigLoader):
         intra_LN_config = {}
         intra_HM_config = {}
 
-        common_config_root = os.path.abspath(os.path.join(cmdopts['project_root'],
-                                                          '..',
-                                                          'common',
-                                                          'config'))
-        common_intra_LN = os.path.join(common_config_root,
-                                       'intra-graphs-line.yaml')
-        common_intra_HM = os.path.join(common_config_root,
-                                       'intra-graphs-hm.yaml')
-        common_inter_LN = os.path.join(common_config_root,
-                                       'inter-graphs-line.yaml')
+        common_config_root = pathlib.Path(cmdopts['project_root'],
+                                          '..',
+                                          'common',
+                                          'config')
+        common_intra_LN = common_config_root / 'intra-graphs-line.yaml'
+        common_intra_HM = common_config_root / 'intra-graphs-hm.yaml'
+        common_inter_LN = common_config_root / 'inter-graphs-line.yaml'
 
         # Load TITAN base/common config
         if utils.path_exists(common_intra_LN):
@@ -69,5 +66,6 @@ class YAMLConfigLoader(ycl.YAMLConfigLoader):
         return {
             'intra_LN': intra_LN_config,
             'intra_HM': intra_HM_config,
-            'inter_LN': inter_LN_config
+            'inter_LN': inter_LN_config,
+            'inter_HM': {}
         }

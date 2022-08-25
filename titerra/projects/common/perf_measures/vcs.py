@@ -19,7 +19,7 @@ curves.
 """
 
 # Core packages
-import os
+import pathlib
 import typing as tp
 import logging
 
@@ -29,8 +29,7 @@ import pandas as pd
 import numpy as np
 import similaritymeasures as sm
 
-from sierra.core import types, utils, storage, config
-import sierra.core.config
+from sierra.core import types, utils, storage
 
 # Project packages
 from titerra.projects.common.variables.temporal_variance_parser import TemporalVarianceParser
@@ -94,15 +93,15 @@ class EnvironmentalCS():
 
     def __call__(self,
                  criteria,
-                 exp_dirs: tp.Optional[tp.List[str]] = None) -> float:
+                 exp_names: tp.Optional[tp.List[str]] = None) -> float:
         ideal_var_df = DataFrames.expx_var_df(self.cmdopts,
                                               criteria,
-                                              exp_dirs,
+                                              exp_names,
                                               self.main_config['sierra']['perf']['intra_tv_environment_csv'],
                                               0)
         expx_var_df = DataFrames.expx_var_df(self.cmdopts,
                                              criteria,
-                                             exp_dirs,
+                                             exp_names,
                                              self.main_config['sierra']['perf']['intra_tv_environment_csv'],
                                              self.exp_num)
 
@@ -196,11 +195,11 @@ class AdaptabilityCS():
                    ideal_num: int,
                    ideal_perf_df: pd.DataFrame,
                    expx_perf_df: pd.DataFrame,
-                   exp_dirs: tp.Optional[tp.List[str]] = None) -> float:
+                   exp_names: tp.Optional[tp.List[str]] = None) -> float:
         ideal_data, exp_data = self._waveforms_from_batch(ideal_num,
                                                           ideal_perf_df,
                                                           expx_perf_df,
-                                                          exp_dirs)
+                                                          exp_names)
 
         return CSRaw()(exp_data=exp_data,
                        ideal_data=ideal_data,
@@ -211,38 +210,38 @@ class AdaptabilityCS():
     def waveforms_for_example_plots(self,
                                     ideal_num: int,
                                     exp_num: int,
-                                    exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
+                                    exp_names: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
         # This function was called for generating plots, and we can safely operate on averaged
         # performance data.
         ideal_perf_df = DataFrames.expx_perf_df(self.cmdopts,
                                                 self.criteria,
-                                                exp_dirs,
+                                                exp_names,
                                                 self.perf_leaf +
-                                                sierra.core.config.kStatsExtensions['mean'],
+                                                sierra.core.config.kStats['mean'].exts['mean'],
                                                 ideal_num)
 
         expx_perf_df = DataFrames.expx_perf_df(self.cmdopts,
                                                self.criteria,
-                                               exp_dirs,
+                                               exp_names,
                                                self.perf_leaf +
-                                               sierra.core.config.kStatsExtensions['mean'],
+                                               sierra.core.config.kStats['mean'].exts['mean'],
                                                exp_num)
 
-        return self._calc_waveforms(ideal_num, ideal_perf_df, expx_perf_df, exp_dirs)
+        return self._calc_waveforms(ideal_num, ideal_perf_df, expx_perf_df, exp_names)
 
     def _waveforms_from_batch(self,
                               ideal_num: int,
                               ideal_perf_df: pd.DataFrame,
                               expx_perf_df: pd.DataFrame,
-                              exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
+                              exp_names: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
 
-        return self._calc_waveforms(ideal_num, ideal_perf_df, expx_perf_df, exp_dirs)
+        return self._calc_waveforms(ideal_num, ideal_perf_df, expx_perf_df, exp_names)
 
     def _calc_waveforms(self,
                         ideal_num: int,
                         ideal_perf_df: pd.DataFrame,
                         expx_perf_df: pd.DataFrame,
-                        exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
+                        exp_names: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
         """
         Calculates the (ideal performance, experimental performance) comparable waveforms for the
         experiment. Returns NP arrays rather than dataframes, because that is what the curve
@@ -253,9 +252,9 @@ class AdaptabilityCS():
         # same variance was applied to all simulations.
         ideal_var_df = DataFrames.expx_var_df(self.cmdopts,
                                               self.criteria,
-                                              exp_dirs,
+                                              exp_names,
                                               self.tv_env_leaf +
-                                              sierra.core.config.kStatsExtensions['mean'],
+                                              sierra.core.config.kStats['mean'].exts['mean'],
                                               ideal_num)
 
         ideal_df = pd.DataFrame(index=ideal_var_df.index,
@@ -318,10 +317,10 @@ class ReactivityCS():
     def from_batch(self,
                    ideal_perf_df: pd.DataFrame,
                    expx_perf_df: pd.DataFrame,
-                   exp_dirs: tp.Optional[tp.List[str]] = None) -> float:
+                   exp_names: tp.Optional[tp.List[str]] = None) -> float:
         ideal_data, exp_data = self._waveforms_from_batch(ideal_perf_df,
                                                           expx_perf_df,
-                                                          exp_dirs)
+                                                          exp_names)
 
         return CSRaw()(exp_data=exp_data,
                        ideal_data=ideal_data,
@@ -330,38 +329,38 @@ class ReactivityCS():
                        normalize_method=self.cmdopts['pm_normalize_method'])
 
     def waveforms_for_example_plots(self,
-                                    exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
+                                    exp_names: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
         # This function was called for generating plots, and we can safely operate on averaged
         # performance data.
         ideal_perf_df = DataFrames.expx_perf_df(self.cmdopts,
                                                 self.criteria,
-                                                exp_dirs,
+                                                exp_names,
                                                 self.perf_leaf +
-                                                sierra.core.config.kStatsExtensions['mean'],
+                                                sierra.core.config.kStats['mean'].exts['mean'],
                                                 self.ideal_num)
 
         expx_perf_df = DataFrames.expx_perf_df(self.cmdopts,
                                                self.criteria,
-                                               exp_dirs,
+                                               exp_names,
                                                self.perf_leaf +
-                                               sierra.core.config.kStatsExtensions['mean'],
+                                               sierra.core.config.kStats['mean'].exts['mean'],
                                                self.exp_num)
 
         return self._calc_waveforms(ideal_perf_df[self.perf_csv_col],
                                     expx_perf_df[self.perf_csv_col],
-                                    exp_dirs)
+                                    exp_names)
 
     def _waveforms_from_batch(self,
                               ideal_perf_df: pd.DataFrame,
                               expx_perf_df: pd.DataFrame,
-                              exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
+                              exp_names: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
 
-        return self._calc_waveforms(ideal_perf_df, expx_perf_df, exp_dirs)
+        return self._calc_waveforms(ideal_perf_df, expx_perf_df, exp_names)
 
     def _calc_waveforms(self,
                         ideal_perf_df: pd.DataFrame,
                         expx_perf_df: pd.DataFrame,
-                        exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
+                        exp_names: tp.Optional[tp.List[str]] = None) -> tp.Tuple[np.ndarray, np.ndarray]:
         """Calculates the (ideal performance, experimental performance) comparable
         waveforms for the experiment. Returns NP arrays rather than dataframes,
         because that is what the curve similarity measure calculator needs as
@@ -373,15 +372,15 @@ class ReactivityCS():
         # applied to all simulations.
         ideal_var_df = DataFrames.expx_var_df(self.cmdopts,
                                               self.criteria,
-                                              exp_dirs,
+                                              exp_names,
                                               self.tv_env_leaf +
-                                              sierra.core.config.kStatsExtensions['mean'],
+                                              sierra.core.config.kStats['mean'].exts['mean'],
                                               self.ideal_num)
         expx_var_df = DataFrames.expx_var_df(self.cmdopts,
                                              self.criteria,
-                                             exp_dirs,
+                                             exp_names,
                                              self.tv_env_leaf +
-                                             sierra.core.config.kStatsExtensions['mean'],
+                                             sierra.core.config.kStats['mean'].exts['mean'],
                                              self.exp_num)
 
         ideal_df = pd.DataFrame(index=ideal_var_df.index,
@@ -469,15 +468,15 @@ class DataFrames:
     @staticmethod
     def expx_var_df(cmdopts: types.Cmdopts,
                     criteria,
-                    exp_dirs: tp.Optional[tp.List[str]],
+                    exp_names: tp.Optional[tp.List[str]],
                     tv_environment_csv: str,
                     exp_num: int) -> pd.DataFrame:
-        if exp_dirs is None:
-            dirs = criteria.gen_exp_dirnames(cmdopts)
+        if exp_names is None:
+            dirs = criteria.gen_exp_names(cmdopts)
         else:
-            dirs = exp_dirs
+            dirs = exp_names
 
-        path = os.path.join(cmdopts['batch_stat_root'],
+        path = pathlib.Path(cmdopts['batch_stat_root'],
                             dirs[exp_num],
                             tv_environment_csv)
         try:
@@ -490,15 +489,15 @@ class DataFrames:
     @staticmethod
     def expx_perf_df(cmdopts: types.Cmdopts,
                      criteria,
-                     exp_dirs: tp.Optional[tp.List[str]],
+                     exp_names: tp.Optional[tp.List[str]],
                      intra_perf_csv: str,
                      exp_num: int) -> pd.DataFrame:
-        if exp_dirs is None:
-            dirs = criteria.gen_exp_dirnames(cmdopts)
+        if exp_names is None:
+            dirs = criteria.gen_exp_names(cmdopts)
         else:
-            dirs = exp_dirs
+            dirs = exp_names
 
-        path = os.path.join(cmdopts['batch_stat_root'],
+        path = pathlib.Path(cmdopts['batch_stat_root'],
                             dirs[exp_num],
                             intra_perf_csv)
         try:

@@ -18,7 +18,7 @@ Classes for measuring the robustness of a swarm configuration in various ways.
 """
 
 # Core packages
-import os
+import pathlib
 import logging
 import typing as tp
 
@@ -27,7 +27,7 @@ import pandas as pd
 from sierra.core.graphs.summary_line_graph import SummaryLineGraph
 from sierra.core.graphs.heatmap import Heatmap
 from sierra.core import utils, types, config
-from sierra.core.xml import XMLAttrChangeSet
+from sierra.core.experiment import xml
 
 # Project packages
 import titerra.variables.batch_criteria as bc
@@ -148,7 +148,7 @@ class SteadyStateRobustnessSAAUnivar(BaseSteadyStateRobustnessSAA):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
@@ -177,13 +177,14 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
                   cmdopts: types.Cmdopts,
                   collated_perf: tp.Dict[str, pd.DataFrame]) -> tp.Dict[pd.DataFrame, str]:
         pd_dfs = {}
-        exp_dirs = criteria.gen_exp_dirnames(cmdopts)
+        exp_names = criteria.gen_exp_names(cmdopts)
 
         exp0 = list(collated_perf.keys())[0]
         exp0_perf_df = collated_perf[exp0]
-        exp0_def = XMLAttrChangeSet.unpickle(os.path.join(cmdopts['batch_input_root'],
-                                                          exp_dirs[0],
-                                                          config.kPickleLeaf))
+        exp0_path = pathlib.Path(cmdopts['batch_input_root'],
+                                 exp_names[0],
+                                 config.kPickleLeaf)
+        exp0_def = xml.AttrChangeSet.unpickle(exp0_path)
         T_Sbar0 = PopulationDynamics.calc_untasked_swarm_system_time(exp0_def)
 
         for i in range(0, criteria.n_exp()):
@@ -192,9 +193,10 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
             pd_dfs[expx] = pd.DataFrame(columns=collated_perf[expx].columns,
                                         index=[0])  # Steady state
 
-            expN_def = XMLAttrChangeSet.unpickle(os.path.join(cmdopts['batch_input_root'],
-                                                              exp_dirs[i],
-                                                              config.kPickleLeaf))
+            path = pathlib.Path(cmdopts['batch_input_root'],
+                                exp_names[i],
+                                config.kPickleLeaf)
+            expN_def = xml.AttrChangeSet.unpickle(path)
             for sim in expx_perf_df.columns:
                 T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(
                     expN_def)
@@ -239,7 +241,7 @@ class SteadyStateRobustnessPDUnivar(BaseSteadyStateRobustnessPD):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
@@ -370,9 +372,9 @@ class SteadyStateRobustnessSAABivar(BaseSteadyStateRobustnessSAA):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
@@ -403,7 +405,7 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
         ysize = len(criteria.criteria2.gen_attr_changelist()) + \
             len(criteria.criteria2.gen_tag_addlist())
 
-        exp_dirs = criteria.gen_exp_dirnames(cmdopts)
+        exp_names = criteria.gen_exp_names(cmdopts)
         pd_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -413,28 +415,28 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
                 pd_dfs[expx] = pd.DataFrame(columns=collated_perf[expx].columns,
                                             index=[0])  # Steady state
 
-                expx_pkl_path = os.path.join(cmdopts['batch_input_root'],
-                                             exp_dirs[i * ysize + j],
+                expx_pkl_path = pathlib.Path(cmdopts['batch_input_root'],
+                                             exp_names[i * ysize + j],
                                              config.kPickleLeaf)
-                expx_def = XMLAttrChangeSet.unpickle(expx_pkl_path)
+                expx_def = xml.AttrChangeSet.unpickle(expx_pkl_path)
                 T_SbarN = PopulationDynamics.calc_untasked_swarm_system_time(
                     expx_def)
 
                 if axis == 0:
                     # exp0 in first row with i=0
                     exp0 = list(collated_perf.keys())[j]
-                    exp0_pkl_path = os.path.join(cmdopts['batch_input_root'],
-                                                 exp_dirs[j],
+                    exp0_pkl_path = pathlib.Path(cmdopts['batch_input_root'],
+                                                 exp_names[j],
                                                  config.kPickleLeaf)
                 else:
                     # exp0 in first col with j=0
                     exp0 = list(collated_perf.keys())[i * ysize]
-                    exp0_pkl_path = os.path.join(cmdopts['batch_input_root'],
-                                                 exp_dirs[i * ysize],
+                    exp0_pkl_path = pathlib.Path(cmdopts['batch_input_root'],
+                                                 exp_names[i * ysize],
                                                  config.kPickleLeaf)
 
                 exp0_perf_df = collated_perf[exp0]
-                exp0_def = XMLAttrChangeSet.unpickle(exp0_pkl_path)
+                exp0_def = xml.AttrChangeSet.unpickle(exp0_pkl_path)
                 T_Sbar0 = PopulationDynamics.calc_untasked_swarm_system_time(
                     exp0_def)
 
@@ -476,9 +478,9 @@ class SteadyStateRobustnessPDBivar(BaseSteadyStateRobustnessPD):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
         Heatmap(input_fpath=ipath,
                 output_fpath=opath,

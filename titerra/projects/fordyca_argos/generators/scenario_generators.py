@@ -19,7 +19,7 @@ import typing as tp
 
 # 3rd party packages
 from sierra.core import utils as scutils
-from sierra.core.xml import XMLLuigi
+from sierra.core.experiment import definition
 
 # Project packages
 import titerra.projects.common.generators.argos as tiargos
@@ -201,7 +201,7 @@ class PLGenerator(tiargos.ForagingPLGenerator):
         return exp_def
 
 
-def generate_dynamic_cache(exp_def: XMLLuigi, extent: scutils.ArenaExtent):
+def generate_dynamic_cache(exp_def: definition.XMLExpDef, extent: scutils.ArenaExtent):
     """
     Generate XML changes for dynamic cache usage (depth2 simulations only).
 
@@ -211,7 +211,7 @@ def generate_dynamic_cache(exp_def: XMLLuigi, extent: scutils.ArenaExtent):
     _, adds, chgs = scutils.apply_to_expdef(cache, exp_def)
 
 
-def generate_static_cache(exp_def: XMLLuigi,
+def generate_static_cache(exp_def: definition.XMLExpDef,
                           extent: scutils.ArenaExtent,
                           cmdopts: tp.Dict[str, str]):
     """

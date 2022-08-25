@@ -33,9 +33,9 @@ batched experiments.
 
 
 # Core packages
-import os
 import logging
 import typing as tp
+import pathlib
 
 # 3rd party packages
 import pandas as pd
@@ -256,7 +256,7 @@ class BaseSteadyStatePGInteractive():
 class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
     """Calculates the self-organization of the swarm configuration across a
     univariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using marginal fractional performance losses due to
+    CSV data using marginal fractional performance losses due to
     inter-robot interference (See :class:`BaseSteadyStateFLMarginal`).
 
     Generates a :class:`~sierra.core.graphs.summary_line_graph.SummaryLineGraph`
@@ -340,11 +340,12 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
+                             self.kLeaf + config.kImageExt)
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
-                         output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + config.kImageExt),
+                         output_fpath=opath,
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Self-Organization via Marginal Sub-Linear Performance Losses",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -357,7 +358,7 @@ class SteadyStateFLMarginalUnivar(BaseSteadyStateFLMarginal):
 class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
     """Calculates the self-organization of the swarm configuration across a
     univariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using fractional performance losses due to interative
+    CSV data using fractional performance losses due to interative
     inter-robot interference vs. independent action (See
     :class:`BaseSteadyStateFLInteractive`).
 
@@ -438,11 +439,12 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
+                             self.kLeaf + config.kImageExt)
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
-                         output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + config.kImageExt),
+                         output_fpath=opath,
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Self-Organization via Sub-Linear Performance Losses Through Interaction",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -455,7 +457,7 @@ class SteadyStateFLInteractiveUnivar(BaseSteadyStateFLInteractive):
 class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
     """Calculates the self-organization of the swarm configuration across a
     univariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using superlinear increases in performance between adjacent
+    CSV data using superlinear increases in performance between adjacent
     swarm size (e.g. for two swarms of size :math:`N`, :math:`2N`, a linear 2X
     increase in performance is expected, and more than this indicates emergent
     behavior).
@@ -525,11 +527,12 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
+                             self.kLeaf + config.kImageExt)
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
-                         output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + config.kImageExt),
+                         output_fpath=opath,
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Self-Organization via Marginal Performance Gains",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -542,7 +545,7 @@ class SteadyStatePGMarginalUnivar(BaseSteadyStatePGMarginal):
 class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
     """Calculates the self-organization of the swarm configuration across a
     univariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using superlinear increases in performance between a swarm of
+    CSV data using superlinear increases in performance between a swarm of
     :math:`N` interactive vs. independent robots.  See
     :class:`BaseSteadyStatePGInteractive`.
 
@@ -611,11 +614,12 @@ class SteadyStatePGInteractiveUnivar(BaseSteadyStatePGInteractive):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
+                             self.kLeaf + config.kImageExt)
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
-                         output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + config.kImageExt),
+                         output_fpath=opath,
                          model_root=self.cmdopts['batch_model_root'],
 
                          title="Swarm Self-Organization via Performance Gains Through Interaction",
@@ -670,7 +674,7 @@ class SelfOrgUnivarGenerator:
 class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
     """Calculates the self-organization of the swarm configuration across a
     bivariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using fractional performance losses due to inter-robot
+    CSV data using fractional performance losses due to inter-robot
     interference (See :class:`BaseSteadyStateFLMarginal`).
 
     Generates a :class:`~sierra.core.graphs.heatmap.Heatmap` of self
@@ -780,9 +784,9 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
@@ -798,7 +802,7 @@ class SteadyStateFLMarginalBivar(BaseSteadyStateFLMarginal):
 class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
     """Calculates the self-organization of the swarm configuration across a
     bivariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using fractional performance losses due to interactive
+    CSV data using fractional performance losses due to interactive
     inter-robot interference vs independent action (See
     :class:`BaseSteadyStateFLInteractive`).
 
@@ -895,9 +899,9 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,
@@ -913,7 +917,7 @@ class SteadyStateFLInteractiveBivar(BaseSteadyStateFLInteractive):
 class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
     """Calculates the self-organization of the swarm configuration across a
     bivariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using superlinear increases in performance between adjacent
+    CSV data using superlinear increases in performance between adjacent
     swarm size (e.g. for two swarms of size :math:`N`, :math:`2N`, a 2X increase
     in performance is expected, and more than this indicates emergent behavior).
     See :class:`BaseSteadyStatePGMarginal`).
@@ -1006,12 +1010,13 @@ class SteadyStatePGMarginalBivar(BaseSteadyStatePGMarginal):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        so_opath = os.path.join(
-            self.cmdopts["batch_stat_collate_root"], self.kLeaf)
+        so_opath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                                self.kLeaf + config.kStats['mean'].exts['mean'])
 
-        Heatmap(input_fpath=so_opath + '.csv',
-                output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                          self.kLeaf + config.kImageExt),
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
+                             self.kLeaf + config.kImageExt)
+        Heatmap(input_fpath=so_opath,
+                output_fpath=opath,
                 title="Swarm Self-Organization via Marginal Performance Gains",
                 xlabel=criteria.graph_xlabel(self.cmdopts),
                 ylabel=criteria.graph_ylabel(self.cmdopts),
@@ -1024,7 +1029,7 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
     """
     Calculates the self-organization of the swarm configuration across a
     bivariate batched set of experiments within the same scenario from collated
-    ``.csv`` data using superlinear increases in performance between a swarm of
+    CSV data using superlinear increases in performance between a swarm of
     :math:`N` interacting vs. indpendently acting robots.  See
     :class:`BaseSteadyStatePGInteractive`).
 
@@ -1104,9 +1109,9 @@ class SteadyStatePGInteractiveBivar(BaseSteadyStatePGInteractive):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,

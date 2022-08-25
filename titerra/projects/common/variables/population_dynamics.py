@@ -20,12 +20,12 @@
 
 # Core packages
 import typing as tp
-import os
+import pathlib
 
 # 3rd party packages
 import implements
 import sierra.core.utils
-from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLLuigi
+from sierra.core.experiment import xml
 import sierra.core.config
 import sierra.plugins.platform.argos.variables.exp_setup as ts
 from sierra.core import types
@@ -54,17 +54,17 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
 
     def __init__(self,
                  cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  dynamics_types: tp.List[str],
                  dynamics: tp.List[tp.Set[tp.Tuple[str, float]]]) -> None:
         bc.UnivarBatchCriteria.__init__(
             self, cli_arg, main_config, batch_input_root)
         self.dynamics_types = dynamics_types
         self.dynamics = dynamics
-        self.attr_changes = []  # type: tp.List[XMLAttrChangeSet]
+        self.attr_changes = []  # type: tp.List[xml.AttrChangeSet]
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes for population dynamics.
         """
@@ -73,19 +73,19 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
         # change behavior in statistical equilibrium.
         if not self.attr_changes:  # empty
             for d in self.dynamics:
-                self.attr_changes.append(XMLAttrChangeSet(*{XMLAttrChange(".//temporal_variance/population_dynamics",
-                                                                          t[0],
-                                                                          str('%3.9f' % t[1])) for t in d}))
+                self.attr_changes.append(xml.AttrChangeSet(*{xml.AttrChange(".//temporal_variance/population_dynamics",
+                                                                            t[0],
+                                                                            str('%3.9f' % t[1])) for t in d}))
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> list:
+    def gen_exp_names(self, cmdopts: types.Cmdopts) -> list:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
-        # If exp_dirs is passed, then we have been handed a subset of the total
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+        # If exp_names is passed, then we have been handed a subset of the total
         # # of directories in the batch exp root, and so n_exp() will return
         # more experiments than we actually have. This behavior is needed to
         # correctly extract x/y values for bivariate experiments.
@@ -94,29 +94,28 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
         # criteria works well with box and whisker plots around each data
         # point. This is OK because we also the generation of the range of
         # values that become the xticks, and we KNOW they are linearly spaced.
-        if exp_dirs is None:
-            exp_dirs = self.gen_exp_dirnames(cmdopts)
+        if exp_names is None:
+            exp_names = self.gen_exp_names(cmdopts)
 
-        return [float(i) for i in range(len(exp_dirs))]
+        return [float(i) for i in range(len(exp_names))]
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
 
-        if exp_dirs is None:
-            exp_dirs = self.gen_exp_dirnames(cmdopts)
+        if exp_names is None:
+            exp_names = self.gen_exp_names(cmdopts)
 
         ticks = []
 
-        exp0_def = XMLAttrChangeSet.unpickle(os.path.join(self.batch_input_root,
-                                                          exp_dirs[0],
-                                                          sierra.core.config.kPickleLeaf))
+        exp0_path = self.batch_input_root / \
+            exp_names[0] / sierra.core.config.kPickleLeaf
+        exp0_def = xml.AttrChangeSet.unpickle(exp0_path)
         T_Sbar0 = PopulationDynamics.calc_untasked_swarm_system_time(exp0_def)
 
-        for d in exp_dirs:
-            exp_def = XMLAttrChangeSet.unpickle(os.path.join(self.batch_input_root,
-                                                             d,
-                                                             sierra.core.config.kPickleLeaf))
+        for d in exp_names:
+            path = self.batch_input_root / d / sierra.core.config.kPickleLeaf
+            exp_def = xml.AttrChangeSet.unpickle(path)
 
             # If we had pure death dynamics, the tasked swarm time is 0 in the
             # steady state, so we use lambda_d as the ticks instead, which is
@@ -148,8 +147,8 @@ class PopulationDynamics(bc.UnivarBatchCriteria):
     def is_pure_death_dynamics(self) -> bool:
         return 'D' in self.dynamics_types and 'B' not in self.dynamics_types
 
-    @staticmethod
-    def calc_untasked_swarm_system_time(exp_def: XMLAttrChangeSet) -> float:
+    @ staticmethod
+    def calc_untasked_swarm_system_time(exp_def: xml.AttrChangeSet) -> float:
         params = ts.ExpSetup.extract_time_params(exp_def)
         T = params['T_in_secs'] * params['controller_ticks_per_sec']
         lambda_d, mu_b, lambda_m, mu_r = PopulationDynamics.extract_rate_params(

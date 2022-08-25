@@ -20,14 +20,13 @@ Classes for the block motion batch criteria. See
 
 # Core packages
 import typing as tp
-import os
+import pathlib
 
 # 3rd party packages
 import implements
 import sierra.core.utils
-from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
-from sierra.core import types
-import sierra.core.config
+from sierra.core.experiment import xml
+from sierra.core import types, config
 
 # Project packages
 import titerra.projects.common.variables.dynamics_parser as dp
@@ -54,8 +53,8 @@ class BlockMotionDynamics(bc.UnivarBatchCriteria):
 
     def __init__(self,
                  cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  dynamics_type: str,
                  dynamics: tp.List[tp.Tuple[str, int]]) -> None:
         bc.UnivarBatchCriteria.__init__(
@@ -64,36 +63,35 @@ class BlockMotionDynamics(bc.UnivarBatchCriteria):
         self.dynamics_type = dynamics_type
         self.dynamics = dynamics
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes for population dynamics.
         """
         return self.dynamics
 
-    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> list:
+    def gen_exp_names(self, cmdopts: types.Cmdopts) -> list:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
-        if exp_dirs is None:
-            exp_dirs = self.gen_exp_dirnames(cmdopts)
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+        if exp_names is None:
+            exp_names = self.gen_exp_names(cmdopts)
 
         ticks = []
 
-        for d in exp_dirs:
-            exp_def = XMLAttrChangeSet.unpickle(os.path.join(self.batch_input_root,
-                                                             d,
-                                                             sierra.core.config.kPickleLeaf))
+        for d in exp_names:
+            path = self.batch_input_root / d / config.kPickleLeaf
+            exp_def = xml.AttrChangeSet.unpickle(path)
             ticks.append(BlockMotionDynamics.calc_xtick(exp_def))
 
         return ticks
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
-        return list(map(str, self.graph_xticks(cmdopts, exp_dirs)))
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+        return list(map(str, self.graph_xticks(cmdopts, exp_names)))
 
     def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         labels = {'RW': 'Random Walk Probability'}
@@ -141,23 +139,23 @@ def factory(cli_arg: str,
     """
     attr = BlockMotionDynamicsParser()(cli_arg)
     policy_xml_parents = {
-        'RW': XMLAttrChange('.//arena_map/blocks/motion', 'policy', 'random_walk')
+        'RW': xml.AttrChange('.//arena_map/blocks/motion', 'policy', 'random_walk')
     }
     dynamics_type = attr['dynamics_types'][0]
     policy_xml = policy_xml_parents[dynamics_type]
 
     def gen_dynamics():
         # ideal conditions = no dynamics
-        dynamics = [XMLAttrChangeSet(*{policy_xml,
-                                       XMLAttrChange('.//arena_map/blocks/motion',
-                                                     d[0],
-                                                     "0.0")}) for d in attr['dynamics']]
+        dynamics = [xml.AttrChangeSet(*{policy_xml,
+                                        xml.AttrChange('.//arena_map/blocks/motion',
+                                                       d[0],
+                                                       "0.0")}) for d in attr['dynamics']]
 
         for x in range(0, attr['cardinality'] - 1):
-            expx = [XMLAttrChangeSet(*{policy_xml,
-                                       XMLAttrChange('.//arena_map/blocks/motion',
-                                                     d[0],
-                                                     str("%3.9f" % (d[1] + d[1] * x * float(attr['factor']))))}) for d in attr['dynamics']]
+            expx = [xml.AttrChangeSet(*{policy_xml,
+                                        xml.AttrChange('.//arena_map/blocks/motion',
+                                                       d[0],
+                                                       str("%3.9f" % (d[1] + d[1] * x * float(attr['factor']))))}) for d in attr['dynamics']]
             dynamics.extend(expx)
 
         return dynamics

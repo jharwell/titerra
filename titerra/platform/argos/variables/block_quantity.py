@@ -23,12 +23,12 @@ Classes for the block quantity batch criteria. See
 import typing as tp
 import re
 import math
-import os
+import pathlib
 
 # 3rd party packages
 import implements
 from sierra.core import types, config
-from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
+from sierra.core.experiment import xml
 
 # Project packages
 from titerra.variables import batch_criteria as bc
@@ -51,8 +51,8 @@ class BlockQuantity(bc.UnivarBatchCriteria):
 
     def __init__(self,
                  cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  quantities: tp.List[int],
                  block_type: str) -> None:
         bc.UnivarBatchCriteria.__init__(
@@ -61,9 +61,10 @@ class BlockQuantity(bc.UnivarBatchCriteria):
         self.block_type = block_type
         self.attr_changes = []  # type: tp.List
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
-        """
-        Generate list of sets of changes for block quantities to define a batch experiment.
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
+        """Generate list of sets of changes for block quantities to define a batch
+        experiment.
+
         """
         if not self.attr_changes:
             self.attr_changes = self.gen_attr_changelist_from_list(
@@ -71,24 +72,22 @@ class BlockQuantity(bc.UnivarBatchCriteria):
 
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> list:
+    def gen_exp_names(self, cmdopts: types.Cmdopts) -> list:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
 
-        if exp_dirs is None:
-            exp_dirs = self.gen_exp_dirnames(cmdopts)
+        if exp_names is None:
+            exp_names = self.gen_exp_names(cmdopts)
 
         quantities = []
 
-        for d in exp_dirs:
-            pkl_path = os.path.join(self.batch_input_root,
-                                    d,
-                                    config.kPickleLeaf)
-            exp_def = XMLAttrChangeSet.unpickle(pkl_path)
+        for d in exp_names:
+            pkl_path = self.batch_input_root / d/config.kPickleLeaf
+            exp_def = xml.AttrChangeSet.unpickle(pkl_path)
             for path, attr, value in exp_def:
                 if path == ".//arena_map/blocks/distribution/manifest" and attr == "n_" + self.block_type:
                     quantities.append(float(value))
@@ -96,9 +95,9 @@ class BlockQuantity(bc.UnivarBatchCriteria):
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
 
-        return list(map(str, self.graph_xticks(cmdopts, exp_dirs)))
+        return list(map(str, self.graph_xticks(cmdopts, exp_names)))
 
     def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return "Block Quantity"
@@ -110,10 +109,10 @@ class BlockQuantity(bc.UnivarBatchCriteria):
         return False
 
     @staticmethod
-    def gen_attr_changelist_from_list(quantities: list, block_type: str) -> tp.List[XMLAttrChangeSet]:
-        return [XMLAttrChangeSet(XMLAttrChange(".//arena_map/blocks/distribution/manifest",
-                                               "n_" + block_type,
-                                               str(c))) for c in quantities]
+    def gen_attr_changelist_from_list(quantities: list, block_type: str) -> tp.List[xml.AttrChangeSet]:
+        return [xml.AttrChangeSet(xml.AttrChange(".//arena_map/blocks/distribution/manifest",
+                                                 "n_" + block_type,
+                                                 str(c))) for c in quantities]
 
 
 class Parser():

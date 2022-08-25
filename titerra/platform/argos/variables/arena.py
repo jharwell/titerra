@@ -23,7 +23,7 @@ from sierra.core.utils import ArenaExtent
 from sierra.core.vector import Vector3D
 from sierra.plugins.platform.argos.variables.arena_shape import ArenaShape
 from sierra.core.variables.base_variable import IBaseVariable
-from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet, XMLTagRmList, XMLTagAddList
+from sierra.core.experiment import xml
 
 # Project packages
 from titerra.platform.argos.variables.nest import Nest
@@ -76,24 +76,24 @@ class RectangularArena():
         self.tag_adds = []
         self.tag_rms = []
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes necessary to make to the input file to
         correctly set up the simulation with the specified area size/shape.
         """
         if not self.attr_changes:
-            grid_changes = [XMLAttrChangeSet(
-                XMLAttrChange(".//arena_map/grid2D",
-                              "dims",
-                              "{0}, {1}, 2".format(extent.xsize(),
-                                                   extent.ysize())),
-                XMLAttrChange(".//perception/grid2D", "dims",
-                              "{0}, {1}, 2".format(extent.xsize(),
-                                                   extent.ysize())),
+            grid_changes = [xml.AttrChangeSet(
+                xml.AttrChange(".//arena_map/grid2D",
+                               "dims",
+                               "{0}, {1}, 2".format(extent.xsize(),
+                                                    extent.ysize())),
+                xml.AttrChange(".//perception/grid2D", "dims",
+                               "{0}, {1}, 2".format(extent.xsize(),
+                                                    extent.ysize())),
             )
                 for extent in self.extents]
             shape_changes = self.shapes.gen_attr_changelist()
-            self.attr_changes = [XMLAttrChangeSet() for extent in self.extents]
+            self.attr_changes = [xml.AttrChangeSet() for extent in self.extents]
             for achgs in self.attr_changes:
                 for gchgs in grid_changes:
                     achgs |= gchgs
@@ -102,7 +102,7 @@ class RectangularArena():
 
         return self.attr_changes
 
-    def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
+    def gen_tag_rmlist(self) -> tp.List[xml.TagRmList]:
         if not self.tag_rms:
             for arena in self.nests.keys():
                 rms = self.nests[arena].gen_tag_rmlist()
@@ -111,7 +111,7 @@ class RectangularArena():
 
         return self.tag_rms
 
-    def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
+    def gen_tag_addlist(self) -> tp.List[xml.TagAddList]:
         if not self.tag_adds:
             for arena in self.nests.keys():
                 adds = self.nests[arena].gen_tag_addlist()

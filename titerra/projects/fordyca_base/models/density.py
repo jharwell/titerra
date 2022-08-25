@@ -31,17 +31,17 @@ from titerra.projects.fordyca_base.models.dist_measure import DistanceMeasure2D
 
 class BaseDensity():
     def at_point(self, x: tp.Optional[float] = None, y: tp.Optional[float] = None) -> float:
-        """
-        Get the value of the density at an x,y point. Either x or y can be None (but not both). If x
-        is None, then the value of :meth:`at_point()` should return the project of the densty
-        function on the x axis, and vice versa.
+        """Get the value of the density at an x,y point. Either x or y can be None (but
+        not both). If x is None, then the value of :meth:`at_point()` should
+        return the project of the densty function on the x axis, and vice versa.
+
         """
         raise NotImplementedError
 
     def for_region(self, ll: Vector3D, ur: Vector3D):
-        r"""
-        Calculate the cumulative probability density within a region defined by the lower left and
-        upper right corners of the 2D region using :method:`at_point`.
+        r"""Calculate the cumulative probability density within a region defined by the
+        lower left and upper right corners of the 2D region using
+        :method:`at_point`.
 
         """
         res, _ = si.nquad(self.at_point, [[ll.x, ur.x], [
@@ -49,9 +49,10 @@ class BaseDensity():
         return res
 
     def evx_for_region(self, ll: Vector3D, ur: Vector3D):
-        """
-        Calculate the expected value of the X coordinate of the average density location within the
-        region defined by the lower left and upper right corners of the 2D region.
+        """Calculate the expected value of the X coordinate of the average density
+        location within the region defined by the lower left and upper right
+        corners of the 2D region.
+
         """
         res, _ = si.nquad(lambda x: self._marginal_pdfx(ll=ll, ur=ur) * x,
                           [[ll.x, ur.x]],
@@ -60,9 +61,10 @@ class BaseDensity():
         return res
 
     def evy_for_region(self, ll: Vector3D, ur: Vector3D):
-        """
-        Calculate the expected value of the Y coordinate of the average density location within the
-        region defined by the lower left and upper right corners of the 2D region.
+        """Calculate the expected value of the Y coordinate of the average density
+        location within the region defined by the lower left and upper right
+        corners of the 2D region.
+
         """
         res, _ = si.nquad(lambda y: self._marginal_pdfy(ll=ll, ur=ur) * y,
                           [[ll.y, ur.y]],
@@ -105,19 +107,20 @@ class ClusterBlockDensity(BaseDensity):
 
         area = self.cluster.extent.area()
 
-        # Random block distributions have the nest in the middle of the cluster, and blocks are not
-        # distributed within the nest's extent, so we adjust accordingly.
+        # Random block distributions have the nest in the middle of the cluster,
+        # and blocks are not distributed within the nest's extent, so we adjust
+        # accordingly.
         if cluster.extent.contains(nest.extent.center):
             area -= nest.extent.area()
 
-        # Block density is the total 2D area covered by blocks, as a fraction of the total area. We
-        # can't just use # blocks, as the density then can be < 1 or > 1, depending. This way, it is
-        # ALWAYS <= 1.
+        # Block density is the total 2D area covered by blocks, as a fraction of
+        # the total area. We can't just use # blocks, as the density then can be
+        # < 1 or > 1, depending. This way, it is ALWAYS <= 1.
         self.rho_b = self.cluster.avg_blocks * self.kCUBE_BLOCK_DIM ** 2 / area
 
-        # Since we assume a uniform distribution, normalizing to get a true density function is
-        # easy to do analytically. rho_b can be 0 in PL if the cluster never had any blocks
-        # distributed to it during simulation.
+        # Since we assume a uniform distribution, normalizing to get a true
+        # density function is easy to do analytically. rho_b can be 0 in PL if
+        # the cluster never had any blocks distributed to it during simulation.
         self.norm_factor = 1.0 / (self.rho_b * area) if self.rho_b > 0.0 else 0.0
 
     def at_point(self, x: tp.Optional[float] = None, y: tp.Optional[float] = None):
@@ -158,26 +161,29 @@ class BlockAcqDensity(BaseDensity):
         self.rho = -math.log(math.pow(cd.rho_b, cd.rho_b / 2.0)
                              ) if cd.rho_b > 0.0 else None
 
-        # We normalize our density function within the cluster we are attached to, NOT across all
-        # clusters. When calculating expected value we need to integrate across all possible values
-        # of X/Y, and if we have normalized our density function across multiple clusters, then
-        # calculating the expected acquisition location for a single cluster will be incorrect.
+        # We normalize our density function within the cluster we are attached
+        # to, NOT across all clusters. When calculating expected value we need
+        # to integrate across all possible values of X/Y, and if we have
+        # normalized our density function across multiple clusters, then
+        # calculating the expected acquisition location for a single cluster
+        # will be incorrect.
         self.norm_factor = 1.0
         total = self.for_region(ll=cluster.extent.ll, ur=cluster.extent.ur)
 
-        # Can be 0 for PL if the cluster is small and no blocks were ever distributed to it during
-        # simulation.
+        # Can be 0 for PL if the cluster is small and no blocks were ever
+        # distributed to it during simulation.
         self.norm_factor = 1.0 / total if total > 0 else 0.0
 
     def at_point(self, x: tp.Optional[float] = None, y: tp.Optional[float] = None):
-        r"""
-        Calculate the block acquisition probability density at an (X,Y) point within the arena.
+        r"""Calculate the block acquisition probability density at an (X,Y) point within
+        the arena.
 
         .. math::
            \frac{1}{{\sqrt{z + -\log{\rho_b ^ {\rho_b / 2}}}}
 
-        where :math:`z` is the distance of the (X,Y) point to the center of the nest, and
-        :math:`\rho_b` is the block density at (X,Y).
+        where :math:`z` is the distance of the (X,Y) point to the center of the
+        nest, and :math:`\rho_b` is the block density at (X,Y).
+
         """
 
         if x is None and y is not None:  # Calculating marginal PDF of X
@@ -188,7 +194,8 @@ class BlockAcqDensity(BaseDensity):
             assert x is not None and y is not None
             pt = Vector3D(x, y)
 
-        # No acquisitions possible if the cluster never had any blocks in it during simulation.
+        # No acquisitions possible if the cluster never had any blocks in it
+        # during simulation.
         if self.rho is None:
             return 0.0
 

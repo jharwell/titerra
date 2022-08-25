@@ -15,12 +15,13 @@
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 """
 Classes for the SAA noise batch criteria. See
-:ref:`ln-platform-argos-bc-saa-noise` for usage documentation. 
+:ref:`ln-platform-argos-bc-saa-noise` for usage documentation.
 """
 
 # Core packages
 import re
 import typing as tp
+import pathlib
 
 # 3rd party packages
 import implements
@@ -29,7 +30,7 @@ import numpy as np
 # Project packages
 import sierra.core.variables.batch_criteria as bc
 from sierra.plugins.platform.argos.variables.population_size import PopulationSize
-from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.experiment import xml
 from sierra.core import types
 
 
@@ -59,8 +60,8 @@ class SAANoise(bc.UnivarBatchCriteria):
 
     def __init__(self,
                  cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  variances: list,
                  population: int,
                  noise_type: str) -> None:
@@ -70,17 +71,17 @@ class SAANoise(bc.UnivarBatchCriteria):
         self.variances = variances
         self.population = population
         self.noise_type = noise_type
-        self.attr_changes = []  # type: tp.List[XMLAttrChangeSet]
+        self.attr_changes = []  # type: tp.List[xml.AttrChangeSet]
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """Generate a list of sets of changes necessary to make to the input file to
         correctly set up the simulation with the specified noise ranges.
 
         """
         if not self.attr_changes:
-            self.attr_changes = [XMLAttrChangeSet(*{XMLAttrChange(v2[0],
-                                                                  v2[1],
-                                                                  v2[2]) for v2 in v1}) for v1 in self.variances]
+            self.attr_changes = [xml.AttrChangeSet(*{xml.AttrChange(v2[0],
+                                                                    v2[1],
+                                                                    v2[2]) for v2 in v1}) for v1 in self.variances]
 
             # Swarm size is optional. It can be (1) controlled via this
             # variable, (2) controlled by another variable in a bivariate batch
@@ -98,7 +99,7 @@ class SAANoise(bc.UnivarBatchCriteria):
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
         xticks_range = []
 
         if self._gaussian_sources():
@@ -109,7 +110,7 @@ class SAANoise(bc.UnivarBatchCriteria):
         elif self._uniform_sources():
             xticks_range = self.main_config['sierra']['perf']['robustness']['uniform_ticks_range']
 
-        # If exp_dirs is passed, then we have been handed a subset of the total
+        # If exp_names is passed, then we have been handed a subset of the total
         # # of directories in the batch exp root, and so n_exp() will return
         # more experiments than we actually have. This behavior is needed to
         # correctly extract x/y values for bivariate experiments.
@@ -117,17 +118,17 @@ class SAANoise(bc.UnivarBatchCriteria):
         # We use range() instead of the actual SAA noise values so that this
         # batch criteria works well with box and whisker plots around each data
         # point.
-        if exp_dirs is not None:
-            return [float(i) for i in range(len(exp_dirs))]
+        if exp_names is not None:
+            return [float(i) for i in range(len(exp_names))]
         else:
             return [float(i) for i in range(len(self.variances))]
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
 
         if self._uniform_sources():
-            xticks = self.graph_xticks(cmdopts, exp_dirs)
+            xticks = self.graph_xticks(cmdopts, exp_names)
             return ["U(-{0},{0})".format(round(t, 3)) for t in xticks]
         elif self._gaussian_sources():
             mean_xticks = []
@@ -136,13 +137,13 @@ class SAANoise(bc.UnivarBatchCriteria):
             xticks_mean_range = self.main_config['sierra']['perf']['robustness']['gaussian_ticks_mean_range']
             xticks_stddev_range = self.main_config['sierra']['perf']['robustness']['gaussian_ticks_stddev_range']
 
-            if exp_dirs is not None:
+            if exp_names is not None:
                 mean_xticks = np.linspace(xticks_mean_range[0],
                                           xticks_mean_range[1],
-                                          num=len(exp_dirs))
+                                          num=len(exp_names))
                 stddev_xticks = np.linspace(xticks_stddev_range[0],
                                             xticks_stddev_range[1],
-                                            num=len(exp_dirs))
+                                            num=len(exp_names))
 
             else:
                 mean_xticks = np.linspace(xticks_mean_range[0],
@@ -170,7 +171,7 @@ class SAANoise(bc.UnivarBatchCriteria):
         else:
             return 'Noise Distribution'
 
-    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> tp.List[str]:
+    def gen_exp_names(self, cmdopts: types.Cmdopts) -> tp.List[str]:
         return ['exp' + str(x) for x in range(0, len(self.gen_attr_changelist()))]
 
     def pm_query(self, pm: str) -> bool:

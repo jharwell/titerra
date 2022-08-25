@@ -21,10 +21,10 @@ Models of the steady state collective foraging behavior of a swarm of
 """
 
 # Core packages
-import os
 import typing as tp
 import copy
 from functools import reduce
+import pathlib
 
 # 3rd party packages
 import implements
@@ -32,7 +32,7 @@ import pandas as pd
 from sierra.core import types, config, utils, storage
 import sierra.core.models.interface
 from sierra.core.experiment.spec import ExperimentSpec
-from sierra.core.xml import XMLAttrChangeSet
+from sierra.core.experiment import xml
 import sierra.plugins.platform.argos.variables.exp_setup as ts
 
 
@@ -75,7 +75,10 @@ class IntraExp_ODE_1Robot():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
+    def run_for_exp(self,
+                    criteria: bc.IConcreteBatchCriteria,
+                    cmdopts: types.Cmdopts,
+                    exp_num: int) -> bool:
         return criteria.populations(cmdopts)[i] == 1
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -97,7 +100,9 @@ class IntraExp_ODE_1Robot():
         model_params = self._ode_params_calc(criteria, exp_num, cmdopts)
 
         nest = rep.Nest(cmdopts, criteria, exp_num)
-        clusters = rep.BlockClusterSet(cmdopts, nest, cmdopts['exp0_stat_root'])
+        clusters_fpath = pathlib.Path(cmdopts['exp0_stat_root'],
+                                      'block-clusters' + config.kStats['mean'].exts['mean'])
+        clusters = rep.BlockClusterSet(cmdopts, nest, clusters_fpath)
         n_blocks = reduce(lambda accum, cluster: accum +
                           cluster.avg_blocks, clusters, 0)
         z0 = {
@@ -123,12 +128,15 @@ class IntraExp_ODE_1Robot():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
-                                                                            'fsm-interference-counts.csv'))
+        reader = storage.DataFrameReader('storage.csv')
+        ipath = pathlib.Path(cmdopts['exp0_stat_root'],
+                             'fsm-interference-counts' +
+                             config.kStats['mean'].exts['mean'])
+        fsm_counts_df = reader(ipath)
 
         # T,n_datapoints are directly from simulation inputs
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
-        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
+        exp_def = xml.AttrChangeSet.unpickle(spec.exp_def_fpath)
         time_params = ts.ExpSetup.extract_time_params(exp_def)
         T = time_params['T_in_secs'] * time_params['n_ticks_per_sec']
 
@@ -137,20 +145,19 @@ class IntraExp_ODE_1Robot():
         # This is OK to read from experimental data, per the paper.
         tau_av1 = fsm_counts_df['int_avg_interference_duration'].iloc[-1]
 
-        # tau_h, alpha_b are computed directly from simulation inputs/configuration, so we can run()
-        # them here.
-        tau_h1 = IntraExp_HomingTime_1Robot(self.main_config, self.config).run(criteria,
-                                                                               exp_num,
-                                                                               cmdopts)[0]
+        # tau_h, alpha_b are computed directly from simulation
+        # inputs/configuration, so we can run() them here.
+        homing1 = IntraExp_HomingTime_1Robot(self.main_config, self.config)
+        tau_h1 = homing1.run(criteria, exp_num, cmdopts)[0]
 
-        alpha_b1 = IntraExp_BlockAcqRate_NRobots(self.main_config, self.config).run(criteria,
-                                                                                    exp_num,
-                                                                                    cmdopts)[0]
+        block_acq1 = IntraExp_BlockAcqRate_NRobots(self.main_config,
+                                                   self.config)
+        alpha_b1 = block_acq1.run(criteria, exp_num, cmdopts)[0]
 
         # FIXME: This currently reads alpha_ca1 from experimental data
-        alpha_ca1 = IntraExp_WallInterferenceRate_1Robot(self.main_config, self.config).run(criteria,
-                                                                                            exp_num,
-                                                                                            cmdopts)[0]
+        wall_rate = IntraExp_WallInterferenceRate_1Robot(self.main_config,
+                                                         self.config)
+        alpha_ca1 = wall_rate.run(criteria, exp_num, cmdopts)[0]
 
         params = {
             'N': 1,
@@ -184,7 +191,10 @@ class IntraExp_ODE_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_exp(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts, i: int) -> bool:
+    def run_for_exp(self,
+                    criteria: bc.IConcreteBatchCriteria,
+                    cmdopts: types.Cmdopts,
+                    exp_num: int) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -214,7 +224,11 @@ class IntraExp_ODE_NRobots():
         model_params.update(self._ode_params_calc(criteria, exp_num, cmdopts))
 
         nest = rep.Nest(cmdopts, criteria, exp_num)
-        clusters = rep.BlockClusterSet(cmdopts, nest, cmdopts['exp_stat_root'])
+        clusters_path = pathlib.Path(cmdopts['exp_stat_root'],
+                                     'block-clusters' + config.kStats['mean'].exts['mean'])
+        clusters = rep.BlockClusterSet(cmdopts,
+                                       nest,
+                                       clusters_path)
         n_blocks = reduce(lambda accum, cluster: accum +
                           cluster.avg_blocks, clusters, 0)
         z0 = {
@@ -240,33 +254,36 @@ class IntraExp_ODE_NRobots():
                          criteria: bc.IConcreteBatchCriteria,
                          exp_num: int,
                          cmdopts: types.Cmdopts) -> tp.Dict[str, float]:
-        fsm_counts_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                                            'fsm-interference-counts.csv'))
+        reader = storage.DataFrameReader('storage.csv')
+        exp0_stats = pathlib.Path(cmdopts['exp0_stat_root'])
+        expx_stats = pathlib.Path(cmdopts['exp_stat_root'])
+
+        fsm_counts_df = reader(exp0_stats / ('fsm-interference-counts' +
+                                             config.kStats['mean'].exts['mean']))
+        n_datapoints = len(fsm_counts_df.index)
 
         # N,T,n_datapoints are directly from simulation inputs
         N = criteria.populations(cmdopts)[exp_num]
 
         spec = ExperimentSpec(criteria, exp_num, cmdopts)
-        exp_def = XMLAttrChangeSet.unpickle(spec.exp_def_fpath)
+        exp_def = xml.AttrChangeSet.unpickle(spec.exp_def_fpath)
         time_params = ts.ExpSetup.extract_time_params(exp_def)
         T = time_params['T_in_secs'] * time_params['n_ticks_per_sec']
-        n_datapoints = len(fsm_counts_df.index)
 
         # This is OK to read from experimental data, per the paper.
         tau_avN = fsm_counts_df['int_avg_interference_duration'].iloc[-1]
 
         # tau_h, alpha_b are computed directly from simulation
         # inputs/configuration, so we can run() them here.
-        tau_hN = IntraExp_HomingTime_NRobots(self.main_config, self.config).run(criteria,
-                                                                                exp_num,
-                                                                                cmdopts)[0]
+        homingN = IntraExp_HomingTime_NRobots(self.main_config, self.config)
+        tau_hN = homingN.run(criteria, exp_num, cmdopts)[0]
 
-        # FIXME: N_av1 COULD be computed a priori, but I don't have time to do it right now, so I
-        # just read it from simulation results.
-        fsm_counts1_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp0_stat_root'],
-                                                                             'fsm-interference-counts.csv'))
-        fsm_countsN_df = storage.DataFrameReader('storage.csv')(os.path.join(cmdopts['exp_stat_root'],
-                                                                             'fsm-interference-counts.csv'))
+        # FIXME: N_av1 COULD be computed a priori, but I don't have time to do
+        # it right now, so I just read it from simulation results.
+        fsm_counts1_df = reader(exp0_stats / ('fsm-interference-counts' +
+                                              config.kStats['mean'].exts['mean']))
+        fsm_countsN_df = reader(expx_stats / ('fsm-interference-counts' +
+                                              config.kStats['mean'].exts['mean']))
 
         N_av1 = fsm_counts1_df['int_avg_exp_interference'].iloc[-1]
         N_avN = fsm_countsN_df['cum_avg_exp_interference'].iloc[-1]
@@ -322,7 +339,9 @@ class InterExp_ODE_NRobots():
         self.main_config = main_config
         self.config = config
 
-    def run_for_batch(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> bool:
+    def run_for_batch(self,
+                      criteria: bc.IConcreteBatchCriteria,
+                      cmdopts: types.Cmdopts) -> bool:
         return True
 
     def target_csv_stems(self) -> tp.List[str]:
@@ -338,12 +357,14 @@ class InterExp_ODE_NRobots():
     def __repr__(self) -> str:
         return self.__class__.__name__
 
-    def run(self, criteria: bc.IConcreteBatchCriteria, cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
+    def run(self,
+            criteria: bc.IConcreteBatchCriteria,
+            cmdopts: types.Cmdopts) -> tp.List[pd.DataFrame]:
 
         # We always run the models for all experiments, regardless of
         # --exp-range, because we depend on the experiment at the 0-th position
         # being exp0.
-        dirs = criteria.gen_exp_dirnames(cmdopts)
+        dirs = criteria.gen_exp_names(cmdopts)
 
         res_df_avoiding = pd.DataFrame(columns=dirs, index=[0])
         res_df_searching = pd.DataFrame(columns=dirs, index=[0])
@@ -351,24 +372,23 @@ class InterExp_ODE_NRobots():
 
         # attempting to get one model datapoint from batch to be representative
         # of ODE solution
+        batch_input_root = pathlib.Path(cmdopts['batch_input_root'])
+        batch_output_root = pathlib.Path(cmdopts['batch_output_root'])
+        batch_model_root = pathlib.Path(cmdopts['batch_model_root'])
+        batch_graph_root = pathlib.Path(cmdopts['batch_graph_root'])
+        batch_stat_root = pathlib.Path(cmdopts['batch_stat_root'])
+
         for i, exp in enumerate(dirs):
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
-            cmdopts2["exp_input_root"] = os.path.join(
-                cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(
-                cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(
-                cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(
-                cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(
-                cmdopts['batch_model_root'], exp)
+            cmdopts2["exp_input_root"] = str(batch_input_root / exp)
+            cmdopts2["exp_output_root"] = str(batch_output_root / exp)
+            cmdopts2["exp_graph_root"] = str(batch_graph_root / exp)
+            cmdopts2["exp_stat_root"] = str(batch_stat_root / exp)
+            cmdopts2["exp_model_root"] = str(batch_model_root / exp)
 
-            cmdopts2["exp0_output_root"] = os.path.join(
-                cmdopts["batch_output_root"], dirs[0])
-            cmdopts2["exp0_stat_root"] = os.path.join(
-                cmdopts["batch_stat_root"], dirs[0])
+            cmdopts2["exp0_output_root"] = str(batch_output_root / dirs[0])
+            cmdopts2["exp0_stat_root"] = str(batch_stat_root / dirs[0])
 
             utils.dir_create_checked(cmdopts2['exp_model_root'],
                                      exist_ok=True)

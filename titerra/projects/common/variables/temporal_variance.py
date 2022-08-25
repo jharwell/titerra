@@ -22,11 +22,12 @@ documentation.
 import math
 import typing as tp
 import logging
+import pathlib
 
 # 3rd party packages
 import implements
 from sierra.plugins.platform.argos.variables.population_size import PopulationSize
-from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.experiment import xml
 from sierra.core import types
 
 # Project packages
@@ -64,8 +65,8 @@ class TemporalVariance(bc.UnivarBatchCriteria):
 
     def __init__(self,
                  cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  variance_type: str,
                  variances: tp.List[tp.Tuple[str,
                                              str,
@@ -80,29 +81,30 @@ class TemporalVariance(bc.UnivarBatchCriteria):
         self.variance_type = variance_type
         self.variances = variances
         self.population = population
-        self.attr_changes = []  # type: tp.List[XMLAttrChangeSet]
+        self.attr_changes = []  # type: tp.List[xml.AttrChangeSet]
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate a list of sets of changes necessary to make to the input file to correctly set up
         the simulation with the specified temporal variances.
         """
         if not self.attr_changes:
-            self.attr_changes = [XMLAttrChangeSet(XMLAttrChange("{0}/waveform".format(v[0]),
-                                                                "type",
-                                                                str(v[1])),
-                                                  XMLAttrChange("{0}/waveform".format(v[0]),
-                                                                "frequency",
-                                                                str(v[2])),
-                                                  XMLAttrChange("{0}/waveform".format(v[0]),
-                                                                "amplitude",
-                                                                str(v[3])),
-                                                  XMLAttrChange("{0}/waveform".format(v[0]),
-                                                                "offset",
-                                                                str(v[4])),
-                                                  XMLAttrChange("{0}/waveform".format(v[0]),
-                                                                "phase",
-                                                                str(v[5]))) for v in self.variances]
+            self.attr_changes = [
+                xml.AttrChangeSet(xml.AttrChange("{0}/waveform".format(v[0]),
+                                                 "type",
+                                                 str(v[1])),
+                                  xml.AttrChange("{0}/waveform".format(v[0]),
+                                                 "frequency",
+                                                 str(v[2])),
+                                  xml.AttrChange("{0}/waveform".format(v[0]),
+                                                 "amplitude",
+                                                 str(v[3])),
+                                  xml.AttrChange("{0}/waveform".format(v[0]),
+                                                 "offset",
+                                                 str(v[4])),
+                                  xml.AttrChange("{0}/waveform".format(v[0]),
+                                                 "phase",
+                                                 str(v[5]))) for v in self.variances]
 
             # Swarm size is optional. It can be (1) controlled via this
             # variable, (2) controlled by another variable in a bivariate batch
@@ -119,8 +121,8 @@ class TemporalVariance(bc.UnivarBatchCriteria):
         return self.attr_changes
 
     def calc_reactivity_scaling(self, ideal_var: float, expx_var: float) -> float:
-        # For motion throttling while robots carry blocks, the variances are always percents between
-        # 0 and 1.
+        # For motion throttling while robots carry blocks, the variances are
+        # always percents between 0 and 1.
         if self.variance_type in ['BC', 'M']:
             if expx_var > ideal_var:
                 return 1.0 - abs(expx_var - ideal_var)
@@ -134,29 +136,29 @@ class TemporalVariance(bc.UnivarBatchCriteria):
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
 
-        # If exp_dirs is passed, then we have been handed a subset of the total
+        # If exp_names is passed, then we have been handed a subset of the total
         # # of directories in the batch exp root, and so n_exp() will return
         # more experiments than we actually have. This behavior is needed to
         # correct extract x/y values for bivar experiments.
-        if exp_dirs is None:
-            exp_dirs = self.gen_exp_dirnames(cmdopts)
+        if exp_names is None:
+            exp_names = self.gen_exp_names(cmdopts)
 
-        m = len(exp_dirs)
+        m = len(exp_names)
 
-        return [round(vcs.EnvironmentalCS(self.main_config, cmdopts, x)(self, exp_dirs), 4)
+        return [round(vcs.EnvironmentalCS(self.main_config, cmdopts, x)(self, exp_names), 4)
                 for x in range(0, m)]
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
-        return list(map(str, self.graph_xticks(cmdopts, exp_dirs)))
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+        return list(map(str, self.graph_xticks(cmdopts, exp_names)))
 
     def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:
         return vcs.method_xlabel(cmdopts["envc_cs_method"])
 
-    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> tp.List[str]:
+    def gen_exp_names(self, cmdopts: types.Cmdopts) -> tp.List[str]:
         return ['exp' + str(x) for x in range(0, len(self.gen_attr_changelist()))]
 
     def pm_query(self, pm: str) -> bool:

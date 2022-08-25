@@ -19,7 +19,7 @@ Measures for swarm flexibility in univariate and bivariate batched experiments.
 """
 
 # Core packages
-import os
+import pathlib
 import logging
 import typing as tp
 
@@ -107,7 +107,7 @@ class SteadyStateReactivityUnivar(BaseSteadyStateReactivity):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
@@ -181,7 +181,7 @@ class SteadyStateAdaptabilityUnivar(BaseSteadyStateAdaptability):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
@@ -248,7 +248,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
         ysize = len(criteria.criteria2.gen_attr_changelist()) + \
             len(criteria.criteria2.gen_tag_addlist())
 
-        exp_dirs = criteria.gen_exp_dirnames(cmdopts)
+        exp_names = criteria.gen_exp_names(cmdopts)
         rt_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -269,7 +269,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
                                                       ideal_num=j,
                                                       exp_num=i).from_batch(ideal_perf_df=ideal_perf_df[sim],
                                                                             expx_perf_df=expx_perf_df[sim],
-                                                                            exp_dirs=exp_dirs)
+                                                                            exp_names=exp_names)
                     else:
                         # exp0 in first col with j=0
                         exp_ideal = list(collated_perf.keys())[i * ysize]
@@ -282,7 +282,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
                                                           ideal_num=i * ysize,
                                                           exp_num=i * ysize + j).from_batch(ideal_perf_df=ideal_perf_df[sim],
                                                                                             expx_perf_df=expx_perf_df[sim],
-                                                                                            exp_dirs=exp_dirs)
+                                                                                            exp_names=exp_names)
                         else:
                             reactivity = vcs.ReactivityCS(main_config,
                                                           cmdopts,
@@ -290,7 +290,7 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
                                                           ideal_num=i * ysize,
                                                           exp_num=i * ysize + j).from_batch(ideal_perf_df=ideal_perf_df[sim],
                                                                                             expx_perf_df=expx_perf_df[sim],
-                                                                                            exp_dirs=exp_dirs)
+                                                                                            exp_names=exp_names)
                     rt_dfs[expx].loc[0, sim] = reactivity
 
         return rt_dfs
@@ -329,9 +329,9 @@ class SteadyStateReactivityBivar(BaseSteadyStateReactivity):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         axis = utils.get_primary_axis(
@@ -366,7 +366,7 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
         ysize = len(criteria.criteria2.gen_attr_changelist()) + \
             len(criteria.criteria2.gen_tag_addlist())
 
-        exp_dirs = criteria.gen_exp_dirnames(cmdopts)
+        exp_names = criteria.gen_exp_names(cmdopts)
         ad_dfs = {}
 
         for i in range(axis == 0, xsize):
@@ -386,7 +386,7 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
                                                           criteria).from_batch(ideal_num=j,
                                                                                ideal_perf_df=ideal_perf_df[sim],
                                                                                expx_perf_df=expx_perf_df[sim],
-                                                                               exp_dirs=exp_dirs)
+                                                                               exp_names=exp_names)
                     else:
                         # exp0 in first col with j=0
                         exp_ideal = list(collated_perf.keys())[i * ysize]
@@ -397,7 +397,7 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
                                                           criteria).from_batch(ideal_num=i * ysize,
                                                                                ideal_perf_df=ideal_perf_df[sim],
                                                                                expx_perf_df=expx_perf_df[sim],
-                                                                               exp_dirs=exp_dirs)
+                                                                               exp_names=exp_names)
                     ad_dfs[expx].loc[0, sim] = adaptability
         return ad_dfs
 
@@ -435,9 +435,9 @@ class SteadyStateAdaptabilityBivar(BaseSteadyStateAdaptability):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + config.kImageExt)
 
         Heatmap(input_fpath=ipath,

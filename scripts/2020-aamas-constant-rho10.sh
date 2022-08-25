@@ -85,7 +85,7 @@ SIERRA_BASE_CMD="sierra-cli \
                  --template-input-file=$TITERRA_ROOT/templates/2020-aamas.argos\
                  --n-runs=$NRUNS \
                  --exp-graphs=inter\
-                 --project-no-yaml-LN\
+                 --project-no-LN\
                  --platform=platform.argos \
                  --project=fordyca_argos\
                  --dist-stats=bw\
@@ -151,7 +151,7 @@ if [ "$TASK" == "comp" ]; then
                   --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT\
                   --plot-primary-axis=1\
-                  --comparison-type=LNraw"
+                  --comparison-type=HMraw"
 
     for s in "${SCENARIOS[@]}"
     do

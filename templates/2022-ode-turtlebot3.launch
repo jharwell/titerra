@@ -36,8 +36,7 @@
         <nest dims="1.0, 4.0" center="2, 3" />
         <strategy>
           <nest>
-            <acq strategy="wander"
-                 duration="10"/>
+            <acq strategy="random_thresh"/>
             <exit strategy="wander"/>
           </nest>
           <blocks>

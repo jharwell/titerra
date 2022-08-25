@@ -23,12 +23,13 @@ for usage documentation.
 # Core packages
 import logging  # type: ignore
 import typing as tp
+import pathlib
 
 # 3rd party packages
 import networkx as nx
 import implements
 from sierra.core.vector import Vector3D
-from sierra.core.xml import XMLTagAddList, XMLTagAdd
+from sierra.core.experiment import xml
 from sierra.core import types
 
 # Project packages
@@ -66,7 +67,7 @@ class BaseConstructTarget():
                  spec: types.CLIArgSpec,
                  target_id: int,
                  paradigm: str,
-                 graphml_path: str):
+                 graphml_path: pathlib.Path):
         self.spec = spec
         self.paradigm = paradigm
 
@@ -81,7 +82,7 @@ class BaseConstructTarget():
         self.logger = logging.getLogger(__name__)
         self.logger.info("BB=%s", self.extent)
 
-    def gen_xml(self, uuid: str) -> XMLTagAddList:
+    def gen_xml(self, uuid: str) -> xml.TagAddList:
         """
         Generate XML tags for the construction target. This is common to all
         targets.
@@ -97,16 +98,16 @@ class BaseConstructTarget():
             'orientation': self.spec['orientation'],
             'graphml': self.graphml_path
         }
-        return XMLTagAddList(XMLTagAdd('.//loop_functions/construct_targets',
-                                       uuid,
-                                       attrs,
-                                       False))
+        return xml.TagAddList(xml.TagAdd('.//loop_functions/construct_targets',
+                                         uuid,
+                                         attrs,
+                                         False))
 
-    def write_graphml(self, graph: nx.Graph, path: str) -> None:
+    def write_graphml(self, graph: nx.Graph, path: pathlib.Path) -> None:
         """
         Writes generated GraphML to the filesystem.
         """
-        self.logger.info("Write graph to %s", path)
+        self.logger.info("Write graph to %s", str(path))
         nx.write_graphml(graph, path)
 
     def coord_within_bb(self, c: Vector3D) -> bool:
@@ -422,7 +423,7 @@ class Beam1Prism(BaseConstructTarget):
                  spec: types.CLIArgSpec,
                  target_id: int,
                  paradigm: str,
-                 graphml_path: str) -> None:
+                 graphml_path: pathlib.Path) -> None:
         super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
@@ -463,7 +464,7 @@ class Beam2Prism(BaseConstructTarget):
                  spec: types.CLIArgSpec,
                  target_id: int,
                  paradigm: str,
-                 graphml_path: str) -> None:
+                 graphml_path: pathlib.Path) -> None:
         super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
@@ -502,7 +503,7 @@ class Beam3Prism(BaseConstructTarget):
                  spec: types.CLIArgSpec,
                  target_id: int,
                  paradigm: str,
-                 graphml_path: str) -> None:
+                 graphml_path: pathlib.Path) -> None:
         super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
@@ -542,7 +543,7 @@ class MixedBeamPrism(BaseConstructTarget):
                  spec: types.CLIArgSpec,
                  target_id: int,
                  paradigm: str,
-                 graphml_path: str) -> None:
+                 graphml_path: pathlib.Path) -> None:
         super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
@@ -564,7 +565,7 @@ class Beam1Pyramid(BaseConstructTarget):
                  spec: types.CLIArgSpec,
                  target_id: int,
                  paradigm: str,
-                 graphml_path: str) -> None:
+                 graphml_path: pathlib.Path) -> None:
         super().__init__(spec, target_id, paradigm, graphml_path)
 
     def gen_graph(self) -> nx.Graph:
@@ -612,7 +613,7 @@ class Ramp(BaseConstructTarget):
                  spec: types.CLIArgSpec,
                  target_id: int,
                  paradigm: str,
-                 graphml_path: str) -> None:
+                 graphml_path: pathlib.Path) -> None:
         super().__init__(spec, target_id, paradigm, graphml_path)
         self.tag_adds = []
         self._structure_sanity_checks()

@@ -21,7 +21,6 @@ Classes for generating graphs across experiments in a batch.
 
 # Core packages
 import copy
-import typing as tp
 
 # 3rd party packages
 from sierra.core.pipeline import stage4

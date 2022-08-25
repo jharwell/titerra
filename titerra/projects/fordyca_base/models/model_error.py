@@ -15,7 +15,7 @@
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 
 # Core packages
-import os
+import pathlib
 import copy
 import typing as tp
 
@@ -50,34 +50,40 @@ class Model2DError():
     def generate(self,
                  cmdopts: types.Cmdopts,
                  criteria: bc.IConcreteBatchCriteria) -> tp.List[pd.DataFrame]:
-        dirs = criteria.gen_exp_dirnames(cmdopts)
+        dirs = criteria.gen_exp_names(cmdopts)
         res_df = pd.DataFrame(columns=dirs, index=[0])
+
+        batch_input_root = pathlib.Path(cmdopts['batch_input_root'])
+        batch_output_root = pathlib.Path(cmdopts['batch_output_root'])
+        batch_model_root = pathlib.Path(cmdopts['batch_model_root'])
+        batch_graph_root = pathlib.Path(cmdopts['batch_graph_root'])
+        batch_stat_root = pathlib.Path(cmdopts['batch_stat_root'])
 
         for i, exp in enumerate(dirs):
 
             # Setup cmdopts for intra-experiment model
             cmdopts2 = copy.deepcopy(cmdopts)
-            cmdopts2["exp_input_root"] = os.path.join(
-                cmdopts['batch_input_root'], exp)
-            cmdopts2["exp_output_root"] = os.path.join(
-                cmdopts['batch_output_root'], exp)
-            cmdopts2["exp_graph_root"] = os.path.join(
-                cmdopts['batch_graph_root'], exp)
-            cmdopts2["exp_stat_root"] = os.path.join(
-                cmdopts["batch_stat_root"], exp)
-            cmdopts2["exp_model_root"] = os.path.join(
-                cmdopts['batch_model_root'], exp)
-            utils.dir_create_checked(
-                cmdopts2['exp_model_root'], exist_ok=True)
+
+            cmdopts2["exp0_output_root"] = str(batch_output_root / dirs[0])
+            cmdopts2["exp0_stat_root"] = str(batch_stat_root / dirs[0])
+
+            cmdopts2["exp_input_root"] = str(batch_input_root / exp)
+            cmdopts2["exp_output_root"] = str(batch_output_root / exp)
+            cmdopts2["exp_graph_root"] = str(batch_graph_root / exp)
+            cmdopts2["exp_stat_root"] = str(batch_stat_root / exp)
+            cmdopts2["exp_model_root"] = str(batch_model_root / exp)
+
+            utils.dir_create_checked(cmdopts2['exp_model_root'], exist_ok=True)
 
             # Calculate model prediction heatmap
             model_df = self.model(self.main_config, self.model_config).run(
                 cmdopts2, criteria, i)
 
             # Get data heatmap
-            data_ipath = os.path.join(
-                cmdopts2['exp_stat_root'], self.stddev_fname)
-            data_df = sierra.core.storage.DataFrameReader('storage.csv')(data_ipath)
+            data_ipath = pathlib.Path(cmdopts2['exp_stat_root'],
+                                      self.stddev_fname)
+            reader = storage.DataFrameReader('storage.csv')
+            data_df = reader(data_ipath)
 
             # Compute datapoint
             d1_norm = (model_df - data_df).abs().to_numpy().sum()

@@ -15,38 +15,31 @@
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
 # Core packages
-import os
 import typing as tp
+import pathlib
 
 # 3rd party packages
 import pandas as pd
+from sierra.core.pipeline import stage3
+from sierra.core import storage, config
 
 # Project packages
-from sierra.core.pipeline.stage3 import run_collator
-import sierra.core.storage as storage
 
 
-class ExperimentalRunCSVGatherer(run_collator.ExperimentalRunCSVGatherer):
+class ExperimentalRunCSVGatherer(stage3.run_collator.ExperimentalRunCSVGatherer):
     def gather_csvs_from_run(self,
-                             exp_output_root: str,
-                             run: str) -> tp.Dict[tp.Tuple[str, str], pd.DataFrame]:
-        ret = super().gather_csvs_from_run(exp_output_root, run)
+                             run_output_root: pathlib.Path) -> tp.Dict[tp.Tuple[str, str],
+                                                                       pd.DataFrame]:
+        ret = super().gather_csvs_from_run(run_output_root)
 
-        intra_interference_leaf = self.main_config['sierra']['perf']['intra_interference_csv'].split('.')[
-            0]
-        intra_interference_col = self.main_config['sierra']['perf']['intra_interference_col']
-
-        run_output_root = os.path.join(exp_output_root,
-                                       run,
-                                       self.run_metrics_leaf)
+        perf_config = self.main_config['sierra']['perf']
+        intra_interference_leaf = perf_config['intra_interference_csv'].split('.')[0]
+        intra_interference_col = perf_config['intra_interference_col']
 
         reader = storage.DataFrameReader(self.storage_medium)
-        run_output_root = os.path.join(exp_output_root,
-                                       run,
-                                       self.run_metrics_leaf)
-        interference_df = reader(os.path.join(run_output_root,
-                                              intra_interference_leaf + '.csv'),
-                                 index_col=False)
+        interference_ipath = run_output_root / (intra_interference_leaf +
+                                                config.kStorageExt['csv'])
+        interference_df = reader(interference_ipath, index_col=False)
         key = (intra_interference_leaf, intra_interference_col)
         ret.update({key: interference_df[intra_interference_col]})
         return ret

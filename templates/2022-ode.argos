@@ -6,8 +6,7 @@
   <!-- * General configuration * -->
   <!-- ************************* -->
   <framework>
-    <system threads="0"
-            method="balance_quantity"/>
+    <system threads="1" method="balance_quantity"/>
     <experiment length="10000"
                 ticks_per_second="5"
                 random_seed="123" />
@@ -41,10 +40,15 @@
           output_leaf="__current_date__"
           />
         <strategy>
-          <explore
-              block_strategy="CRW"/>
-          <nest_acq
-              strategy="random_thresh"/>
+          <blocks>
+            <explore
+                strategy="CRW"
+                min_duration="0"/>
+          </blocks>
+          <nest>
+            <acq strategy="random_thresh"/>
+            <exit strategy="wander"/>
+          </nest>
         </strategy>
 
         <sensing_subsystemQ3D>
@@ -52,17 +56,18 @@
           <proximity_sensor fov="-2.61:2.61"
                             delta="0.1" />
 
-          <ground_sensor>
+          <env_sensor>
             <!-- NEST: The nest is a relatively light gray. -->
             <nest range="0.6:0.8"
                   consensus="3"/>
             <!-- BLOCK: Blocks are black. -->
             <block range="-0.05:0.05"
                    consensus="4"/>
-          </ground_sensor>
+          </env_sensor>
         </sensing_subsystemQ3D>
         <actuation_subsystem2D>
-          <force_calculator>
+          <apf_manager>
+            <nav>
             <avoidance_force lookahead="0.5"
                              max="0.08"/>
             <arrival_force slowing_radius="0.2"
@@ -77,11 +82,13 @@
                           max_delta="0.0872"/>
             </wander_force>
             <phototaxis_force max="0.08"/>
-          </force_calculator>
+            </nav>
+          </apf_manager>
 
           <!-- 25 degrees soft_turn_max. -->
           <diff_drive soft_turn_max="0.436"
-                      max_speed="0.1" />
+                      max_linear_speed="0.1"
+                      max_angular_speed="0.8" />
         </actuation_subsystem2D>
       </params>
     </__CONTROLLER__>
@@ -128,6 +135,8 @@
             arena_resolution="0.2"
             dist_type="single_source"
             strict_success="false">
+          <redist_governor redistribute="false" />
+
           <manifest
               n_cube="100"
               n_ramp="0"

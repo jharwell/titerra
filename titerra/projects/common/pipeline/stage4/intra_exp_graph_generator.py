@@ -22,7 +22,7 @@ Classes for generating graphs within a single experiment in a batch.
 import typing as tp
 
 # 3rd party packages
-import sierra.core.pipeline.stage4 as stage4
+from sierra.core.pipeline import stage4
 from sierra.core import types
 
 # Project packages

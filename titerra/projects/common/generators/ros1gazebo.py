@@ -23,7 +23,7 @@ common to all TITAN scenarios which use ROS with real robots.
 import re
 
 # 3rd party packages
-from sierra.core.xml import XMLLuigi
+from sierra.core.experiment import definition
 from sierra.plugins.platform.ros1gazebo.generators.platform_generators import PlatformExpDefGenerator
 from sierra.plugins.platform.ros1gazebo.generators.platform_generators import PlatformExpRunDefUniqueGenerator
 from sierra.core import utils
@@ -48,7 +48,7 @@ class ForagingScenarioGenerator(BaseScenarioGenerator):
     def __init__(self, *args, **kwargs) -> None:
         BaseScenarioGenerator.__init__(self, *args, **kwargs)
 
-    def generate(self) -> XMLLuigi:
+    def generate(self) -> definition.XMLExpDef:
         exp_def = super().generate()
 
         # Generate and apply time definitions for TITAN
@@ -61,7 +61,7 @@ class ExpRunDefUniqueGenerator(PlatformExpRunDefUniqueGenerator):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def generate(self, exp_def: XMLLuigi):
+    def generate(self, exp_def: definition.XMLExpDef):
         super().generate(exp_def)
 
         tiutils.generate_random(exp_def,

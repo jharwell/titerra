@@ -8,24 +8,30 @@
 #SBATCH --mail-user=harwe006@umn.edu
 #SBATCH --output=R-%x.%j.out
 #SBATCH --error=R-%x.%j.err
-#SBATCH -J 2021-ode-3
+#SBATCH -J 2022-ode-1
 
 ################################################################################
 # Setup Simulation Environment                                                 #
 ################################################################################
 # set -x
 
-# Initialize modules
-source /home/gini/shared/swarm/bin/msi-env-setup.sh
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
+    # Initialize modules
+    source /home/gini/shared/swarm/bin/msi-env-setup.sh
+
     export TITERRA_ROOT=$HOME/research/$MSIARCH/titerra
     export FORDYCA_ROOT=$HOME/research/$MSIARCH/fordyca
-    export SIERRA_PROJECT_PATH=$HOME/research/$MSIARCH/titerra
+    export SIERRA_PLUGIN_PATH=$HOME/research/$MSIARCH/titerra
+
+    # Set SIERRA envvars--ONLY on MSI otherwise it doesn't work for
+    # local runs.
+    export SIERRA_ARCH=$MSIARCH
+
 else
     export TITERRA_ROOT=$HOME/git/titerra
     export FORDYCA_ROOT=$HOME/git/fordyca
-    export SIERRA_PROJECT_PATH=$HOME/git/titerra
+    export SIERRA_PLUGIN_PATH=$HOME/git/titerra/titerra/projects
 fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
@@ -35,25 +41,38 @@ export ARGOS_PLUGIN_PATH=$localroot/lib/argos3:$FORDYCA_ROOT/build/lib
 # Setup logging (maybe compiled out and unneeded, but maybe not)
 export LOG4CXX_CONFIGURATION=$FORDYCA_ROOT/log4cxx.xml
 
-# Set SIERRA envvars
-export SIERRA_ARCH=$MSIARCH
 
 # From MSI docs: transfers all of the loaded modules to the compute nodes (not
 # inherited from the master/launch node when using GNU parallel)
-export PARALLEL="--workdir . --env PATH --env LD_LIBRARY_PATH --env
-LOADEDMODULES --env _LMFILES_ --env MODULE_VERSION --env MODULEPATH --env
-MODULEVERSION_STACK --env MODULESHOME --env OMP_DYNAMICS --env
-OMP_MAX_ACTIVE_LEVELS --env OMP_NESTED --env OMP_NUM_THREADS --env
-OMP_SCHEDULE --env OMP_STACKSIZE --env OMP_THREAD_LIMIT --env OMP_WAIT_POLICY
---env ARGOS_PLUGIN_PATH --env LOG4CXX_CONFIGURATION --env SIERRA_ARCH"
+export PARALLEL="--workdir . \
+       --env PATH \
+       --env LD_LIBRARY_PATH \
+       --env LOADEDMODULES \
+       --env _LMFILES_ \
+       --env MODULE_VERSION \
+       --env MODULEPATH \
+       --env MODULEVERSION_STACK \
+       --env MODULESHOME \
+       --env OMP_DYNAMICS \
+       --env OMP_MAX_ACTIVE_LEVELS \
+       --env OMP_NESTED \
+       --env OMP_NUM_THREADS \
+       --env OMP_SCHEDULE \
+       --env OMP_STACKSIZE \
+       --env OMP_THREAD_LIMIT \
+       --env OMP_WAIT_POLICY \
+       --env ARGOS_PLUGIN_PATH \
+       --env LOG4CXX_CONFIGURATION \
+       --env SIERRA_PLUGIN_PATH \
+       --env SIERRA_ARCH"
 
 
 ################################################################################
 # Begin Experiments                                                            #
 ################################################################################
-# set -x
+set -x
 
-OUTPUT_ROOT=$HOME/exp/2021-ode-4
+OUTPUT_ROOT=$HOME/exp/2022-ode-1
 
 TIME_SMALL=exp_setup.T200000
 VD_MIN_SMALL=1p0
@@ -80,24 +99,26 @@ CD_CRITERIA_LARGE=population_constant_density.${CD_LARGE}.${CD_SIZEINC_LARGE}.${
 VD_CRITERIA_LARGE=population_variable_density.${VD_MIN_LARGE}.${VD_MAX_LARGE}.${VD_CARDINALITY_LARGE}
 
 # SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2)
-# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
-# SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2)
+SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
+# SCENARIOS_LIST_CD=(RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
+# SCENARIOS_LIST_VD_LARGE=(RN.256x256x2)
 SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
+# SCENARIOS_LIST_VD_SMALL=(RN.16x16x2 PL.16x16x2)
 
 NSIMS=32
 
 SIERRA_BASE_CMD="sierra-cli \
                   --sierra-root=$OUTPUT_ROOT\
-                  --template-input-file=$TITERRA_ROOT/templates/2021-ode.argos \
-                  --n-sims=$NSIMS\
+                  --template-input-file=$TITERRA_ROOT/templates/2022-ode.argos \
+                  --n-runs=$NSIMS\
                   --controller=d0.CRW\
-                  --project=fordyca\
-                  --pipeline 3 4\
-                  --project-no-yaml-LN\
+                  --project=fordyca_argos\
+                  --pipeline 1 2 3 4\
+                  --project-no-LN --exec-resume\
                   --dist-stats=conf95 \
                   --with-robot-leds\
-                  --log-level=TRACE\
+                  --log-level=DEBUG\
                   --exp-overwrite"
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
@@ -119,9 +140,10 @@ else
     SCENARIOS_VD_LARGE=("${SCENARIOS_LIST_VD_LARGE[@]}")
     TASK="$1"
     SIERRA_CMD="$SIERRA_BASE_CMD \
-                 --hpc-env=hpc.local\
-                 --no-verify-results\
-                 --exp-graphs=inter
+                 --exec-env=hpc.local\
+                 --df-skip-verify\
+                 --exp-graphs=inter \
+                 --models-enable
                  "
 fi
 
@@ -158,36 +180,35 @@ if [ "$TASK" == "large" ] || [ "$TASK" == "exp" ]; then
                     --physics-n-engines=2
     done
 
-    for s in "${SCENARIOS_CD[@]}"
-    do
-        $SIERRA_CMD --scenario=$s \
-                    --batch-criteria ${CD_CRITERIA_LARGE}\
-                    --exp-setup=${TIME_LARGE}\
-                    --physics-n-engines=2
+    # for s in "${SCENARIOS_CD[@]}"
+    # do
+    #     $SIERRA_CMD --scenario=$s \
+    #                 --batch-criteria ${CD_CRITERIA_LARGE}\
+    #                 --exp-setup=${TIME_LARGE}\
+    #                 --physics-n-engines=2
 
-    done
+    # done
 fi
 
 if [ "$TASK" == "comp" ]; then
     STAGE5_CMD="sierra-cli \
-                  --project=fordyca\
+                  --project=fordyca_argos\
                   --pipeline 5\
                   --scenario-comparison\
                   --dist-stats=conf95\
                   --bc-univar\
                   --controller=d0.CRW\
-                  --plot-enumerated-xscale\
                   --plot-large-text\
-                  --log-level=DEBUG\
+                  --log-level=TRACE\
                   --sierra-root=$OUTPUT_ROOT"
 
-    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-    #             --scenarios-list=SS.16x8x2,DS.16x8x2\
-    #             --scenarios-legend="SS","DS"
+    $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
+                --scenarios-list=SS.16x8x2,DS.16x8x2 \
+                --scenarios-legend="SS","DS"
 
-    # $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
-    #             --scenarios-list=RN.8x8x2,PL.8x8x2\
-    #             --scenarios-legend="RN","PL"
+    $STAGE5_CMD --batch-criteria $CD_CRITERIA_SMALL\
+                --scenarios-list=RN.8x8x2,PL.8x8x2\
+                --scenarios-legend="RN","PL"
 
     $STAGE5_CMD --batch-criteria $VD_CRITERIA_SMALL\
                 --scenarios-list=SS.32x16x2,DS.32x16x2\
@@ -209,7 +230,7 @@ if [ "$TASK" == "comp" ]; then
     #             --plot-log-yscale\
     #             --scenarios-legend="RN","PL"
 
-    # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
+    # # $STAGE5_CMD --batch-criteria $VD_CRITERIA_LARGE\
     #             --scenarios-list=SS.256x128x2,DS.256x128x2\
     #             --plot-enumerated-xscale\
     #             --plot-log-yscale\

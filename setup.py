@@ -16,7 +16,6 @@
 
 # Core packages
 import pathlib
-import os
 from setuptools import setup, find_packages
 
 # 3rd party packages
@@ -31,7 +30,7 @@ readme = (here / "docs/src/synopsis.rst").read_text()
 
 # Get version
 ver_ns = {}
-ver_path = os.path.join('titerra', 'version.py')
+ver_path = pathlib.Path('titerra', 'version.py')
 with open(ver_path) as ver_file:
     exec(ver_file.read(), ver_ns)
 
@@ -59,9 +58,8 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Application Frameworks"
     ],
-    packages=['titerra', 'titerra.projects', 'titerra.tools'],
+    packages=find_packages(where="."),
     package_dir={'titerra': 'titerra',
-                 'titerra.projects': 'titerra/projects',
                  'titerra.tools': 'titerra/tools'
                  },
     include_package_data=True,
@@ -69,13 +67,13 @@ setup(
                 ('share/man/man1', ['docs/_build/man/prism-cli.1']),
                 ('share/man/man7', ['docs/_build/man/titerra.7'])],
     install_requires=[
-        "sierra>=1.0"
+        "sierra>=1.2"
 
         "networkx",
         "similaritymeasures",
         "fastdtw",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.9",
     entry_points={
         "console_scripts": [
             "titerra-cli=sierra.main:main",

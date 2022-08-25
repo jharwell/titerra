@@ -24,7 +24,7 @@ import re
 
 # 3rd party packages
 from sierra.core.utils import ArenaExtent
-from sierra.core.xml import XMLLuigi
+from sierra.core.experiment import definition
 from sierra.plugins.platform.argos.generators.platform_generators import PlatformExpDefGenerator
 from sierra.plugins.platform.argos.generators.platform_generators import PlatformExpRunDefUniqueGenerator
 import sierra.core.utils as scutils
@@ -40,7 +40,7 @@ class BaseScenarioGenerator(PlatformExpDefGenerator):
     def __init__(self, *args, **kwargs) -> None:
         PlatformExpDefGenerator.__init__(self, *args, **kwargs)
 
-    def generate_convergence(self, exp_def: XMLLuigi):
+    def generate_convergence(self, exp_def: definition.XMLExpDef):
         """
         Generate XML changes for calculating swarm convergence.
 
@@ -54,7 +54,7 @@ class BaseScenarioGenerator(PlatformExpDefGenerator):
                                 str(self.cmdopts["physics_n_engines"]))
 
     def generate_arena_map(self,
-                           exp_def: XMLLuigi,
+                           exp_def: definition.XMLExpDef,
                            the_arena: arena.RectangularArena) -> None:
         """
         Generate XML changes for the specified arena map configuration.
@@ -65,7 +65,7 @@ class BaseScenarioGenerator(PlatformExpDefGenerator):
         scutils.pickle_modifications(adds, chgs, self.spec.exp_def_fpath)
 
     @staticmethod
-    def generate_block_dist(exp_def: XMLLuigi,
+    def generate_block_dist(exp_def: definition.XMLExpDef,
                             block_dist: block_distribution.BaseDistribution) -> None:
         """
         Generate XML changes for the specified block distribution.
@@ -75,7 +75,7 @@ class BaseScenarioGenerator(PlatformExpDefGenerator):
         """
         scutils.apply_to_expdef(block_dist, exp_def)
 
-    def generate_block_count(self, exp_def: XMLLuigi) -> None:
+    def generate_block_count(self, exp_def: definition.XMLExpDef) -> None:
         """
         Generates XML changes for # blocks in the simulation. If specified on
         the cmdline, that quantity is used (split evenly between ramp and cube
@@ -113,7 +113,7 @@ class ForagingScenarioGenerator(BaseScenarioGenerator):
     def __init__(self, *args, **kwargs) -> None:
         BaseScenarioGenerator.__init__(self, *args, **kwargs)
 
-    def generate(self) -> XMLLuigi:
+    def generate(self) -> definition.XMLExpDef:
         exp_def = super().generate()
 
         # Generate time definitions for TITAN
@@ -310,7 +310,7 @@ class ExpRunDefUniqueGenerator(PlatformExpRunDefUniqueGenerator):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def generate(self, exp_def: XMLLuigi):
+    def generate(self, exp_def: definition.XMLExpDef):
         super().generate(exp_def)
 
         tiutils.generate_random(exp_def,

@@ -22,12 +22,12 @@ for usage documentation.
 # Core packages
 import re
 import typing as tp
-import os
+import pathlib
 
 # 3rd party packages
 import implements
 from sierra.core.variables.base_variable import IBaseVariable
-from sierra.core.xml import XMLTagAddList, XMLTagRmList, XMLTagRm, XMLTagAdd, XMLAttrChangeSet
+from sierra.core.experiment import xml
 from sierra.core import types
 
 # Project packages
@@ -45,7 +45,7 @@ class ConstructionTargetSet():
     def __init__(self,
                  target_specs: types.CLIArgSpec,
                  paradigm: str,
-                 graphml_root: str) -> None:
+                 graphml_root: pathlib.Path) -> None:
         self.target_specs = target_specs
         self.paradigm = paradigm
         self.graphml_root = graphml_root
@@ -67,13 +67,13 @@ class ConstructionTargetSet():
 
             target_id += 1
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Does nothing because all tags/attributes are either deleted or added.
         """
         return []
 
-    def gen_tag_rmlist(self) -> tp.List[XMLTagRmList]:
+    def gen_tag_rmlist(self) -> tp.List[xml.TagRmList]:
         """
         Always remove the ``<construct_targets>`` tag if it exists so we are
         starting from a clean slate each time. Obviously you *must* call this
@@ -81,15 +81,15 @@ class ConstructionTargetSet():
         functions need the full structure definition, we remove it from each.
 
         """
-        return [XMLTagRmList(XMLTagRm(".//loop_functions",
-                                      "./construct_targets"))]
+        return [xml.TagRmList(xml.TagRm(".//loop_functions",
+                                        "./construct_targets"))]
 
-    def gen_tag_addlist(self) -> tp.List[XMLTagAddList]:
+    def gen_tag_addlist(self) -> tp.List[xml.TagAddList]:
         if not self.tag_adds:
-            self.tag_adds = XMLTagAddList(XMLTagAdd('.//loop_functions',
-                                                    'construct_targets',
-                                                    {},
-                                                    False))
+            self.tag_adds = xml.TagAddList(xml.TagAdd('.//loop_functions',
+                                                      'construct_targets',
+                                                      {},
+                                                      False))
             for target in self.targets:
                 self.tag_adds.extend(target.gen_xml())
 
@@ -102,20 +102,20 @@ class ConstructionTargetSet():
 
     def _gen_prism(self, target_id: int, spec: types.CLIArgSpec):
         if spec['composition'] == 'beam1':
-            graphml_path = os.path.join(self.graphml_root,
-                                        ct.Beam1Prism.uuid(target_id) + '.graphml')
+            graphml_path = self.graphml_root / (ct.Beam1Prism.uuid(target_id) +
+                                                '.graphml')
             return ct.Beam1Prism(spec, target_id, self.paradigm, graphml_path)
         elif spec['composition'] == 'beam2':
-            graphml_path = os.path.join(self.graphml_root,
-                                        ct.Beam2Prism.uuid(target_id) + '.graphml')
+            graphml_path = self.graphml_root / (ct.Beam2Prism.uuid(target_id) +
+                                                '.graphml')
             return ct.Beam2Prism(spec, target_id, self.paradigm, graphml_path)
         elif spec['composition'] == 'beam3':
-            graphml_path = os.path.join(self.graphml_root,
-                                        ct.Beam3Prism.uuid(target_id) + '.graphml')
+            graphml_path = self.graphml_root / (ct.Beam3Prism.uuid(target_id) +
+                                                '.graphml')
             return ct.Beam3Prism(spec, target_id, self.paradigm, graphml_path)
         elif spec['composition'] == 'mixed_beam':
-            graphml_path = os.path.join(self.graphml_root,
-                                        ct.MixedBeamPrism.uuid(target_id) + '.graphml')
+            graphml_path = self.graphml_root / (ct.MixedBeamPrism.uuid(target_id) +
+                                                '.graphml')
             return ct.MixedBeamPrism(spec,
                                      target_id,
                                      self.paradigm,
@@ -126,8 +126,8 @@ class ConstructionTargetSet():
 
     def _gen_pyramid(self, target_id: int, spec: types.CLIArgSpec):
         if spec['composition'] == 'beam1':
-            graphml_path = os.path.join(self.graphml_root,
-                                        ct.Beam1Pyramid.uuid(target_id) + '.graphml')
+            graphml_path = self.graphml_root / (ct.Beam1Pyramid.uuid(target_id) +
+                                                '.graphml')
             return ct.Beam1Pyramid(spec, target_id, self.paradigm, graphml_path)
         else:
             raise NotImplementedError(
@@ -135,8 +135,8 @@ class ConstructionTargetSet():
 
     def _gen_ramp(self, target_id: int, spec: types.CLIArgSpec):
         if spec['composition'] == 'ramp+beam1':
-            graphml_path = os.path.join(self.graphml_root,
-                                        ct.Ramp.uuid(target_id) + '.graphml')
+            graphml_path = self.graphml_root / (ct.Ramp.uuid(target_id) +
+                                                '.graphml')
             return ct.Ramp(spec, target_id, self.paradigm, graphml_path)
         else:
             raise NotImplementedError(
@@ -220,7 +220,7 @@ class Parser():
 def factory(specs: tp.List[str],
             orientations: tp.List[str],
             ct_repr: str,
-            graphml_root: str):
+            graphml_root: pathlib.Path):
     """
     Factory to create :class:`ConstructTargetSet` derived classes from the
     cmdline specification.

@@ -7,8 +7,5 @@ sierra:
 ros:
   robots:
     turtlebot3:
-      # pkg: "turtlebot3_gazebo"
-      # model: "turtlebot3"
       prefix: "etb3_"
-      # model_variant: "burger"
       setup_script: "$HOME/setup.bash"

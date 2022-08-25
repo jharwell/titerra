@@ -14,21 +14,20 @@
 #  You should have received a copy of the GNU General Public License along with
 #  SIERRA.  If not, see <http://www.gnu.org/licenses/
 #
-"""Utility classes for generating definitions and ``.csv`` files for
+"""Utility classes for generating definitions and CSV files for
 per-experiment flexibility plots by hooking into the intra-experiment graph
 generation.
 
 """
 
 # Core packages
-import os
+import pathlib
 import copy
 import re
 import typing as tp
 
 # 3rd party packages
 import pandas as pd
-from sierra.core.variables.batch_criteria import BatchCriteria
 from sierra.core.utils import types, storage
 import sierra.core.plugin_manager as pm
 
@@ -38,7 +37,7 @@ import titerra.projects.common.perf_measures.vcs as vcs
 
 class FlexibilityPlotsCSVGenerator:
     """
-    Generates the ``.csv`` definitions for flexibility linegraphs to include
+    Generates the CSV definitions for flexibility linegraphs to include
     with the rest of the intra-experiment graphs for stage 4. Very useful to
     verify the inter-experiment graphs are correct/make sense and that my
     waveform comparison calculations are doing what I think they are.
@@ -73,8 +72,9 @@ class FlexibilityPlotsCSVGenerator:
         assert res is not None, "Unexpected experiment output dir name '{0}'".format(
             self.cmdopts['exp_output_root'])
 
-        stat_root = self.cmdopts['exp_stat_root']
+        stat_root = pathlib.Path(self.cmdopts['exp_stat_root'])
         exp_num = int(res.group()[3:])
+        perf_config = self.main_config['sierra']['perf']
 
         adaptability = vcs.AdaptabilityCS(self.main_config,
                                           self.cmdopts,
@@ -88,31 +88,31 @@ class FlexibilityPlotsCSVGenerator:
         expx_perf = vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                 criteria,
                                                 None,
-                                                self.main_config['sierra']['perf']['intra_perf_csv'],
+                                                perf_config['intra_perf_csv'],
                                                 exp_num)[self.perf_csv_col].values
 
         exp0_var = vcs.DataFrames.expx_var_df(self.cmdopts,
                                               criteria,
                                               None,
-                                              self.main_config['sierra']['perf']['intra_tv_environment_csv'],
+                                              perf_config['intra_tv_environment_csv'],
                                               0)[tv_attr['variance_csv_col']]
 
         expx_var = vcs.DataFrames.expx_var_df(self.cmdopts,
                                               criteria,
                                               None,
-                                              self.main_config['sierra']['perf']['intra_tv_environment_csv'],
+                                              perf_config['intra_tv_environment_csv'],
                                               exp_num)[tv_attr['variance_csv_col']]
 
         expx_perf = vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                 criteria,
                                                 None,
-                                                self.main_config['sierra']['perf']['intra_perf_csv'],
+                                                perf_config['intra_perf_csv'],
                                                 exp_num)[self.perf_csv_col]
 
         exp0_perf = vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                 criteria,
                                                 None,
-                                                self.main_config['sierra']['perf']['intra_perf_csv'],
+                                                perf_config['intra_perf_csv'],
                                                 0)[self.perf_csv_col]
 
         df = pd.DataFrame(
@@ -120,7 +120,7 @@ class FlexibilityPlotsCSVGenerator:
                 'clock': vcs.DataFrames.expx_perf_df(self.cmdopts,
                                                      criteria,
                                                      None,
-                                                     self.main_config['sierra']['perf']['intra_perf_csv'],
+                                                     perf_config['intra_perf_csv'],
                                                      exp_num)['clock'].values,
                 'expx_perf': expx_perf.values,
                 'expx_var': expx_var.values,
@@ -130,14 +130,16 @@ class FlexibilityPlotsCSVGenerator:
                 'ideal_adaptability': adaptability.waveforms_for_example_plots(0, exp_num)[0][:, 1]
             }
         )
-        storage.DataFrameWriter('storage.csv')(df, os.path.join(
-            stat_root, 'flexibility-plots.csv'), index=False)
+        writer = storage.DataFrameWriter('storage.csv')
+        writer(df,
+               stat_root / 'flexibility-plots.csv',
+               index=False)
 
 
 class FlexibilityPlotsDefinitionsGenerator():
-    """
-    Generate plot definitions in a nested list/dictionary format, just as if they had been read
-    from a YAML file.
+    """Generate plot definitions in a nested list/dictionary format, just as if
+    they had been read from a YAML file.
+
     """
 
     def __call__(self) -> tp.List[types.YAMLDict]:

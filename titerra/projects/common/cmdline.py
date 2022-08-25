@@ -227,6 +227,52 @@ class CommonCmdline(cmd.CoreCmdline):
 
         cmdopts.update(updates)
 
+    @staticmethod
+    def cs_methods_doc() -> str:
+        return r"""
+
+        The following methods can be specified. Note that each some methods have
+        a defined normalized domain, and some do not, and that the normalized
+        domain may invert the meaning of lower values=better. If defined, the
+        normalized domain the default for a given measure.
+
+        - ``pcm`` - Partial Curve Mapping(Witowski2012).
+
+          - Intrinsic domain: math: `[0, \infty)`. Lower values indicate greater
+            similarity.
+
+          - Normalized domain: N/A.
+
+        - ``area_between`` - Area between the two curves(Jekel2018).
+
+          - Intrinsic domain::math:`[0, \infty)`. Lower values indicate greater
+            similarity.
+
+          - Normalized domain: N/A.
+
+        - ``frechet`` - Frechet distance(Frechet1906).
+
+          - Intrinsic domain::math:`[0, \infty)`. Lower values indicate greater
+            similarity.
+
+          - Normalized domain: N/A.
+
+        - ``dtw`` - Dynamic Time Warping(Berndt1994).
+
+          - Intrinsic domain::math:`[0, \infty)`. Lower values indicate greater
+            similarity.
+
+          - Normalized domain: [0, 1]. Higher values indicate greater
+            similarity.
+
+        - ``curve_length`` - Arc-length distance along the curve from the origin
+          of(applied - ideal) curve(Andrade-campos2009).
+
+          - Intrinsic domain::math:`[0, \infty)`.
+
+          - Normalized domain: N/A.
+        """
+
 
 class ARGoSCmdline(CommonCmdline):
     """

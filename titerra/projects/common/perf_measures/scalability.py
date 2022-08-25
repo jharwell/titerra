@@ -14,25 +14,26 @@
 #  You should have received a copy of the GNU General Public License along with
 #  TITERRA.  If not, see <http://www.gnu.org/licenses/
 
-r"""
-Measures for swarm scalability in univariate and bivariate batched experiments.
+r"""Measures for swarm scalability in univariate and bivariate batched experiments.
 
-. IMPORTANT:: The calculations performed by classes in this module make the following assumptions:
+. IMPORTANT:: The calculations performed by classes in this module make the
+              following assumptions:
 
-               - Different swarm sizes are used for at least `some` experiments in the batch.
+               - Different swarm sizes are used for at least `some` experiments
+                 in the batch.
 
                - exp0 has $\mathcal{N}=1$
 
-               If these assumptions are violated, the calculations may still have some
-               value/utility, but it will be reduced.
+               If these assumptions are violated, the calculations may still
+               have some value/utility, but it will be reduced.
+
 """
 
 # Core packages
-import os
+import pathlib
 import logging
 import typing as tp
 import math
-import logging
 
 # 3rd party packages
 import pandas as pd
@@ -203,12 +204,12 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
 
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
+                             self.kLeaf + sierra.core.config.kImageExt)
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
-                         output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + sierra.core.config.kImageExt),
-
+                         output_fpath=opath,
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Efficiency (normalized)",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -221,7 +222,7 @@ class SteadyStateNormalizedEfficiencyUnivar(BaseSteadyStateNormalizedEfficiency)
 class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
     r"""
     Calculates the scalability of the swarm configuration across a univariate
-    batched set of experiments within the same scenario from collated ``.csv``
+    batched set of experiments within the same scenario from collated CSV
     data using the Karp-Flatt metric (See
     :class:`BaseSteadyStateParallelFraction`).
 
@@ -287,11 +288,12 @@ class SteadyStateParallelFractionUnivar(BaseSteadyStateParallelFraction):
         pmcommon.univar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True)
 
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
+                             self.kLeaf + sierra.core.config.kImageExt)
         SummaryLineGraph(stats_root=self.cmdopts['batch_stat_collate_root'],
                          input_stem=self.kLeaf,
                          stats=self.cmdopts['dist_stats'],
-                         output_fpath=os.path.join(self.cmdopts["batch_graph_collate_root"],
-                                                   self.kLeaf + sierra.core.config.kImageExt),
+                         output_fpath=opath,
                          model_root=self.cmdopts['batch_model_root'],
                          title="Swarm Parallel Performance Fraction",
                          xlabel=criteria.graph_xlabel(self.cmdopts),
@@ -382,9 +384,9 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, False)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + sierra.core.config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + sierra.core.config.kImageExt)
 
         Heatmap(input_fpath=ipath,
@@ -399,7 +401,7 @@ class SteadyStateNormalizedEfficiencyBivar(BaseSteadyStateNormalizedEfficiency):
 class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
     """
     Calculates the scalability of the swarm configuration across a bivariate
-    batched set of experiments within the same scenario from collated ``.csv``
+    batched set of experiments within the same scenario from collated CSV
     data using the Karp-Flatt metric (See
     :class:`BaseSteadyStateParallelFraction`).
 
@@ -488,9 +490,9 @@ class SteadyStateParallelFractionBivar(BaseSteadyStateParallelFraction):
         pmcommon.bivar_distribution_prepare(
             self.cmdopts, criteria, self.kLeaf, pm_dfs, True, axis)
 
-        ipath = os.path.join(self.cmdopts["batch_stat_collate_root"],
-                             self.kLeaf + sierra.core.config.kStatsExtensions['mean'])
-        opath = os.path.join(self.cmdopts["batch_graph_collate_root"],
+        ipath = pathlib.Path(self.cmdopts["batch_stat_collate_root"],
+                             self.kLeaf + sierra.core.config.kStats['mean'].exts['mean'])
+        opath = pathlib.Path(self.cmdopts["batch_graph_collate_root"],
                              self.kLeaf + sierra.core.config.kImageExt)
 
         Heatmap(input_fpath=ipath,

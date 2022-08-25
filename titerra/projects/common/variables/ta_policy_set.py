@@ -22,11 +22,12 @@
 # Core packages
 import re
 import typing as tp
+import pathlib
 
 # 3rd party packages
 import implements
 from sierra.plugins.platform.argos.variables.population_size import PopulationSize
-from sierra.core.xml import XMLAttrChangeSet, XMLAttrChange
+from sierra.core.experiment import xml
 from sierra.core import types
 
 # Project packages
@@ -52,8 +53,8 @@ class TAPolicySet(bc.UnivarBatchCriteria):
                  'strict_greedy', 'epsilon_greedy', 'UCB1']
 
     def __init__(self, cli_arg: str,
-                 main_config: tp.Dict[str, str],
-                 batch_input_root: str,
+                 main_config: types.YAMLDict,
+                 batch_input_root: pathlib.Path,
                  policies: list,
                  population: tp.Optional[int]) -> None:
         bc.UnivarBatchCriteria.__init__(
@@ -62,7 +63,7 @@ class TAPolicySet(bc.UnivarBatchCriteria):
         self.population = population
         self.attr_changes = []
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         if not self.attr_changes:
             # Swarm size is optional. It can be (1) controlled via this
             # variable, (2) controlled by another variable in a bivariate batch
@@ -74,34 +75,34 @@ class TAPolicySet(bc.UnivarBatchCriteria):
                                            self.batch_input_root,
                                            [self.population]).gen_attr_changelist()[0]
             else:
-                size_chgs = XMLAttrChangeSet()
+                size_chgs = xml.AttrChangeSet()
 
-            self.attr_changes = [XMLAttrChangeSet(XMLAttrChange(".//task_alloc",
-                                                                "policy",
-                                                                "{0}".format(p))) for p in self.policies]
+            self.attr_changes = [xml.AttrChangeSet(xml.AttrChange(".//task_alloc",
+                                                                  "policy",
+                                                                  "{0}".format(p))) for p in self.policies]
 
             for chgset in self.attr_changes:
                 chgset |= size_chgs
 
         return self.attr_changes
 
-    def gen_exp_dirnames(self, cmdopts: types.Cmdopts) -> tp.List[str]:
+    def gen_exp_names(self, cmdopts: types.Cmdopts) -> tp.List[str]:
         changes = self.gen_attr_changelist()
         return ['exp' + str(x) for x in range(0, len(changes))]
 
     def graph_xticks(self,
                      cmdopts: types.Cmdopts,
-                     exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
-        if exp_dirs is not None:
-            dirs = exp_dirs
+                     exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[float]:
+        if exp_names is not None:
+            dirs = exp_names
         else:
-            dirs = self.gen_exp_dirnames(cmdopts)
+            dirs = self.gen_exp_names(cmdopts)
 
         return [float(i) for i in range(1, len(dirs) + 1)]
 
     def graph_xticklabels(self,
                           cmdopts: types.Cmdopts,
-                          exp_dirs: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+                          exp_names: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         return ['Random', 'STOCH-N1', 'MAT-OPT', r'$\epsilon$-greedy', 'UCB1']
 
     def graph_xlabel(self, cmdopts: types.Cmdopts) -> str:

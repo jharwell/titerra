@@ -18,21 +18,20 @@ Utils to support generator extensions for the the TITAN project.
 """
 
 # Core packages
-import os
+import pathlib
 
 # 3rd party packages
-from sierra.core.xml import XMLLuigi
+from sierra.core.experiment import definition, spec
 from sierra.core import types
-from sierra.core.experiment.spec import ExperimentSpec
 from sierra.core import utils as scutils
 
 # Project packages
 from titerra.projects.common.variables import exp_setup
 
 
-def generate_time(exp_def: XMLLuigi,
+def generate_time(exp_def: definition.XMLExpDef,
                   cmdopts: types.Cmdopts,
-                  spec: ExperimentSpec) -> None:
+                  the_spec: spec.ExperimentSpec) -> None:
     """
     Generates XML changes for setting up time in TITAN.
 
@@ -41,11 +40,11 @@ def generate_time(exp_def: XMLLuigi,
     tsetup = exp_setup.factory(cmdopts['exp_setup'])()
 
     _, adds, chgs = scutils.apply_to_expdef(tsetup, exp_def)
-    scutils.pickle_modifications(adds, chgs, spec.exp_def_fpath)
+    scutils.pickle_modifications(adds, chgs, the_spec.exp_def_fpath)
 
 
-def generate_random(exp_def: XMLLuigi,
-                    controller_param_xpath: str,
+def generate_random(exp_def: definition.XMLExpDef,
+                    controller_param_xpath: pathlib.Path,
                     random_seed: int) -> None:
     """
     Generates XML changes for setting up metric collection in TITAN.
@@ -64,26 +63,24 @@ def generate_random(exp_def: XMLLuigi,
                         })
 
 
-def generate_output(exp_def: XMLLuigi,
-                    controller_param_xpath: str,
-                    run_output_path: str):
+def generate_output(exp_def: definition.XMLExpDef,
+                    controller_param_xpath: pathlib.Path,
+                    run_output_path: pathlib.Path):
     """
     Generates XML changes to setup unique output directories for TITAN
     simulations.
     """
-    parent = os.path.abspath(os.path.join(run_output_path, '..'))
-    leaf = os.path.basename(run_output_path)
 
     exp_def.attr_change(f"{controller_param_xpath}/output",
                         "output_leaf",
-                        leaf)
+                        run_output_path.name)
 
     exp_def.attr_change(f"{controller_param_xpath}/output",
                         "output_parent",
-                        parent)
+                        str(run_output_path.parent))
     exp_def.attr_change(".//loop_functions/output",
                         "output_leaf",
-                        leaf)
+                        run_output_path.name)
     exp_def.attr_change(".//loop_functions/output",
                         "output_parent",
-                        parent)
+                        str(run_output_path.parent))

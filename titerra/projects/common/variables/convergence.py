@@ -22,7 +22,7 @@ import typing as tp
 import implements
 from sierra.core.variables.base_variable import IBaseVariable
 from sierra.core.utils import ArenaExtent
-from sierra.core.xml import XMLAttrChange, XMLAttrChangeSet
+from sierra.core.experiment import xml
 
 # Project packages
 from titerra.variables import batch_criteria as bc
@@ -46,7 +46,7 @@ class Convergence():
         self.extents = extents
         self.attr_changes = []  # type: tp.List
 
-    def gen_attr_changelist(self) -> tp.List[XMLAttrChangeSet]:
+    def gen_attr_changelist(self) -> tp.List[xml.AttrChangeSet]:
         """
         Generate list of sets of changes necessary to make to the input file to correctly set up the
         simulation with the specified area size/shape.
