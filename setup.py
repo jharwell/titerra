@@ -45,10 +45,10 @@ setup(
     url="https://github.com/swarm-robotics/titerra",
     author="John Harwell",
     author_email="john.r.harwell@gmail.com",
-    license="GPLv3+",
+    license="MIT",
     platforms=['linux', 'osx'],
     classifiers=[
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "License :: OSI Approved :: MIT",
         "Programming Language :: Python :: 3",
         "Environment :: Console",
         "Operating System :: MacOS :: MacOS X",

@@ -1,23 +1,17 @@
 # Copyright 2021 John Harwell, All rights reserved.
 #
-#  This file is part of SIERRA.
-#
-#  SIERRA is free software: you can redistribute it and/or modify it under the
-#  terms of the GNU General Public License as published by the Free Software
-#  Foundation, either version 3 of the License, or (at your option) any later
-#  version.
-#
-#  SIERRA is distributed in the hope that it will be useful, but WITHOUT ANY
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License along with
-#  SIERRA.  If not, see <http://www.gnu.org/licenses/
+#  SPDX-License-Identifier: MIT
+"""
+Standalone tool for generating Graph Manipulation Targets (GMTs).
 
+So that you don't need to have setup SIERRA or the TITERRA plugin to generate
+stuff.
+"""
 # Core packages
 import argparse
 import logging  # type: ignore
 import pathlib
+import os
 
 # 3rd party packages
 import networkx as nx
@@ -32,6 +26,10 @@ from titerra.projects.prism.variables.orientation import Orientation
 
 
 class GMTGeneratorCmdline():
+    """
+    Holds all command line arguments for the GMT generator.
+    """
+
     def __init__(self) -> None:
 
         self.parser = argparse.ArgumentParser(prog='gmt_generator')
@@ -104,7 +102,7 @@ class PaperFigureGenerator():
         target = ctset.factory(["ct_specs.prism.beam1.1x1x1@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph, stem / "beam1.graphml")
 
@@ -112,7 +110,7 @@ class PaperFigureGenerator():
         target = ctset.factory(["ct_specs.prism.beam2.2x1x1@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph, stem / "beam2.graphml")
 
@@ -120,27 +118,30 @@ class PaperFigureGenerator():
         target = ctset.factory(["ct_specs.prism.beam3.3x1x1@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph, stem / "beam3.graphml")
 
     def _coherent_cube(self, args: argparse.Namespace) -> None:
+        stem = pathlib.Path(args.output_dir)
+
         self.logger.info("Processing coherent cube")
         target = ctset.factory(["ct_specs.prism.beam1.3x3x3@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph,
                              stem / "coherent-cube.graphml")
 
     def _coherent_pyramid(self, args: argparse.Namespace) -> None:
+        stem = pathlib.Path(args.output_dir)
         self.logger.info("Processing coherent pyramid")
 
         target = ctset.factory(["ct_specs.pyramid.beam1.7x7x4@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = target.gen_graph()
         target.write_graphml(graph,
                              stem / "coherent-pyramid.graphml")
@@ -150,7 +151,7 @@ class PaperFigureGenerator():
         target = ctset.factory(["ct_specs.prism.mixed_beam.3x3x3@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = nx.Graph()
 
         # Base layer is all cube blocks
@@ -189,7 +190,7 @@ class PaperFigureGenerator():
         target = ctset.factory(["ct_specs.pyramid.beam1.5x3x4@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = nx.Graph()
         for i in range(1, 4):
             for j in range(1, 2):
@@ -216,7 +217,7 @@ class PaperFigureGenerator():
         target = ctset.factory(["ct_specs.prism.beam1.3x2x2@0,0,0"],
                                ["0"],
                                args.ct_paradigm,
-                               "").targets[0]
+                               pathlib.Path()).targets[0]
         graph = nx.Graph()
         for j in range(0, 2):
             for i in range(0, 2):
