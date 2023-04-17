@@ -13,8 +13,8 @@
 ################################################################################
 # Setup Simulation Environment                                                 #
 ################################################################################
-# set -x
-
+set -x
+set -e
 
 if [ -n "$MSIARCH" ]; then # Running on MSI
     # Initialize modules
@@ -29,9 +29,9 @@ if [ -n "$MSIARCH" ]; then # Running on MSI
     export SIERRA_ARCH=$MSIARCH
 
 else
-    export TITERRA_ROOT=$HOME/git/titerra
-    export FORDYCA_ROOT=$HOME/git/fordyca
-    export SIERRA_PLUGIN_PATH=$HOME/git/titerra/titerra/projects
+    export TITERRA_ROOT=$HOME/git/titan/titerra
+    export FORDYCA_ROOT=$HOME/git/titan/fordyca
+    export SIERRA_PLUGIN_PATH=$HOME/git/titan/titerra/titerra/projects
 fi
 
 # Set ARGoS library search path. Must contain both the ARGoS core libraries path
@@ -72,9 +72,10 @@ export PARALLEL="--workdir . \
 ################################################################################
 set -x
 
-OUTPUT_ROOT=$HOME/exp/2022-ode-1
+OUTPUT_ROOT=$HOME/exp/2022-ode-2
 
 TIME_SMALL=exp_setup.T200000
+# TIME_SMALL=exp_setup.T5000
 VD_MIN_SMALL=1p0
 VD_MAX_SMALL=10p0
 VD_CARDINALITY_SMALL=C10
@@ -98,15 +99,17 @@ CD_SIZEINC_LARGE=I72
 CD_CRITERIA_LARGE=population_constant_density.${CD_LARGE}.${CD_SIZEINC_LARGE}.${CD_CARDINALITY_LARGE}
 VD_CRITERIA_LARGE=population_variable_density.${VD_MIN_LARGE}.${VD_MAX_LARGE}.${VD_CARDINALITY_LARGE}
 
-# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2)
-SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
+# SCENARIOS_LIST_CD=(LermanRN.8x8x2)
+# SCENARIOS_LIST_CD=(SS.16x8x2 DS.16x8x2 RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_CD=(RN.8x8x2 PL.8x8x2)
 # SCENARIOS_LIST_VD_LARGE=(SS.256x128x2 DS.256x128x2 RN.256x256x2 PL.256x256x2)
 # SCENARIOS_LIST_VD_LARGE=(RN.256x256x2)
-SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
+# SCENARIOS_LIST_VD_SMALL=(SS.32x16x2 DS.32x16x2 RN.16x16x2 PL.16x16x2)
 # SCENARIOS_LIST_VD_SMALL=(RN.16x16x2 PL.16x16x2)
+SCENARIOS_LIST_VD_SMALL=(RN.16x16x2)
 
-NSIMS=32
+# NSIMS=32
+NSIMS=4
 
 SIERRA_BASE_CMD="sierra-cli \
                   --sierra-root=$OUTPUT_ROOT\
@@ -114,8 +117,9 @@ SIERRA_BASE_CMD="sierra-cli \
                   --n-runs=$NSIMS\
                   --controller=d0.CRW\
                   --project=fordyca_argos\
-                  --pipeline 1 2 3 4\
-                  --project-no-LN --exec-resume\
+                  --pipeline 1 2 3 4 --exp-range 9:9 \
+                  --project-imagizing --project-rendering\
+                  --project-no-LN \
                   --dist-stats=conf95 \
                   --with-robot-leds\
                   --log-level=DEBUG\
@@ -142,8 +146,7 @@ else
     SIERRA_CMD="$SIERRA_BASE_CMD \
                  --exec-env=hpc.local\
                  --df-skip-verify\
-                 --exp-graphs=inter \
-                 --models-enable
+                 --exp-graphs=inter --exp-graphs=none
                  "
 fi
 

@@ -55,37 +55,38 @@ class BaseDistribution():
         pass
 
 
-class SingleSourceDistribution(BaseDistribution):
+class SingleSource(BaseDistribution):
     def __init__(self) -> None:
         super().__init__("single_source")
 
 
-class DualSourceDistribution(BaseDistribution):
+class DualSource(BaseDistribution):
     def __init__(self) -> None:
         super().__init__("dual_source")
 
 
-class QuadSourceDistribution(BaseDistribution):
+class QuadSource(BaseDistribution):
     def __init__(self) -> None:
         super().__init__("quad_source")
 
 
-class PowerLawDistribution(BaseDistribution):
+class PowerLaw(BaseDistribution):
     def __init__(self, arena_dim: ArenaExtent) -> None:
         super().__init__("powerlaw")
         self.arena_dim = arena_dim
 
     def gen_attr_changelist(self):
-        r"""
-        Generate a list of sets of changes necessary to make to the input file to correctly set up
-        the simulation for the powerlaw block distribution.
+        r"""Generate a list of sets of changes necessary to make to the input file to
+        correctly set up the simulation for the powerlaw block distribution.
 
-        2021/04/12: Update parameters so that you get better distributions at BOTH small and large
-        scales. For the 2021 IJCAI paper, this means that the capacity of all clusters in the arena
-        is 3 times the number of robots in the arena, assuming a constant density of 1% across all
-        arena sizes. The current powerlaw distributor implementation in COSM results in clusters
-        only being able to be filled about halfway, so the effective capacity is actually only ~1.5
-        times the # robots in the arena. See COSM#145,COSM#146.
+        2021/04/12: Update parameters so that you get better distributions at
+        BOTH small and large scales. For the 2021 IJCAI paper, this means that
+        the capacity of all clusters in the arena is 3 times the number of
+        robots in the arena, assuming a constant density of 1% across all arena
+        sizes. The current powerlaw distributor implementation in COSM results
+        in clusters only being able to be filled about halfway, so the effective
+        capacity is actually only ~1.5 times the # robots in the arena. See
+        COSM#145,COSM#146.
 
         Now setting:
 
@@ -116,18 +117,18 @@ class PowerLawDistribution(BaseDistribution):
         return changes
 
 
-class RandomDistribution(BaseDistribution):
+class Random(BaseDistribution):
     def __init__(self) -> None:
         super().__init__("random")
 
 
 __api__ = [
     'BaseDistribution',
-    'SingleSourceDistribution',
-    'DualSourceDistribution',
-    'QuadSourceDistribution',
-    'PowerLawDistribution',
-    'RandomDistribution'
+    'SingleSource',
+    'DualSource',
+    'QuadSource',
+    'PowerLaw',
+    'Random'
 
 
 ]

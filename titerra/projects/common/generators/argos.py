@@ -138,17 +138,18 @@ class ForagingSSGenerator(ForagingScenarioGenerator):
             "SS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                              self.spec.arena_dim.ysize())
 
+        nests_config = {'pos_src': 'dist', 'dist': 'SS'}
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
                                                    y_range=[
                                                    self.spec.arena_dim.ysize()],
                                                    z=self.spec.arena_dim.zsize(),
-                                                   dist_type='SS',
-                                                   gen_nests=True)
+                                                   nests_config=nests_config
+                                                   )
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
         self.generate_block_dist(
-            exp_def, block_distribution.SingleSourceDistribution())
+            exp_def, block_distribution.SingleSource())
 
         return exp_def
 
@@ -175,17 +176,17 @@ class ForagingDSGenerator(ForagingScenarioGenerator):
             "DS distribution requires a 2x1 arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                              self.spec.arena_dim.ysize())
 
+        nests_config = {'pos_src': 'dist', 'dist': 'DS'}
         arena_map = arena.RectangularArenaTwoByOne(x_range=[self.spec.arena_dim.xsize()],
                                                    y_range=[
                                                        self.spec.arena_dim.ysize()],
                                                    z=self.spec.arena_dim.zsize(),
-                                                   dist_type='DS',
-                                                   gen_nests=True)
+                                                   nests_config=nests_config)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
         self.generate_block_dist(
-            exp_def, block_distribution.DualSourceDistribution())
+            exp_def, block_distribution.DualSource())
 
         return exp_def
 
@@ -212,14 +213,14 @@ class ForagingQSGenerator(ForagingScenarioGenerator):
             "QS distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                 self.spec.arena_dim.ysize())
 
+        nests_config = {'pos_src': 'dist', 'dist': 'QS'}
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
-                                      dist_type='QS',
-                                      gen_nests=True)
+                                      nests_config=nests_config)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
-        source = block_distribution.QuadSourceDistribution()
+        source = block_distribution.QuadSource()
         self.generate_block_dist(exp_def, source)
 
         return exp_def
@@ -246,15 +247,49 @@ class ForagingRNGenerator(ForagingScenarioGenerator):
         assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
             "RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                 self.spec.arena_dim.ysize())
+        nests_config = {'pos_src': 'dist', 'dist': 'RN'}
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
-                                      dist_type='RN',
-                                      gen_nests=True)
+                                      nests_config=nests_config)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
         self.generate_block_dist(
-            exp_def, block_distribution.RandomDistribution())
+            exp_def, block_distribution.Random())
+
+        return exp_def
+
+
+class ForagingLermanRNGenerator(ForagingScenarioGenerator):
+    """
+    Generates XML changes for conditions of Lerman et al's ODE model for foraging.
+
+    This includes:
+
+    - Square arena
+    - Random block distribution
+    - One nest in the corner
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        ForagingScenarioGenerator.__init__(self, *args, **kwargs)
+
+    def generate(self):
+        exp_def = super().generate()
+
+        # Generate arena definitions
+        assert self.spec.arena_dim.xsize() == self.spec.arena_dim.ysize(),\
+            "RN distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
+                                                                                self.spec.arena_dim.ysize())
+        nests_config = {'pos_src': 'corner', 'corner': 'UL'}
+        arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
+                                      z=self.spec.arena_dim.zsize(),
+                                      nests_config=nests_config)
+        self.generate_arena_map(exp_def, arena_map)
+
+        # Generate and apply block distribution type definitions
+        self.generate_block_dist(
+            exp_def, block_distribution.Random())
 
         return exp_def
 
@@ -281,15 +316,15 @@ class ForagingPLGenerator(ForagingScenarioGenerator):
             "PL distribution requires a square arena: xdim={0},ydim={1}".format(self.spec.arena_dim.xsize(),
                                                                                 self.spec.arena_dim.ysize())
 
+        nests_config = {'pos_src': 'dist', 'dist': 'PL'}
         arena_map = arena.SquareArena(sqrange=[self.spec.arena_dim.xsize()],
                                       z=self.spec.arena_dim.zsize(),
-                                      dist_type='PL',
-                                      gen_nests=True)
+                                      nests_config=nests_config)
         self.generate_arena_map(exp_def, arena_map)
 
         # Generate and apply block distribution type definitions
         self.generate_block_dist(exp_def,
-                                 block_distribution.PowerLawDistribution(self.spec.arena_dim))
+                                 block_distribution.PowerLaw(self.spec.arena_dim))
 
         return exp_def
 
@@ -311,10 +346,13 @@ class ExpRunDefUniqueGenerator(PlatformExpRunDefUniqueGenerator):
 
 
 def gen_generator_name(scenario_name: str) -> str:
-    res = re.search('[SDQPR][SSSLN]', scenario_name)
-    assert res is not None, "Bad block distribution in {0}".format(
-        scenario_name)
-    abbrev = res.group(0)
+    if res := re.search('LermanRN', scenario_name):
+        abbrev = res.group(0)
+    else:
+        res = re.search('[SDQPR][SSSLN]', scenario_name)
+        assert res is not None, "Bad block distribution in {0}".format(
+            scenario_name)
+        abbrev = res.group(0)
 
     return abbrev + 'Generator'
 

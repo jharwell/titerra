@@ -10,13 +10,13 @@ LN_spatial_interference:
         - int_avg_exited_interference
         - cum_avg_exited_interference
       title: 'Swarm Inter-Robot Interference'
-      legend:
-        - 'Average \# Robots Experiencing Interference (Interval)'
-        - 'Average \# Robots Experiencing Interference (Cumulative)'
-        - 'Average \# Robots Beginning Interference Encounter (Interval)'
-        - 'Average \# Robots Beginning Interference Encounter (Cumulative)'
-        - 'Average \# Robots Ending Interference Encounter (Interval)'
-        - 'Average \# Robots Ending Interference Encounter (Cumulative)'
+      # legend:
+      #   - 'Average \# Robots Experiencing Interference (Interval)'
+      #   - 'Average \# Robots Experiencing Interference (Cumulative)'
+      #   - 'Average \# Robots Beginning Interference Encounter (Interval)'
+      #   - 'Average \# Robots Beginning Interference Encounter (Cumulative)'
+      #   - 'Average \# Robots Ending Interference Encounter (Interval)'
+      #   - 'Average \# Robots Ending Interference Encounter (Cumulative)'
       xlabel: 'Interval'
       ylabel: '\# Robots'
 
@@ -98,9 +98,9 @@ LN_spatial_movement:
         - int_avg_distance_homing
         - cum_avg_distance_homing
       title: 'Average Per-robot Homing distance traveled'
-      legend:
-        - 'Distance (Interval)'
-        - 'Distance (Cumulative)'
+      # legend:
+      #   - 'Distance (Interval)'
+      #   - 'Distance (Cumulative)'
       xlabel: 'Interval'
       ylabel: 'Distance (m)'
 

@@ -21,18 +21,12 @@ class Nest():
     """
     Defines the position/size/etc of the nest based on block distribution type.
 
-    Attributes:
-      dist_type: The block distribution type. Valid values are [single_source, dual_source,
-                                                                quad_source, random, powerlaw].
-      extents: List of arena extents to generation nest poses for.
     """
 
     def __init__(self,
-                 src: str,
-                 arena: tp.Optional[ArenaExtent] = None,
-                 dist_type: tp.Optional[str] = None) -> None:
-        self.dist_type = dist_type
-        self.src = src
+                 config: tp.Dict[str, str],
+                 arena: tp.Optional[ArenaExtent] = None) -> None:
+        self.config = config
         self.arena = arena
         self.tag_adds = []  # type: tp.List
 
@@ -54,29 +48,62 @@ class Nest():
         if self.tag_adds:
             return [self.tag_adds]
 
-        if self.src == 'arena':
+        if self.config['from_src'] == 'arena':
             root = xml.TagAdd(".//arena_map", "nests", {}, False)
-            self.tag_adds = self.gen_adds_from_arena()
+            self.tag_adds = self._gen_adds_from_arena()
             self.tag_adds.prepend(root)
         else:
-            assert False, "Bad source {0}".format(self.src)
+            assert False, "Bad source {0}".format(self.config['from_src'])
 
         return [self.tag_adds]
 
-    def gen_adds_from_arena(self) -> xml.TagAddList:
-        if self.dist_type == 'SS':
+    def _gen_adds_from_arena(self) -> xml.TagAddList:
+        if self.config['pos_src'] == 'dist':
+            return self._gen_adds_from_block_dist()
+        elif self.config['pos_src'] == 'corner':
+            return self._gen_adds_for_corner()
+        else:
+            raise NotImplementedError(("Nest position paradigm must be "
+                                       "'dist' or 'corner'"))
+
+    def _gen_adds_for_corner(self) -> xml.TagAddList:
+        """
+        Generate XML to put the nest in one of the arena corners.
+        """
+        if self.config['corner'] == 'UL':
             attr = {
-                "dims": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.1,
-                                                  self.arena.ur.y * 0.8),
+                "dims": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.2,
+                                                  self.arena.ur.y * 0.2),
                 "center": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.1,
-                                                    self.arena.ur.y / 2.0)
+                                                    self.arena.ur.y -
+                                                    self.arena.ur.y * 0.1),
             }
             return xml.TagAddList(
                 xml.TagAdd(".//arena_map/nests", "nest", attr, False),
                 xml.TagAdd(".//params", "nest", attr, False)
             )
 
-        if self.dist_type == 'DS':
+        # Eventually, I might want to have definitions for the other corners
+        raise NotImplementedError
+
+    def _gen_adds_from_block_dist(self) -> xml.TagAddList:
+        """
+        Generate XML for the nest location, size based on the block distribution.
+        """
+        if self.config['dist'] == 'SS':
+            attr = {
+                "dims": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.2,
+                                                  self.arena.ur.y * 0.2),
+                "center": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.5,
+                                                    self.arena.ur.y * 0.5),
+            }
+
+            return xml.TagAddList(
+                xml.TagAdd(".//arena_map/nests", "nest", attr, False),
+                xml.TagAdd(".//params", "nest", attr, False)
+            )
+
+        if self.config['dist'] == 'DS':
             attr = {
                 "dims": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.1,
                                                   self.arena.ur.y * 0.8),
@@ -87,7 +114,10 @@ class Nest():
                 xml.TagAdd(".//arena_map/nests", "nest", attr, False),
                 xml.TagAdd(".//params", "nest", attr, False)
             )
-        if (self.dist_type == 'PL' or self.dist_type == 'RN' or self.dist_type == 'QS'):
+
+        if (self.config['dist'] == 'PL' or
+            self.config['dist'] == 'RN' or
+                self.config['dist'] == 'QS'):
             attr = {
                 "dims": "{0:.9f}, {1:.9f}".format(self.arena.ur.x * 0.2,
                                                   self.arena.ur.y * 0.2),

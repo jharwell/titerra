@@ -50,8 +50,7 @@
             <exit strategy="wander"/>
           </nest>
         </strategy>
-
-        <sensing_subsystemQ3D>
+        <sensing_subsystem>
           <!-- -5pi/6 : 5pi/6 -->
           <proximity_sensor fov="-2.61:2.61"
                             delta="0.1" />
@@ -64,8 +63,8 @@
             <block range="-0.05:0.05"
                    consensus="4"/>
           </env_sensor>
-        </sensing_subsystemQ3D>
-        <actuation_subsystem2D>
+        </sensing_subsystem>
+        <actuation_subsystem>
           <apf_manager>
             <nav>
             <avoidance_force lookahead="0.5"
@@ -89,7 +88,7 @@
           <diff_drive soft_turn_max="0.436"
                       max_linear_speed="0.1"
                       max_angular_speed="0.8" />
-        </actuation_subsystem2D>
+        </actuation_subsystem>
       </params>
     </__CONTROLLER__>
 
@@ -113,8 +112,14 @@
             block_transporter="block-transporter"
             block_transportee="block-transportee"
             block_clusters="block-clusters"
-            spatial_movement='spatial-movement'
             block_manipulation="block-manipulation"/>
+        <create
+            output_interval="10"
+            spatial_interference_locs2D='spatial-interference-locs2D'
+            spatial_dist_pos2D='spatial-dist-pos2D'
+            block_acq_locs2D='block-acq-locs2D'
+            block_acq_explore_locs2D='block-acq-explore-locs2D'
+          />
           </file>
           </sinks>
       </metrics>
@@ -135,7 +140,9 @@
             arena_resolution="0.2"
             dist_type="single_source"
             strict_success="false">
-          <redist_governor redistribute="false" />
+          <redist_governor redistribute="true"
+                           disable_trigger="none"
+                           recurrence_policy="multi"/>
 
           <manifest
               n_cube="100"

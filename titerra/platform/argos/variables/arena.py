@@ -21,13 +21,13 @@ from titerra.platform.argos.variables.nest import Nest
 class RectangularArena():
     """Maps a list of desired arena dimensions to a list of sets of XML changes to
     set up the arena for the TITARRA project. This includes setup for the
-    following C++ TITARRA components:
+    following C++ TITERRA components:
 
     - cpp:class:`~cosm::arena::base_arena_map` class and its derived classes.
 
     - cpp:class:`~cosm::repr::nest`.
 
-    - cpp:class:`~cosm::subsystem::perception::base_perception_subsystems` and
+    - cpp:class:`~cosm::subsystem::perception::base_perception_subsystem` and
       its derived classes.
 
     - cpp:class:`~cosm::convergence::convergence_calculator`.
@@ -36,27 +36,27 @@ class RectangularArena():
     own. Instead, derived classes defined in this file should be used instead.
 
     Attributes:
-        extent_spec: Dictionary mapping arena extents to a list of nests which
-                     should appear in the arena.
 
-        attr_changes: List of sets of XML changes to apply to a template input
-                      file. 
+        extents: List of arena extents.
+
+        gen_nests: Should a nest/nests be generated for each extent?
+
+        dist_type: The block distribution for all extents. Only used if nests
+                   are generated.
 
     """
 
     def __init__(self,
                  extents: tp.List[ArenaExtent],
-                 gen_nests: bool,
-                 dist_type: str) -> None:
-        self.dist_type = dist_type
+                 nests_config: dict[str, str]) -> None:
+        self.nests_config = nests_config
         self.shapes = ArenaShape(extents)
         self.extents = extents
-        self.gen_nests = gen_nests
 
-        if self.gen_nests:
-            self.nests = {arena: Nest(dist_type=self.dist_type,
-                                      src='arena',
-                                      arena=arena) for arena in self.extents}
+        if self.nests_config:
+            self.nests_config.update({'from_src': 'arena'})
+            self.nests = {arena: Nest(config=self.nests_config, arena=arena)
+                          for arena in self.extents}
         else:
             self.nests = {}
 
@@ -123,11 +123,10 @@ class RectangularArenaTwoByOne(RectangularArena):
                  x_range: tp.List[float],
                  y_range: tp.List[float],
                  z: float,
-                 dist_type: str,
-                 gen_nests: bool) -> None:
+                 nests_config: tp.Dict[str, str]
+                 ) -> None:
         super().__init__([ArenaExtent(Vector3D(x, y, z)) for x in x_range for y in y_range],
-                         dist_type=dist_type,
-                         gen_nests=gen_nests)
+                         nests_config=nests_config)
 
 
 class SquareArena(RectangularArena):
@@ -139,11 +138,10 @@ class SquareArena(RectangularArena):
     def __init__(self,
                  sqrange: tp.List[float],
                  z: float,
-                 dist_type: str,
-                 gen_nests: bool) -> None:
+                 nests_config: tp.Dict[str, str]
+                 ) -> None:
         super().__init__([ArenaExtent(Vector3D(x, x, z)) for x in sqrange],
-                         dist_type=dist_type,
-                         gen_nests=gen_nests)
+                         nests_config=nests_config)
 
 
 __api__ = [

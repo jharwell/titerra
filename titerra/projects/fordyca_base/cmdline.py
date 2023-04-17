@@ -12,7 +12,7 @@ import typing as tp
 import argparse
 
 # 3rd party packages
-from sierra.core import types, ros11
+from sierra.core import types, ros1
 
 # Project packages
 from titerra.projects.common import cmdline

@@ -16,8 +16,7 @@ from titerra.projects.fordyca_argos.variables import dynamic_cache, static_cache
 
 class SSGenerator(tiargos.ForagingSSGenerator):
     """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~common.generators.scenario_generator.SSGenerator`.
+    FORDYCA extensions to the ARGoS single source foraging generator.
 
     This includes:
 
@@ -51,8 +50,7 @@ class SSGenerator(tiargos.ForagingSSGenerator):
 
 class DSGenerator(tiargos.ForagingDSGenerator):
     """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~common.generators.single_source.DSGenerator`.
+    FORDYCA extensions to the ARGoS dual source foraging generator.
 
     This includes:
 
@@ -86,8 +84,7 @@ class DSGenerator(tiargos.ForagingDSGenerator):
 
 class QSGenerator(tiargos.ForagingQSGenerator):
     """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~common.generators.scenario_generator.QSGenerator`.
+    FORDYCA extensions to the ARGoS quad source foraging generator.
 
     This includes:
 
@@ -121,8 +118,7 @@ class QSGenerator(tiargos.ForagingQSGenerator):
 
 class RNGenerator(tiargos.ForagingRNGenerator):
     """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~common.generators.scenario_generator.RNGenerator`.
+    FORDYCA extensions to the ARGoS random foraging generator.
 
     This includes:
 
@@ -154,10 +150,34 @@ class RNGenerator(tiargos.ForagingRNGenerator):
         return exp_def
 
 
+class LermanRNGenerator(tiargos.ForagingLermanRNGenerator):
+    """
+    FORDYCA extensions to the ARGoS single source foraging generator for Lerman
+    et al.
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        tiargos.ForagingLermanRNGenerator.__init__(self, *args, **kwargs)
+
+    def generate(self):
+
+        exp_def = super().generate()
+
+        # Generate physics engine definitions. Cannot be in common, because not
+        # shared between FORDYCA and PRISM
+        self.generate_physics(exp_def,
+                              self.cmdopts,
+                              self.cmdopts['physics_engine_type2D'],
+                              self.cmdopts['physics_n_engines'],
+                              [self.spec.arena_dim])
+
+        return exp_def
+
+
 class PLGenerator(tiargos.ForagingPLGenerator):
     """
-    FORDYCA extensions to the single source foraging generator
-    :class:`~common.generators.scenario_generator.PLGenerator`.
+    FORDYCA extensions to the ARGoS power law foraging generator.
 
     This includes:
 
