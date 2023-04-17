@@ -95,6 +95,9 @@ class PaperFigureGenerator():
         # Incoherent graphs
         self._incoherent_cube_overhangs(args)
 
+        # Complex example to show off the model
+        self._levee(args)
+
     def _blocks(self, args: argparse.Namespace) -> None:
         stem = pathlib.Path(args.output_dir)
 
@@ -243,6 +246,65 @@ class PaperFigureGenerator():
         stem = pathlib.Path(args.output_dir)
         target.write_graphml(graph,
                              stem / "incoherent-cube-overhangs.graphml")
+
+    def _levee(self, args: argparse.Namespace) -> None:
+        self.logger.info("Processing levee example")
+        XMAX = 20
+        YMAX = 60
+        ZMAX = 50
+        target = ctset.factory([f"ct_specs.prism.beam1.{XMAX}x{YMAX}x{ZMAX}@0,0,0"],
+                               ["0"],
+                               args.ct_paradigm,
+                               pathlib.Path()).targets[0]
+        graph = nx.Graph()
+
+        # First, generate bricklaying at Z=0 for all X,Y
+        for j in range(0, YMAX):
+            i = 0
+            while i < XMAX:
+                if (i == 0 and j % 2 == 0) or (i == XMAX-1 and j % 2 == 0):
+                    target.graph_block_add(graph,
+                                           'beam1',
+                                           Vector3D(i, j, 0),
+                                           Orientation("0"))
+                else:
+                    target.graph_block_add(graph,
+                                           'beam2',
+                                           Vector3D(i, j, 0),
+                                           Orientation("0"))
+                    i += 1
+                i += 1
+
+        # HORRIBLE HORRIBLE HORRIBLE unintelligible loop to try and generate a
+        # curved levee wall. Doesn't work, but DOES generate something
+        # no-trivial, which should be enough.
+        for k in range(1, ZMAX):
+            for i in range(0, XMAX):
+                if i < int(XMAX/3):
+                    for j in range(int(i / 2), 10 - (k + 2) + int(i/2)):
+                        target.graph_block_add(graph,
+                                               'beam3',
+                                               Vector3D(
+                                                   i, 10 + (j) * 3 + (k - 2), k),
+                                               Orientation("PI/2"))
+                elif i > int(XMAX / 3) and i <= int(2*XMAX/3):
+                    for j in range(int(i / 2), 10 - (k + 2) + int(i/2)):
+                        target.graph_block_add(graph,
+                                               'beam2',
+                                               Vector3D(
+                                                   i, 8 + (j) * 3 + (k - 2), k),
+                                               Orientation("PI/2"))
+                else:
+                    for j in range(int(i / 2), 10 - (k + 2) + int(i/2)):
+                        target.graph_block_add(graph,
+                                               'beam3',
+                                               Vector3D(
+                                                   i, 10 + (j) * 2 + (k - 2), k),
+                                               Orientation("PI/2"))
+
+        stem = pathlib.Path(args.output_dir)
+        target.write_graphml(graph,
+                             stem / "levee.graphml")
 
 
 def main() -> None:

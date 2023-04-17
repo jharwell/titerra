@@ -366,16 +366,16 @@ class BaseConstructTarget():
             return coords
 
         if z_rot.is_N():
-            for y in range(anchor.y, anchor.y + size):
+            for y in range(size):
                 coords.append(anchor + Vector3D(0, 1, 0) * y)
         elif z_rot.is_S():
-            for y in range(anchor.y, anchor.y - size, -1):
+            for y in range(size, -1):
                 coords.append(anchor - Vector3D(0, 1, 0) * y)
         elif z_rot.is_E():
-            for x in range(anchor.x, anchor.x + size):
+            for x in range(size):
                 coords.append(anchor + Vector3D(1, 0, 0) * x)
         elif z_rot.is_W():
-            for x in range(anchor.x, anchor.x - size, -1):
+            for x in range(size, -1):
                 coords.append(anchor - Vector3D(1, 0, 0) * x)
 
         return coords

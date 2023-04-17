@@ -88,7 +88,7 @@ class GMTVisualizer():
         sierra.core.logging.initialize('INFO')
         self.logger = logging.getLogger(__name__)
 
-        self.graph_type = pathlib.Path(args.input_file).name
+        self.graph_type = pathlib.Path(args.input_file).stem
         self.graph = nx.read_graphml(args.input_file,
                                      node_type=int)
 
@@ -143,6 +143,7 @@ class GMTVisualizer():
                     bbox_inches='tight',
                     dpi=sierra.core.config.kGraphDPI,
                     pad_inches=0)
+
         # Prevent memory accumulation (fig.clf() does not close everything)
         plt.close(fig)
 
@@ -231,9 +232,9 @@ class VolumetricPlotGenerator():
                          ct_extent.ll,
                          ct_extent.ur)
 
-        # self._plot_as_voxels(ax, ct_extent, items)
+        self._plot_as_voxels(ax, ct_extent, items)
 
-        self._plot_as_matrix(ax, ct_extent, items)
+        # self._plot_as_matrix(ax, ct_extent, items)
 
         return ax
 
@@ -244,6 +245,7 @@ class VolumetricPlotGenerator():
         voxelarray = np.zeros((ct_extent.ur.x - ct_extent.ll.x,
                                ct_extent.ur.y - ct_extent.ll.y,
                                ct_extent.ur.z - ct_extent.ll.z))
+
         dims = list(voxelarray.shape)
         dims.append(4)
         colors = np.empty(tuple(dims), dtype=object)
@@ -251,14 +253,12 @@ class VolumetricPlotGenerator():
         for vd, coord in items:
             rgba = VolumetricPlotGenerator._color_to_rgba(self.graph.nodes[vd][gmt_spec.kVertexColorKey],
                                                           0)
-
             voxelarray[coord.x][coord.y][coord.z] = 1
             colors[coord.x, coord.y, coord.z] = rgba
 
             # Set block extent voxels and colors
             block_extent = BaseConstructTarget.calc_block_extent_from_vd(self.graph,
                                                                          vd)
-
             # Index 0 is the anchor
             for e in block_extent[1:]:
                 percentile = block_extent.index(e) / float(len(block_extent))
@@ -303,7 +303,6 @@ class VolumetricPlotGenerator():
 
                     if any(c is None for c in rgba):
                         continue
-
                     # Plotting N cube elements at position pos
                     X, Y, Z = VolumetricPlotGenerator._cuboid_data((xi, yi, zi))
                     ax.plot_surface(X,
